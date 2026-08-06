@@ -5,17 +5,15 @@ import { useRouter } from "next/navigation";
 import {
   AlertTriangle, CheckCircle2, Circle, Calculator, FileText,
   ClipboardList, Copy, Download, ChevronRight, Scale, Info,
-  AlertCircle, User, Heart, Shield, LogOut
+  AlertCircle, User, Heart, Shield, LogOut, Lock
 } from "lucide-react";
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer';
 
-// ⚠️ ATENÇÃO AO CAMINHO DO SUPABASE:
-// Se o seu arquivo estiver na pasta 'lib', deixe como está. 
-// Se estiver na pasta 'app', mude para: import { supabase } from "./supabase";
-import { supabase } from "../login/supabase";
+// ⚠️ CAMINHO DO SUPABASE (Mantenha o que estava funcionando no seu projeto)
+import { supabase } from "../login/supabase"; 
 
 // =========================================================================
-// 1. ESTILOS DO PDF (Formatação Forense Profissional)
+// 1. ESTILOS DO PDF
 // =========================================================================
 const pdfStyles = StyleSheet.create({
   page: { padding: 50, fontFamily: 'Times-Roman', fontSize: 12, lineHeight: 1.5 },
@@ -78,7 +76,7 @@ const PeticaoPDF = ({ dados }: { dados: any }) => (
 );
 
 // =========================================================================
-// 2. CONSTANTES E ARGUMENTOS JURÍDICOS UNIVERSAIS
+// 2. CONSTANTES E ARGUMENTOS
 // =========================================================================
 const INK = "#1E2A3A";
 const INK_SOFT = "#3D4C5E";
@@ -88,6 +86,7 @@ const SEAL = "#8A6D3B";
 const AMBER_BG = "#FBF1DD";
 const AMBER_BORDER = "#D8B368";
 const LIMITE_JEC = 28240.00;
+const MAX_PETICOES = 3; // LIMITE DE GERAÇÕES POR USUÁRIO
 
 const PROVAS = [
   { id: "autoexclusao", texto: "Print do registro de Autoexclusão Centralizada (Gov.br/SPA) com data e motivo visíveis" },
@@ -100,79 +99,46 @@ const PROVAS = [
   { id: "cnpj", texto: "CNPJ da operadora (Casa dos Dados / Receita Federal)" },
 ];
 
-// ARGUMENTOS UNIVERSAIS (Sempre incluídos)
 const ARGUMENTOS_UNIVERSAIS = [
   {
-    id: "univ_sigap",
-    label: "Dever de Consulta ao SIGAP (IN 31/2025)",
-    texto: () =>
-      `A parte Autora realizou Autoexclusão Centralizada no âmbito do sistema oficial da Secretaria de Prêmios e Apostas do Ministério da Fazenda (SPA/MF).\n\n` +
-      `Nos termos da IN SPA/MF nº 31/2025 (arts. 2º e 3º), é dever obrigatório do operador consultar o SIGAP previamente à autorização de acesso, cadastro ou realização de operações.\n\n` +
-      `A parte Ré, ao aceitar depósitos após a formalização da autoexclusão, descumpriu obrigação regulatória vinculante, configurando falha grave na prestação do serviço (art. 14, CDC).`,
+    id: "univ_sigap", label: "Dever de Consulta ao SIGAP (IN 31/2025)",
+    texto: () => `A parte Autora realizou Autoexclusão Centralizada no âmbito do sistema oficial da Secretaria de Prêmios e Apostas do Ministério da Fazenda (SPA/MF).\n\nNos termos da IN SPA/MF nº 31/2025 (arts. 2º e 3º), é dever obrigatório do operador consultar o SIGAP previamente à autorização de acesso, cadastro ou realização de operações.\n\nA parte Ré, ao aceitar depósitos após a formalização da autoexclusão, descumpriu obrigação regulatória vinculante, configurando falha grave na prestação do serviço (art. 14, CDC).`,
   },
   {
-    id: "univ_prazo_30_dias",
-    label: "Prazo de 30 dias para Integração (IN 31/2025, art. 15)",
-    texto: () =>
-      `A Requerida tenta utilizar o prazo de 90 dias da Portaria SPA/MF nº 2.579/2025 como excludente de responsabilidade. Contudo, a IN SPA/MF nº 31/2025 (art. 15) estabeleceu o prazo de 30 dias para integração ao sistema de impedidos.\n\n` +
-      `O prazo de 90 dias refere-se exclusivamente à adaptação cadastral e tecnológica, não suspendendo o dever material de bloqueio, conforme esclarecido pela própria SPA/MF (Nota Informativa SEI nº 1864/2026/MF).`,
+    id: "univ_prazo_30_dias", label: "Prazo de 30 dias para Integração (IN 31/2025, art. 15)",
+    texto: () => `A Requerida tenta utilizar o prazo de 90 dias da Portaria SPA/MF nº 2.579/2025 como excludente de responsabilidade. Contudo, a IN SPA/MF nº 31/2025 (art. 15) estabeleceu o prazo de 30 dias para integração ao sistema de impedidos.\n\nO prazo de 90 dias refere-se exclusivamente à adaptação cadastral e tecnológica, não suspendendo o dever material de bloqueio, conforme esclarecido pela própria SPA/MF (Nota Informativa SEI nº 1864/2026/MF).`,
   },
   {
-    id: "univ_cdc_cc",
-    label: "Distinção: Art. 814 CC (Dívida de Jogo) vs. Art. 42 CDC (Repetição de Indébito)",
-    texto: () =>
-      `A lide não versa sobre cobrança de dívida de jogo (art. 814 do Código Civil), mas sobre repetição de indébito por violação de obrigação regulatória (art. 42, parágrafo único, do CDC).\n\n` +
-      `O cerne da demanda é a falha no bloqueio da conta após autoexclusão centralizada, não o resultado de apostas. A aplicação do art. 814 do CC ao caso é indevida.`,
+    id: "univ_cdc_cc", label: "Distinção: Art. 814 CC (Dívida de Jogo) vs. Art. 42 CDC (Repetição de Indébito)",
+    texto: () => `A lide não versa sobre cobrança de dívida de jogo (art. 814 do Código Civil), mas sobre repetição de indébito por violação de obrigação regulatória (art. 42, parágrafo único, do CDC).\n\nO cerne da demanda é a falha no bloqueio da conta após autoexclusão centralizada, não o resultado de apostas. A aplicação do art. 814 do CC ao caso é indevida.`,
   },
   {
-    id: "univ_responsabilidade",
-    label: "Responsabilidade Objetiva e Fortuito Interno (Súmula 479 STJ)",
-    texto: () =>
-      `Nos termos do art. 14 do CDC, a responsabilidade da fornecedora é objetiva, independendo de dolo ou culpa.\n\n` +
-      `Eventuais falhas operacionais, inconsistências sistêmicas ou problemas internos de integração configuram fortuito interno, risco da atividade (Súmula 479 do STJ).`,
+    id: "univ_responsabilidade", label: "Responsabilidade Objetiva e Fortuito Interno (Súmula 479 STJ)",
+    texto: () => `Nos termos do art. 14 do CDC, a responsabilidade da fornecedora é objetiva, independendo de dolo ou culpa.\n\nEventuais falhas operacionais, inconsistências sistêmicas ou problemas internos de integração configuram fortuito interno, risco da atividade (Súmula 479 do STJ).`,
   },
   {
-    id: "univ_laudo",
-    label: "Desnecessidade de Laudo Médico para Autoexclusão",
-    texto: () =>
-      `A regulamentação da autoexclusão centralizada não exige laudo médico, interdição judicial ou comprovação de incapacidade civil para gerar o dever de bloqueio.\n\n` +
-      `O dever nasce da própria formalização da autoexclusão no sistema oficial da SPA/MF. A tentativa de condicionar a proteção à demonstração de incapacidade formal não encontra respaldo normativo.`,
+    id: "univ_laudo", label: "Desnecessidade de Laudo Médico para Autoexclusão",
+    texto: () => `A regulamentação da autoexclusão centralizada não exige laudo médico, interdição judicial ou comprovação de incapacidade civil para gerar o dever de bloqueio.\n\nO dever nasce da própria formalização da autoexclusão no sistema oficial da SPA/MF. A tentativa de condicionar a proteção à demonstração de incapacidade formal não encontra respaldo normativo.`,
   },
   {
-    id: "univ_bloqueio_72h",
-    label: "Dever de Bloqueio em 72 Horas (Art. 7º da Portaria 2.579/2025)",
-    texto: () =>
-      `O art. 7º da Portaria SPA/MF nº 2.579/2025 estabelece que, identificado o status 'Impedido - Autoexclusão Centralizada' no SIGAP, o operador deve imediatamente impedir novas apostas e encerrar a conta no prazo máximo de 3 (três) dias.\n\n` +
-      `A falha no bloqueio dentro deste prazo configura defeito na prestação do serviço (art. 14, §1º, II, CDC).`,
+    id: "univ_bloqueio_72h", label: "Dever de Bloqueio em 72 Horas (Art. 7º da Portaria 2.579/2025)",
+    texto: () => `O art. 7º da Portaria SPA/MF nº 2.579/2025 estabelece que, identificado o status 'Impedido - Autoexclusão Centralizada' no SIGAP, o operador deve imediatamente impedir novas apostas e encerrar a conta no prazo máximo de 3 (três) dias.\n\nA falha no bloqueio dentro deste prazo configura defeito na prestação do serviço (art. 14, §1º, II, CDC).`,
   },
 ];
 
-// ARGUMENTO ESPECÍFICO DE LUDOPATIA
 const ARGUMENTO_LUDOPATIA = {
-  id: "ludo_vulnerabilidade",
-  label: "Consumidor Hipervulnerável e Frustração de Política Pública",
-  texto: () =>
-    `A parte Autora realizou a autoexclusão motivada por "perda de controle sobre o jogo (saúde mental)", conforme registro oficial.\n\n` +
-    `Conforme dados oficiais da SPA/MF (Nota Informativa SEI nº 1864/2026/MF), a Plataforma Centralizada de Autoexclusão já contabiliza mais de 925 mil solicitações, sendo que aproximadamente 67% correspondem a pedidos por prazo indeterminado, com a principal motivação concentrando-se em "perda de controle sobre o jogo".\n\n` +
-    `A Requerida, ao frustrar esse mecanismo estatal de proteção, comprometeu a confiança legítima depositada pelo consumidor em sistema oficial destinado à proteção de sua integridade psíquica, configurando dano moral qualificado.`,
+  id: "ludo_vulnerabilidade", label: "Consumidor Hipervulnerável e Frustração de Política Pública",
+  texto: () => `A parte Autora realizou a autoexclusão motivada por "perda de controle sobre o jogo (saúde mental)", conforme registro oficial.\n\nConforme dados oficiais da SPA/MF (Nota Informativa SEI nº 1864/2026/MF), a Plataforma Centralizada de Autoexclusão já contabiliza mais de 925 mil solicitações, sendo que aproximadamente 67% correspondem a pedidos por prazo indeterminado, com a principal motivação concentrando-se em "perda de controle sobre o jogo".\n\nA Requerida, ao frustrar esse mecanismo estatal de proteção, comprometeu a confiança legítima depositada pelo consumidor em sistema oficial destinado à proteção de sua integridade psíquica, configurando dano moral qualificado.`,
 };
 
-// ARGUMENTOS CONDICIONAIS
 const ARGUMENTOS_CONDICIONAIS = [
   {
-    id: "cond_email",
-    label: "Tenho E-mail de Bloqueio + Depósito posterior (Contradição Temporal)",
-    texto: (dataFato?: string, horaFato?: string) =>
-      `Consta dos autos que, em ${dataFato || "[DATA]"}, a Requerida encaminhou comunicação formal informando que a conta havia sido "imediatamente e definitivamente bloqueada".\n\n` +
-      `Todavia, no mesmo dia, às ${horaFato || "[HORA]"}, o sistema da própria Requerida aceitou novo depósito.\n\n` +
-      `A sequência temporal evidencia que o bloqueio alegado não foi efetivamente implementado, configurando contradição documental que afasta qualquer alegação de boa-fé.`,
+    id: "cond_email", label: "Tenho E-mail de Bloqueio + Depósito posterior (Contradição Temporal)",
+    texto: (dataFato?: string, horaFato?: string) => `Consta dos autos que, em ${dataFato || "[DATA]"}, a Requerida encaminhou comunicação formal informando que a conta havia sido "imediatamente e definitivamente bloqueada".\n\nTodavia, no mesmo dia, às ${horaFato || "[HORA]"}, o sistema da própria Requerida aceitou novo depósito.\n\nA sequência temporal evidencia que o bloqueio alegado não foi efetivamente implementado, configurando contradição documental que afasta qualquer alegação de boa-fé.`,
   },
   {
-    id: "cond_devolucao",
-    label: "A empresa devolveu parte do valor (Confissão Implícita)",
-    texto: () =>
-      `A Requerida procedeu à devolução parcial do valor, o que demonstra reconhecimento implícito da irregularidade operacional.\n\n` +
-      `Contudo, de forma contraditória, limitou-se a restituir apenas parcela, mantendo a retenção do montante principal, configurando enriquecimento sem causa (art. 884, CC).`,
+    id: "cond_devolucao", label: "A empresa devolveu parte do valor (Confissão Implícita)",
+    texto: () => `A Requerida procedeu à devolução parcial do valor, o que demonstra reconhecimento implícito da irregularidade operacional.\n\nContudo, de forma contraditória, limitou-se a restituir apenas parcela, mantendo a retenção do montante principal, configurando enriquecimento sem causa (art. 884, CC).`,
   },
 ];
 
@@ -224,25 +190,11 @@ function Field({ label, value, onChange, full, placeholder }: any) {
 export default function GeradorMaterialJuridico() {
   const router = useRouter();
   const [userEmail, setUserEmail] = useState<string | null>(null);
-
-  // VERIFICAÇÃO DE SESSÃO (PROTEÇÃO DE ROTA)
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user?.email) {
-        setUserEmail(session.user.email);
-      } else {
-        // Se não estiver logado, manda de volta pro login
-        router.replace("/login");
-      }
-    };
-    checkSession();
-  }, [router]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.replace("/");
-  };
+  const [userId, setUserId] = useState<string | null>(null);
+  
+  // CONTROLE DE LIMITE DE PETIÇÕES
+  const [petitionCount, setPetitionCount] = useState(0);
+  const [limitReached, setLimitReached] = useState(false);
 
   const [tab, setTab] = useState("perfil");
   const [checked, setChecked] = useState<Record<string, boolean>>({});
@@ -293,7 +245,49 @@ export default function GeradorMaterialJuridico() {
 
   const toggleArg = (id: string) => setArgsCondSel((s) => ({ ...s, [id]: !s[id] }));
 
+  // VERIFICAÇÃO DE SESSÃO E LIMITE
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        // ✅ CORREÇÃO AQUI: Usamos '?? null' para garantir que undefined vire null
+        setUserEmail(session.user.email ?? null);
+        setUserId(session.user.id ?? null);
+
+        // Busca o contador no banco
+        const { data: usageData, error } = await supabase
+          .from('petition_usage')
+          .select('count')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (error && error.code !== 'PGRST116') { // PGRST116 é "not found" (primeiro acesso)
+          console.error("Erro ao buscar uso:", error);
+        }
+
+        if (usageData) {
+          setPetitionCount(usageData.count);
+          if (usageData.count >= MAX_PETICOES) setLimitReached(true);
+        }
+      } else {
+        router.replace("/login");
+      }
+    };
+    checkSession();
+  }, [router]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.replace("/");
+  };
+
   function gerarPeticao() {
+    // VERIFICAÇÃO DO LIMITE ANTES DE GERAR
+    if (limitReached || petitionCount >= MAX_PETICOES) {
+      alert(`Você atingiu o limite de ${MAX_PETICOES} petições permitidas para sua conta. Entre em contato com o suporte para adquirir mais gerações.`);
+      return;
+    }
+
     const valorCausa = calc.total > 0 ? fmt(calc.total) : "[preencher valor da causa]";
     
     const argumentosFinais = [
@@ -333,6 +327,16 @@ export default function GeradorMaterialJuridico() {
     setDadosPDF(dados);
     setGeradoTexto(`[VISUALIZAÇÃO EM TEXTO PLANO - BAIXE O PDF PARA A FORMATAÇÃO JURÍDICA COMPLETA]\n\n${dados.enderecamento}\n\n${dados.qualificacao}\n\n${dados.tituloAcao}\n\n${dados.qualificacaoReu}\n\nI — DOS FATOS\n\n${dados.fatos}\n\n[ARGUMENTOS JURÍDICOS INSERIDOS AUTOMATICAMENTE NO PDF]\n\n${dados.onusProva}\n\n${textoRoteiro ? `DO DESVIO PRODUTIVO\n\n${textoRoteiro}\n\n` : ""}DOS PEDIDOS\n\n${dados.pedidos}\n\nDá-se à causa o valor de ${dados.valorCausa}.\n\nNestes termos,\npede deferimento.\n\n${dados.cidadeData}\n\n${dados.autorNome}`);
     setTab("resultado");
+
+    // INCREMENTA O CONTADOR NO BANCO APÓS GERAR
+    const newCount = petitionCount + 1;
+    supabase.from('petition_usage').upsert({ user_id: userId, count: newCount }).then(({ error }) => {
+      if (error) console.error("Erro ao salvar uso:", error);
+      else {
+        setPetitionCount(newCount);
+        if (newCount >= MAX_PETICOES) setLimitReached(true);
+      }
+    });
   }
 
   function copiar() {
@@ -357,7 +361,7 @@ export default function GeradorMaterialJuridico() {
   return (
     <div className="min-h-screen w-full" style={{ backgroundColor: "#F2EFE6" }}>
       
-      {/* === HEADER DO USUÁRIO LOGADO (DASHBOARD) === */}
+      {/* === HEADER DO USUÁRIO LOGADO === */}
       <header className="border-b px-4 py-3 flex items-center justify-between shadow-sm" style={{ backgroundColor: "#FBF9F4", borderColor: "#E4DFD1" }}>
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "#FBF1DD" }}>
@@ -372,16 +376,23 @@ export default function GeradorMaterialJuridico() {
         </div>
         
         <div className="flex items-center gap-4">
+          {/* INDICADOR DE LIMITE */}
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border" style={{ borderColor: limitReached ? "#FECACA" : "#E4DFD1", backgroundColor: limitReached ? "#FEF2F2" : "#FFF" }}>
+            <FileText size={14} style={{ color: limitReached ? "#991B1B" : SEAL }} />
+            <span className="text-xs font-semibold" style={{ color: limitReached ? "#991B1B" : INK }}>
+              Petições: {petitionCount}/{MAX_PETICOES}
+            </span>
+          </div>
+
           <button 
             onClick={handleLogout}
             className="flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg border transition-all hover:bg-red-50"
             style={{ borderColor: "#FECACA", color: "#991B1B" }}
           >
-            <LogOut size={14} /> Sair do Sistema
+            <LogOut size={14} /> Sair
           </button>
         </div>
       </header>
-      {/* === FIM DO HEADER === */}
 
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="flex items-center gap-3 mb-1">
@@ -392,6 +403,17 @@ export default function GeradorMaterialJuridico() {
         <p className="text-sm mb-6" style={{ color: INK_SOFT }}>Ferramenta para causas de até 20 salários-mínimos (jus postulandi). Siga as abas na ordem para montar sua petição com argumentos validados.</p>
 
         <div className="mb-6"><DisclaimerBar /></div>
+
+        {/* AVISO DE LIMITE ATINGIDO */}
+        {limitReached && (
+          <div className="mb-6 p-4 rounded-lg border border-red-300 bg-red-50 text-red-800 text-sm flex items-start gap-3">
+            <Lock size={20} className="shrink-0 mt-0.5" />
+            <div>
+              <strong>Limite de gerações atingido.</strong>
+              <p className="mt-1">Sua conta já utilizou as {MAX_PETICOES} petições inclusas no seu plano. Para gerar novas petições, entre em contato com nosso suporte ou adquira um novo pacote.</p>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6">
           <nav className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
@@ -584,8 +606,13 @@ export default function GeradorMaterialJuridico() {
                   <span style={{ color: INK }}>Li o aviso acima e entendo que devo revisar o texto, prazos e normas antes de protocolar.</span>
                 </label>
 
-                <button onClick={gerarPeticao} disabled={!ackDisclaimer} className="inline-flex items-center gap-1 text-sm font-medium px-4 py-2 rounded-lg text-white disabled:opacity-40 disabled:cursor-not-allowed" style={{ backgroundColor: INK }}>
-                  Gerar Rascunho da Petição <ChevronRight size={16} />
+                <button 
+                  onClick={gerarPeticao} 
+                  disabled={!ackDisclaimer || limitReached} 
+                  className="inline-flex items-center gap-1 text-sm font-medium px-4 py-2 rounded-lg text-white disabled:opacity-40 disabled:cursor-not-allowed" 
+                  style={{ backgroundColor: INK }}
+                >
+                  {limitReached ? "Limite Atingido" : "Gerar Rascunho da Petição"} <ChevronRight size={16} />
                 </button>
               </div>
             )}
