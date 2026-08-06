@@ -33,7 +33,7 @@ export async function POST(request: Request) {
           quantity: 1,
         },
       ],
-      success_url: `${request.headers.get('origin')}/dashboard?success=true`,
+      success_url: `${request.headers.get('origin')}/gerador?success=true`,
       cancel_url: `${request.headers.get('origin')}/precos?canceled=true`,
     });
 

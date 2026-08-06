@@ -98,7 +98,7 @@ export default function PricingPage() {
               </span>
             </div>
             <a
-              href="/dashboard"
+              href="/gerador"
               className="text-gray-600 hover:text-gray-900 font-medium"
             >
               Voltar ao Dashboard →
@@ -190,7 +190,7 @@ export default function PricingPage() {
                 </button>
               ) : (
                 <a
-                  href="/dashboard"
+                  href="/gerador"
                   className="block w-full text-center font-bold py-3 rounded-lg bg-gray-100 text-gray-900 hover:bg-gray-200 transition"
                 >
                   {plano.cta}

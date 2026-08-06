@@ -1,162 +1,623 @@
-import React from "react";
-import { Scale, Shield, FileText, Calculator, CheckCircle2, AlertTriangle, BookOpen, ArrowRight } from "lucide-react";
+"use client";
 
-// Paleta "Cartório" (Mesma do gerador para manter consistência e autoridade)
+import React, { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  AlertTriangle, CheckCircle2, Circle, Calculator, FileText,
+  ClipboardList, Copy, Download, ChevronRight, Scale, Info,
+  AlertCircle, User, Heart, Shield, LogOut
+} from "lucide-react";
+import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer';
+
+// ⚠️ ATENÇÃO AO CAMINHO DO SUPABASE:
+// Se o seu arquivo estiver na pasta 'lib', deixe como está. 
+// Se estiver na pasta 'app', mude para: import { supabase } from "./supabase";
+import { supabase } from "../login/supabase";
+
+// =========================================================================
+// 1. ESTILOS DO PDF (Formatação Forense Profissional)
+// =========================================================================
+const pdfStyles = StyleSheet.create({
+  page: { padding: 50, fontFamily: 'Times-Roman', fontSize: 12, lineHeight: 1.5 },
+  header: { textAlign: 'center', marginBottom: 20, fontSize: 12, fontWeight: 'bold', textTransform: 'uppercase' },
+  sectionTitle: { fontSize: 12, fontWeight: 'bold', marginTop: 15, marginBottom: 8, textTransform: 'uppercase' },
+  paragraph: { textAlign: 'justify', marginBottom: 10, textIndent: 25 },
+  noIndent: { textAlign: 'justify', marginBottom: 10 },
+  listItem: { textAlign: 'justify', marginBottom: 5, marginLeft: 25 },
+  footer: { marginTop: 50, textAlign: 'center' },
+  signatureLine: { marginTop: 60, textAlign: 'center', borderTop: '1px solid black', width: 250, marginLeft: 'auto', marginRight: 'auto', paddingTop: 5 }
+});
+
+const PeticaoPDF = ({ dados }: { dados: any }) => (
+  <Document>
+    <Page size="A4" style={pdfStyles.page}>
+      <Text style={pdfStyles.header}>{dados.enderecamento}</Text>
+      <Text style={pdfStyles.noIndent}>{dados.qualificacao}</Text>
+      <Text style={{...pdfStyles.noIndent, textAlign: 'center', fontWeight: 'bold', marginVertical: 10}}>
+        {dados.tituloAcao}
+      </Text>
+      <Text style={pdfStyles.noIndent}>{dados.qualificacaoReu}</Text>
+
+      <Text style={pdfStyles.sectionTitle}>I — DOS FATOS</Text>
+      <Text style={pdfStyles.paragraph}>{dados.fatos}</Text>
+
+      {dados.argumentos.map((arg: any, index: number) => (
+        <View key={index}>
+          <Text style={pdfStyles.sectionTitle}>{arg.titulo}</Text>
+          {arg.texto.split('\n\n').map((p: string, i: number) => (
+            p.trim().startsWith('- ') ? 
+            <Text key={i} style={pdfStyles.listItem}>{p}</Text> :
+            <Text key={i} style={pdfStyles.paragraph}>{p}</Text>
+          ))}
+        </View>
+      ))}
+
+      <Text style={pdfStyles.sectionTitle}>DA RELAÇÃO DE CONSUMO E DA INVERSÃO DO ÔNUS DA PROVA</Text>
+      <Text style={pdfStyles.paragraph}>{dados.onusProva}</Text>
+
+      {dados.desvioProdutivo && (
+        <>
+          <Text style={pdfStyles.sectionTitle}>DO DESVIO PRODUTIVO E DA TENTATIVA PRÉVIA DE SOLUÇÃO</Text>
+          <Text style={pdfStyles.paragraph}>{dados.desvioProdutivo}</Text>
+        </>
+      )}
+
+      <Text style={pdfStyles.sectionTitle}>DOS PEDIDOS</Text>
+      {dados.pedidos.split('\n').map((p: string, i: number) => (
+        <Text key={i} style={p.trim() ? pdfStyles.paragraph : { height: 10 }}>{p}</Text>
+      ))}
+
+      <Text style={pdfStyles.noIndent}>Dá-se à causa o valor de {dados.valorCausa}.</Text>
+      <Text style={pdfStyles.footer}>Nestes termos, pede deferimento.</Text>
+      <View style={pdfStyles.signatureLine}>
+        <Text>{dados.autorNome}</Text>
+      </View>
+      <Text style={{ textAlign: 'center', marginTop: 10, fontSize: 10 }}>{dados.cidadeData}</Text>
+    </Page>
+  </Document>
+);
+
+// =========================================================================
+// 2. CONSTANTES E ARGUMENTOS JURÍDICOS UNIVERSAIS
+// =========================================================================
 const INK = "#1E2A3A";
 const INK_SOFT = "#3D4C5E";
 const PAPER = "#FBF9F4";
+const PAPER_LINE = "#E4DFD1";
 const SEAL = "#8A6D3B";
 const AMBER_BG = "#FBF1DD";
+const AMBER_BORDER = "#D8B368";
+const LIMITE_JEC = 28240.00;
 
-export default function Home() {
+const PROVAS = [
+  { id: "autoexclusao", texto: "Print do registro de Autoexclusão Centralizada (Gov.br/SPA) com data e motivo visíveis" },
+  { id: "extrato_pos", texto: "Extrato da plataforma mostrando depósito/aposta APÓS a data da autoexclusão" },
+  { id: "comprovante", texto: "Comprovante bancário (Pix/Boleto) do depósito indevido" },
+  { id: "email_bloqueio", texto: "E-mail da empresa informando o 'bloqueio imediato' (com data e hora)" },
+  { id: "chat", texto: "Print do Chat/Suporte com a negativa ou resposta evasiva (com protocolo)" },
+  { id: "consumidor_gov", texto: "Print da reclamação no Consumidor.gov.br ou Procon" },
+  { id: "medico", texto: "(Opcional) Receitas/atestados que corroboram a vulnerabilidade declarada na autoexclusão" },
+  { id: "cnpj", texto: "CNPJ da operadora (Casa dos Dados / Receita Federal)" },
+];
+
+// ARGUMENTOS UNIVERSAIS (Sempre incluídos)
+const ARGUMENTOS_UNIVERSAIS = [
+  {
+    id: "univ_sigap",
+    label: "Dever de Consulta ao SIGAP (IN 31/2025)",
+    texto: () =>
+      `A parte Autora realizou Autoexclusão Centralizada no âmbito do sistema oficial da Secretaria de Prêmios e Apostas do Ministério da Fazenda (SPA/MF).\n\n` +
+      `Nos termos da IN SPA/MF nº 31/2025 (arts. 2º e 3º), é dever obrigatório do operador consultar o SIGAP previamente à autorização de acesso, cadastro ou realização de operações.\n\n` +
+      `A parte Ré, ao aceitar depósitos após a formalização da autoexclusão, descumpriu obrigação regulatória vinculante, configurando falha grave na prestação do serviço (art. 14, CDC).`,
+  },
+  {
+    id: "univ_prazo_30_dias",
+    label: "Prazo de 30 dias para Integração (IN 31/2025, art. 15)",
+    texto: () =>
+      `A Requerida tenta utilizar o prazo de 90 dias da Portaria SPA/MF nº 2.579/2025 como excludente de responsabilidade. Contudo, a IN SPA/MF nº 31/2025 (art. 15) estabeleceu o prazo de 30 dias para integração ao sistema de impedidos.\n\n` +
+      `O prazo de 90 dias refere-se exclusivamente à adaptação cadastral e tecnológica, não suspendendo o dever material de bloqueio, conforme esclarecido pela própria SPA/MF (Nota Informativa SEI nº 1864/2026/MF).`,
+  },
+  {
+    id: "univ_cdc_cc",
+    label: "Distinção: Art. 814 CC (Dívida de Jogo) vs. Art. 42 CDC (Repetição de Indébito)",
+    texto: () =>
+      `A lide não versa sobre cobrança de dívida de jogo (art. 814 do Código Civil), mas sobre repetição de indébito por violação de obrigação regulatória (art. 42, parágrafo único, do CDC).\n\n` +
+      `O cerne da demanda é a falha no bloqueio da conta após autoexclusão centralizada, não o resultado de apostas. A aplicação do art. 814 do CC ao caso é indevida.`,
+  },
+  {
+    id: "univ_responsabilidade",
+    label: "Responsabilidade Objetiva e Fortuito Interno (Súmula 479 STJ)",
+    texto: () =>
+      `Nos termos do art. 14 do CDC, a responsabilidade da fornecedora é objetiva, independendo de dolo ou culpa.\n\n` +
+      `Eventuais falhas operacionais, inconsistências sistêmicas ou problemas internos de integração configuram fortuito interno, risco da atividade (Súmula 479 do STJ).`,
+  },
+  {
+    id: "univ_laudo",
+    label: "Desnecessidade de Laudo Médico para Autoexclusão",
+    texto: () =>
+      `A regulamentação da autoexclusão centralizada não exige laudo médico, interdição judicial ou comprovação de incapacidade civil para gerar o dever de bloqueio.\n\n` +
+      `O dever nasce da própria formalização da autoexclusão no sistema oficial da SPA/MF. A tentativa de condicionar a proteção à demonstração de incapacidade formal não encontra respaldo normativo.`,
+  },
+  {
+    id: "univ_bloqueio_72h",
+    label: "Dever de Bloqueio em 72 Horas (Art. 7º da Portaria 2.579/2025)",
+    texto: () =>
+      `O art. 7º da Portaria SPA/MF nº 2.579/2025 estabelece que, identificado o status 'Impedido - Autoexclusão Centralizada' no SIGAP, o operador deve imediatamente impedir novas apostas e encerrar a conta no prazo máximo de 3 (três) dias.\n\n` +
+      `A falha no bloqueio dentro deste prazo configura defeito na prestação do serviço (art. 14, §1º, II, CDC).`,
+  },
+];
+
+// ARGUMENTO ESPECÍFICO DE LUDOPATIA
+const ARGUMENTO_LUDOPATIA = {
+  id: "ludo_vulnerabilidade",
+  label: "Consumidor Hipervulnerável e Frustração de Política Pública",
+  texto: () =>
+    `A parte Autora realizou a autoexclusão motivada por "perda de controle sobre o jogo (saúde mental)", conforme registro oficial.\n\n` +
+    `Conforme dados oficiais da SPA/MF (Nota Informativa SEI nº 1864/2026/MF), a Plataforma Centralizada de Autoexclusão já contabiliza mais de 925 mil solicitações, sendo que aproximadamente 67% correspondem a pedidos por prazo indeterminado, com a principal motivação concentrando-se em "perda de controle sobre o jogo".\n\n` +
+    `A Requerida, ao frustrar esse mecanismo estatal de proteção, comprometeu a confiança legítima depositada pelo consumidor em sistema oficial destinado à proteção de sua integridade psíquica, configurando dano moral qualificado.`,
+};
+
+// ARGUMENTOS CONDICIONAIS
+const ARGUMENTOS_CONDICIONAIS = [
+  {
+    id: "cond_email",
+    label: "Tenho E-mail de Bloqueio + Depósito posterior (Contradição Temporal)",
+    texto: (dataFato?: string, horaFato?: string) =>
+      `Consta dos autos que, em ${dataFato || "[DATA]"}, a Requerida encaminhou comunicação formal informando que a conta havia sido "imediatamente e definitivamente bloqueada".\n\n` +
+      `Todavia, no mesmo dia, às ${horaFato || "[HORA]"}, o sistema da própria Requerida aceitou novo depósito.\n\n` +
+      `A sequência temporal evidencia que o bloqueio alegado não foi efetivamente implementado, configurando contradição documental que afasta qualquer alegação de boa-fé.`,
+  },
+  {
+    id: "cond_devolucao",
+    label: "A empresa devolveu parte do valor (Confissão Implícita)",
+    texto: () =>
+      `A Requerida procedeu à devolução parcial do valor, o que demonstra reconhecimento implícito da irregularidade operacional.\n\n` +
+      `Contudo, de forma contraditória, limitou-se a restituir apenas parcela, mantendo a retenção do montante principal, configurando enriquecimento sem causa (art. 884, CC).`,
+  },
+];
+
+// =========================================================================
+// 3. COMPONENTES DE UI
+// =========================================================================
+function TabButton({ active, onClick, icon: Icon, n, label }: any) {
   return (
-    <div className="min-h-screen w-full" style={{ backgroundColor: PAPER, color: INK }}>
+    <button onClick={onClick} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors w-full ${active ? "text-white" : "text-[#3D4C5E] hover:bg-[#EFEADE]"}`} style={active ? { backgroundColor: INK } : { backgroundColor: "transparent" }}>
+      <span className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold shrink-0" style={{ backgroundColor: active ? SEAL : "#E4DFD1", color: active ? "#FBF9F4" : INK_SOFT }}>{n}</span>
+      <Icon size={17} className="shrink-0" />
+      <span className="text-sm font-medium">{label}</span>
+    </button>
+  );
+}
+
+function DisclaimerBar({ compact }: { compact?: boolean }) {
+  return (
+    <div className="flex gap-3 items-start rounded-lg border px-4 py-3" style={{ backgroundColor: AMBER_BG, borderColor: AMBER_BORDER }}>
+      <AlertTriangle size={18} className="shrink-0 mt-0.5" style={{ color: SEAL }} />
+      <p className="text-sm leading-relaxed" style={{ color: "#5C4A22" }}>
+        <strong>Isto não é assessoria jurídica.</strong> Não há advogado responsável por este conteúdo — é um serviço de automação de redação para causas de até 20 salários-mínimos (jus postulandi). {!compact && " "}O texto é gerado com apoio de IA e pode conter imprecisões. Revise cada parágrafo, confirme prazos e normas vigentes (especialmente portarias da SPA/MF) e adapte à realidade do seu caso antes de protocolar. {compact && " Em causas acima de 20 salários-mínimos, ou complexas, procure um advogado."}
+      </p>
+    </div>
+  );
+}
+
+function Row({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
+  return (
+    <div className="flex justify-between text-sm">
+      <span style={{ color: INK_SOFT }}>{label}</span>
+      <span style={{ color: INK, fontWeight: bold ? 700 : 500 }}>{value}</span>
+    </div>
+  );
+}
+
+function Field({ label, value, onChange, full, placeholder }: any) {
+  return (
+    <label className={`text-sm ${full ? "sm:col-span-2" : ""}`}>
+      <span className="block mb-1 font-medium" style={{ color: INK_SOFT }}>{label}</span>
+      <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="w-full px-3 py-2 rounded-lg border outline-none focus:ring-2" style={{ borderColor: PAPER_LINE, backgroundColor: "#FFF" }} />
+    </label>
+  );
+}
+
+// =========================================================================
+// 4. COMPONENTE PRINCIPAL
+// =========================================================================
+export default function GeradorMaterialJuridico() {
+  const router = useRouter();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  // VERIFICAÇÃO DE SESSÃO (PROTEÇÃO DE ROTA)
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.email) {
+        setUserEmail(session.user.email);
+      } else {
+        // Se não estiver logado, manda de volta pro login
+        router.replace("/login");
+      }
+    };
+    checkSession();
+  }, [router]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.replace("/");
+  };
+
+  const [tab, setTab] = useState("perfil");
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
+  const [ackDisclaimer, setAckDisclaimer] = useState(false);
+  const [dadosPDF, setDadosPDF] = useState<any>(null);
+  const [geradoTexto, setGeradoTexto] = useState("");
+
+  // PERFIL
+  const [perfil, setPerfil] = useState<"generico" | "ludopatia">("generico");
+
+  // ROTEIRO PRÉVIO
+  const [tentativaChat, setTentativaChat] = useState(false);
+  const [protocoloChat, setProtocoloChat] = useState("");
+  const [tentativaConsumidorGov, setTentativaConsumidorGov] = useState(false);
+  const [protocoloConsumidorGov, setProtocoloConsumidorGov] = useState("");
+
+  // CALCULADORA
+  const [valorPerdido, setValorPerdido] = useState("");
+  const [dataFato, setDataFato] = useState("");
+  const [horaFato, setHoraFato] = useState("");
+  const [dataAutoexclusao, setDataAutoexclusao] = useState("");
+  const [dobro, setDobro] = useState(false);
+  const [danoMoral, setDanoMoral] = useState(true);
+  const [valorDanoMoral, setValorDanoMoral] = useState("5000");
+
+  const calc = useMemo(() => {
+    const base = parseFloat(valorPerdido) || 0;
+    let meses = 0;
+    if (dataFato) {
+      const d1 = new Date(dataFato);
+      const d2 = new Date();
+      meses = Math.max(0, (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth()));
+    }
+    const comDobro = dobro ? base * 2 : base;
+    const juros = comDobro * 0.01 * meses;
+    const danoMoralValor = danoMoral ? parseFloat(valorDanoMoral) || 0 : 0;
+    const total = comDobro + juros + danoMoralValor;
+    return { base, comDobro, juros, meses, danoMoral: danoMoralValor, total, excedeLimite: total > LIMITE_JEC };
+  }, [valorPerdido, dataFato, dobro, danoMoral, valorDanoMoral]);
+
+  const fmt = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+  // PETIÇÃO
+  const [autor, setAutor] = useState({ nome: "", cpf: "", endereco: "", comarca: "", uf: "" });
+  const [reu, setReu] = useState({ nome: "", cnpj: "" });
+  const [relato, setRelato] = useState("");
+  const [argsCondSel, setArgsCondSel] = useState<Record<string, boolean>>({});
+
+  const toggleArg = (id: string) => setArgsCondSel((s) => ({ ...s, [id]: !s[id] }));
+
+  function gerarPeticao() {
+    const valorCausa = calc.total > 0 ? fmt(calc.total) : "[preencher valor da causa]";
+    
+    const argumentosFinais = [
+      ...ARGUMENTOS_UNIVERSAIS.map((a, i) => ({ titulo: `${["II", "III", "IV", "V", "VI", "VII"][i]} — ${a.label.toUpperCase()}`, texto: a.texto() })),
+      ...(perfil === "ludopatia" ? [{ titulo: "VIII — CONSUMIDOR HIPERVULNERÁVEL E FRUSTRAÇÃO DE POLÍTICA PÚBLICA", texto: ARGUMENTO_LUDOPATIA.texto() }] : []),
+      ...ARGUMENTOS_CONDICIONAIS.filter((a) => argsCondSel[a.id]).map((a, i) => {
+        const numRomano = perfil === "ludopatia" ? ["IX", "X"][i] : ["VIII", "IX"][i];
+        return { titulo: `${numRomano} — ${a.label.toUpperCase()}`, texto: a.texto(dataFato, horaFato) };
+      }),
+    ];
+
+    let textoRoteiro = "";
+    if (tentativaChat || tentativaConsumidorGov) {
+      textoRoteiro = `A parte Autora, agindo de boa-fé, tentou resolver a questão administrativamente antes de buscar o Judiciário. `;
+      if (tentativaChat) textoRoteiro += `Entrou em contato com o suporte da Ré em data anterior, obtendo o protocolo ${protocoloChat || "[NÚMERO]"}, e `;
+      if (tentativaConsumidorGov) textoRoteiro += `registrou reclamação formal no Consumidor.gov.br sob o nº ${protocoloConsumidorGov || "[NÚMERO]"}. `;
+      textoRoteiro += `A Ré, contudo, limitou-se a oferecer respostas automatizadas e evasivas, invocando supostos 'prazos de adaptação' já desmentidos pela própria autoridade reguladora (SPA/MF), ou simplesmente ignorou a demanda. Tal conduta configura claro Desvio Produtivo do Consumidor.`;
+    }
+
+    const pedidos = `Diante do exposto, requer-se:\n\na) a restituição do valor de ${valorCausa}${dobro ? ", em dobro, nos termos do art. 42, parágrafo único, do CDC" : ""}, corrigido monetariamente e acrescido de juros de mora de 1% ao mês desde a data do(s) fato(s);\n\n${danoMoral ? `b) a condenação da Ré ao pagamento de indenização por danos morais, em valor não inferior a ${fmt(parseFloat(valorDanoMoral) || 0)}, observando-se os princípios da proporcionalidade e caráter pedagógico;\n` : ""}c) a inversão do ônus da prova, conforme fundamentado;\n\nd) a citação da parte Ré para, querendo, apresentar contestação, sob pena de revelia.`;
+
+    const dados = {
+      enderecamento: `EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DO JUIZADO ESPECIAL CÍVEL DA COMARCA DE ${autor.comarca || "[COMARCA]"} – ${autor.uf || "[UF]"}`,
+      qualificacao: `${autor.nome || "[NOME COMPLETO DO AUTOR]"}, portador(a) do CPF nº ${autor.cpf || "[CPF]"}, residente em ${autor.endereco || "[ENDEREÇO COMPLETO]"}, vem, respeitosamente, com fundamento no art. 9º da Lei 9.099/95 (jus postulandi) e no Código de Defesa do Consumidor, propor a presente`,
+      tituloAcao: `AÇÃO DE INDENIZAÇÃO POR DANOS MATERIAIS${danoMoral ? " E MORAIS" : ""}`,
+      qualificacaoReu: `em face de ${reu.nome || "[NOME DA EMPRESA RÉ]"}, inscrita no CNPJ nº ${reu.cnpj || "[CNPJ]"}, pelos fatos e fundamentos a seguir.`,
+      fatos: relato || "[Descreva aqui, em ordem cronológica: quando você se autoexcluiu no Gov.br, a data em que a plataforma aceitou o depósito indevidamente, e as tentativas de contato com o suporte.]",
+      argumentos: argumentosFinais,
+      onusProva: `Aplica-se ao caso o Código de Defesa do Consumidor, por se tratar de relação de consumo. Requer-se a inversão do ônus da prova, nos termos do art. 6º, VIII, do CDC, dada a hipossuficiência técnica e informacional da parte Autora frente aos sistemas da Ré, que detém os registros de acesso e integração ao SIGAP.`,
+      desvioProdutivo: textoRoteiro,
+      pedidos: pedidos,
+      valorCausa: valorCausa,
+      autorNome: autor.nome || "[NOME COMPLETO DO AUTOR]",
+      cidadeData: `${autor.comarca || "[CIDADE]"}, ${new Date().toLocaleDateString("pt-BR")}.`
+    };
+
+    setDadosPDF(dados);
+    setGeradoTexto(`[VISUALIZAÇÃO EM TEXTO PLANO - BAIXE O PDF PARA A FORMATAÇÃO JURÍDICA COMPLETA]\n\n${dados.enderecamento}\n\n${dados.qualificacao}\n\n${dados.tituloAcao}\n\n${dados.qualificacaoReu}\n\nI — DOS FATOS\n\n${dados.fatos}\n\n[ARGUMENTOS JURÍDICOS INSERIDOS AUTOMATICAMENTE NO PDF]\n\n${dados.onusProva}\n\n${textoRoteiro ? `DO DESVIO PRODUTIVO\n\n${textoRoteiro}\n\n` : ""}DOS PEDIDOS\n\n${dados.pedidos}\n\nDá-se à causa o valor de ${dados.valorCausa}.\n\nNestes termos,\npede deferimento.\n\n${dados.cidadeData}\n\n${dados.autorNome}`);
+    setTab("resultado");
+  }
+
+  function copiar() {
+    navigator.clipboard.writeText(geradoTexto);
+    alert("Texto copiado para a área de transferência!");
+  }
+
+  async function baixarPDF() {
+    if (!dadosPDF) return;
+    const blob = await pdf(<PeticaoPDF dados={dadosPDF} />).toBlob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const nomeArquivo = autor.nome ? autor.nome.replace(/[^a-zA-Z0-9]/g, '_') : 'Rascunho';
+    a.href = url;
+    a.download = `Peticao_${nomeArquivo}.pdf`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  const provasMarcadas = Object.values(checked).filter(Boolean).length;
+
+  return (
+    <div className="min-h-screen w-full" style={{ backgroundColor: "#F2EFE6" }}>
       
-      {/* HEADER / NAV */}
-      <header className="border-b" style={{ borderColor: "#E4DFD1" }}>
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Scale size={24} style={{ color: SEAL }} />
-            <span className="text-xl font-semibold tracking-tight" style={{ fontFamily: "Georgia, serif" }}>
-              RecuperaJogo<span style={{ color: SEAL }}>.</span>
-            </span>
+      {/* === HEADER DO USUÁRIO LOGADO (DASHBOARD) === */}
+      <header className="border-b px-4 py-3 flex items-center justify-between shadow-sm" style={{ backgroundColor: "#FBF9F4", borderColor: "#E4DFD1" }}>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "#FBF1DD" }}>
+            <User size={18} style={{ color: "#8A6D3B" }} />
           </div>
-          <a 
-            href="/login" 
-            className="text-sm font-medium px-4 py-2 rounded-lg transition-colors hover:opacity-90"
-            style={{ backgroundColor: INK, color: "#FFF" }}
-          >
-            Acessar Sistema
-          </a>
-        </div>
-      </header>
-
-      {/* HERO SECTION */}
-      <section className="max-w-4xl mx-auto px-4 py-20 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-6" style={{ backgroundColor: AMBER_BG, color: "#5C4A22" }}>
-          <Shield size={14} />
-          <span>Baseado na regulamentação oficial da SPA/MF</span>
-        </div>
-        
-        <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight" style={{ fontFamily: "Georgia, serif" }}>
-          A casa de apostas aceitou seu depósito <br className="hidden md:block" />
-          <span style={{ color: SEAL }}>mesmo após sua autoexclusão?</span>
-        </h1>
-        
-        <p className="text-lg mb-10 max-w-2xl mx-auto" style={{ color: INK_SOFT }}>
-          Use a lei a seu favor. Gere uma petição completa, formatada e com argumentos blindados para o Juizado Especial Cível (até 20 salários mínimos) — sem precisar de advogado.
-        </p>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          {/* BOTÃO PRINCIPAL COM SEU LINK DO STRIPE */}
-          <a 
-            href="https://buy.stripe.com/test_bJe4gB2E070z2o18jJ9R601" 
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-base font-medium px-6 py-3 rounded-lg transition-transform hover:scale-105"
-            style={{ backgroundColor: SEAL, color: "#FFF" }}
-          >
-            Gerar Minha Petição Agora <ArrowRight size={18} />
-          </a>
-          
-          <a 
-            href="/guia" 
-            className="inline-flex items-center gap-2 text-base font-medium px-6 py-3 rounded-lg border transition-colors hover:bg-white"
-            style={{ borderColor: "#E4DFD1", color: INK }}
-          >
-            <BookOpen size={18} /> Guia Grátis de Autoexclusão
-          </a>
-        </div>
-        
-        {/* ANCORAGEM DE PREÇO */}
-        <p className="text-xs mt-4 font-medium" style={{ color: INK_SOFT }}>
-          💰 Investimento único de <strong>R$ 137,00</strong> — menos do que você perdeu na última aposta.
-        </p>
-
-        <p className="text-xs mt-6 flex items-center justify-center gap-1" style={{ color: INK_SOFT }}>
-          <AlertTriangle size={12} /> Ferramenta para jus postulandi (causas de até 20 salários mínimos).
-        </p>
-      </section>
-
-      {/* PROBLEMA VS SOLUÇÃO */}
-      <section className="border-y py-16" style={{ borderColor: "#E4DFD1", backgroundColor: "#F2EFE6" }}>
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl font-bold mb-3" style={{ fontFamily: "Georgia, serif" }}>Por que as casas de apostas ganham no "braço"?</h2>
-            <p className="text-sm max-w-2xl mx-auto" style={{ color: INK_SOFT }}>
-              Elas usam respostas automáticas citando um suposto "prazo de adaptação de 90 dias". Mas a própria Secretaria de Prêmios e Apostas (SPA/MF) já desmentiu isso oficialmente.
+          <div>
+            <p className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "#3D4C5E" }}>Logado como</p>
+            <p className="text-sm font-bold truncate max-w-[200px]" style={{ color: "#1E2A3A" }}>
+              {userEmail || "Carregando usuário..."}
             </p>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { 
-                icon: FileText, 
-                title: "Argumentos Oficiais", 
-                desc: "Nossa ferramenta usa os textos exatos da IN SPA/MF nº 31/2025 e da Nota Informativa SEI nº 1864/2026." 
-              },
-              { 
-                icon: Calculator, 
-                title: "Cálculo Blindado", 
-                desc: "Calculadora com trava de 20 salários mínimos, juros de mora e opção de restituição em dobro (art. 42 CDC)." 
-              },
-              { 
-                icon: CheckCircle2, 
-                title: "PDF Forense", 
-                desc: "Baixe sua petição em PDF com margens, fonte Times New Roman e formatação pronta para o PJe." 
-              }
-            ].map((item, i) => (
-              <div key={i} className="p-6 rounded-xl border bg-white" style={{ borderColor: "#E4DFD1" }}>
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: AMBER_BG }}>
-                  <item.icon size={20} style={{ color: SEAL }} />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-                <p className="text-sm" style={{ color: INK_SOFT }}>{item.desc}</p>
-              </div>
-            ))}
-          </div>
         </div>
-      </section>
+        
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg border transition-all hover:bg-red-50"
+            style={{ borderColor: "#FECACA", color: "#991B1B" }}
+          >
+            <LogOut size={14} /> Sair do Sistema
+          </button>
+        </div>
+      </header>
+      {/* === FIM DO HEADER === */}
 
-      {/* COMO FUNCIONA */}
-      <section className="max-w-4xl mx-auto px-4 py-20">
-        <h2 className="text-2xl font-bold text-center mb-12" style={{ fontFamily: "Georgia, serif" }}>Como funciona o Gerador</h2>
-        <div className="space-y-8">
-          {[
-            { n: "01", t: "Roteiro Pré-Processual", d: "O sistema te guia para tentar o estorno administrativo (Chat e Consumidor.gov). Isso gera provas de 'Desvio Produtivo'." },
-            { n: "02", t: "Checklist de Provas", d: "Você marca quais documentos tem (Print da autoexclusão, extrato, e-mail de bloqueio). O sistema adapta os argumentos." },
-            { n: "03", t: "Calculadora JEC", d: "Informe o valor perdido. O sistema calcula o dobro, juros e dano moral, e avisa se ultrapassar o limite de 20 salários mínimos." },
-            { n: "04", t: "Geração do PDF", d: "Sua petição é montada com os argumentos universais e condicionais, pronta para baixar e protocolar." }
-          ].map((step, i) => (
-            <div key={i} className="flex gap-6 items-start">
-              <div className="text-3xl font-bold shrink-0" style={{ color: SEAL, fontFamily: "Georgia, serif" }}>{step.n}</div>
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        <div className="flex items-center gap-3 mb-1">
+          <Scale size={22} style={{ color: SEAL }} />
+          <span className="text-xs uppercase tracking-[0.2em] font-semibold" style={{ color: INK_SOFT }}>Juizado Especial Cível · Autoexclusão Violada</span>
+        </div>
+        <h1 className="text-3xl font-semibold mb-1" style={{ color: INK, fontFamily: "Georgia, 'Times New Roman', serif" }}>Gerador de Material Jurídico do Consumidor</h1>
+        <p className="text-sm mb-6" style={{ color: INK_SOFT }}>Ferramenta para causas de até 20 salários-mínimos (jus postulandi). Siga as abas na ordem para montar sua petição com argumentos validados.</p>
+
+        <div className="mb-6"><DisclaimerBar /></div>
+
+        <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6">
+          <nav className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible">
+            <TabButton n="0" icon={User} label="Perfil do Caso" active={tab === "perfil"} onClick={() => setTab("perfil")} />
+            <TabButton n="1" icon={Info} label="Roteiro Prévio" active={tab === "roteiro"} onClick={() => setTab("roteiro")} />
+            <TabButton n="2" icon={ClipboardList} label="Provas" active={tab === "provas"} onClick={() => setTab("provas")} />
+            <TabButton n="3" icon={Calculator} label="Cálculo" active={tab === "calculo"} onClick={() => setTab("calculo")} />
+            <TabButton n="4" icon={FileText} label="Petição" active={tab === "peticao" || tab === "resultado"} onClick={() => setTab("peticao")} />
+          </nav>
+
+          <div className="rounded-xl border p-6" style={{ backgroundColor: PAPER, borderColor: PAPER_LINE }}>
+
+            {/* ABA 0: PERFIL */}
+            {tab === "perfil" && (
               <div>
-                <h3 className="text-lg font-semibold mb-1">{step.t}</h3>
-                <p className="text-sm" style={{ color: INK_SOFT }}>{step.d}</p>
+                <h2 className="text-lg font-semibold mb-4" style={{ color: INK }}>Selecione o Perfil do seu Caso</h2>
+                <p className="text-sm mb-6" style={{ color: INK_SOFT }}>Isso definirá quais argumentos jurídicos serão incluídos na sua petição.</p>
+                
+                <div className="space-y-4">
+                  <label className={`flex items-start gap-4 p-4 rounded-lg border cursor-pointer transition-all ${perfil === "generico" ? "border-[#8A6D3B] bg-[#FBF9F4] ring-2 ring-[#8A6D3B]" : "border-[#E4DFD1] hover:bg-white"}`} onClick={() => setPerfil("generico")}>
+                    <input type="radio" checked={perfil === "generico"} onChange={() => setPerfil("generico")} className="mt-1 w-4 h-4" />
+                    <div>
+                      <span className="text-sm font-bold block" style={{ color: INK }}>Autoexclusão Genérica (Controle Financeiro/Prevenção)</span>
+                      <p className="text-xs mt-1" style={{ color: INK_SOFT }}>Foco na quebra de contrato regulatório, falha no dever de bloqueio e responsabilidade objetiva da operadora.</p>
+                    </div>
+                  </label>
+
+                  <label className={`flex items-start gap-4 p-4 rounded-lg border cursor-pointer transition-all ${perfil === "ludopatia" ? "border-[#8A6D3B] bg-[#FBF9F4] ring-2 ring-[#8A6D3B]" : "border-[#E4DFD1] hover:bg-white"}`} onClick={() => setPerfil("ludopatia")}>
+                    <input type="radio" checked={perfil === "ludopatia"} onChange={() => setPerfil("ludopatia")} className="mt-1 w-4 h-4" />
+                    <div>
+                      <span className="text-sm font-bold block" style={{ color: INK }}>Ludopatia / Saúde Mental (Vulnerabilidade)</span>
+                      <p className="text-xs mt-1" style={{ color: INK_SOFT }}>Inclui argumentos sobre consumidor hipervulnerável, frustração de política pública de jogo responsável e dano moral qualificado. <strong>Não exige laudo médico.</strong></p>
+                    </div>
+                  </label>
+                </div>
+
+                <button onClick={() => setTab("roteiro")} className="mt-6 inline-flex items-center gap-1 text-sm font-medium px-4 py-2 rounded-lg text-white" style={{ backgroundColor: INK }}>
+                  Próximo: Roteiro Prévio <ChevronRight size={16} />
+                </button>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            )}
 
-      {/* FOOTER */}
-      <footer className="border-t py-12 text-center" style={{ borderColor: "#E4DFD1", backgroundColor: "#F2EFE6" }}>
-        <div className="max-w-3xl mx-auto px-4">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Scale size={20} style={{ color: SEAL }} />
-            <span className="font-semibold" style={{ fontFamily: "Georgia, serif" }}>RecuperaJogo</span>
+            {/* ABA 1: ROTEIRO PRÉVIO */}
+            {tab === "roteiro" && (
+              <div>
+                <h2 className="text-lg font-semibold mb-4" style={{ color: INK }}>Passo a Passo Pré-Processual</h2>
+                <p className="text-sm mb-4" style={{ color: INK_SOFT }}>Juízes valorizam quando o consumidor tenta resolver antes de processar. Isso configura "Desvio Produtivo" e fortalece seu pedido de Dano Moral. Marque o que já fez:</p>
+                <div className="space-y-4 mb-6">
+                  <label className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer hover:bg-white" style={{ borderColor: PAPER_LINE }}>
+                    <input type="checkbox" checked={tentativaChat} onChange={(e) => setTentativaChat(e.target.checked)} className="mt-1 w-4 h-4" />
+                    <div className="flex-1">
+                      <span className="text-sm font-medium" style={{ color: INK }}>Tentei contato via Chat/Suporte</span>
+                      {tentativaChat && <input type="text" placeholder="Número do Protocolo" value={protocoloChat} onChange={(e) => setProtocoloChat(e.target.value)} className="mt-2 w-full px-3 py-2 text-sm rounded-lg border outline-none focus:ring-2" style={{ borderColor: PAPER_LINE }} />}
+                    </div>
+                  </label>
+                  <label className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer hover:bg-white" style={{ borderColor: PAPER_LINE }}>
+                    <input type="checkbox" checked={tentativaConsumidorGov} onChange={(e) => setTentativaConsumidorGov(e.target.checked)} className="mt-1 w-4 h-4" />
+                    <div className="flex-1">
+                      <span className="text-sm font-medium" style={{ color: INK }}>Abri reclamação no Consumidor.gov.br</span>
+                      {tentativaConsumidorGov && <input type="text" placeholder="Número do Protocolo da Reclamação" value={protocoloConsumidorGov} onChange={(e) => setProtocoloConsumidorGov(e.target.value)} className="mt-2 w-full px-3 py-2 text-sm rounded-lg border outline-none focus:ring-2" style={{ borderColor: PAPER_LINE }} />}
+                    </div>
+                  </label>
+                </div>
+                <button onClick={() => setTab("provas")} className="inline-flex items-center gap-1 text-sm font-medium px-4 py-2 rounded-lg text-white" style={{ backgroundColor: INK }}>
+                  Próximo: Checklist de Provas <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
+
+            {/* ABA 2: PROVAS */}
+            {tab === "provas" && (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold" style={{ color: INK }}>Checklist de Provas</h2>
+                  <span className="text-xs font-medium" style={{ color: INK_SOFT }}>{provasMarcadas}/{PROVAS.length} reunidas</span>
+                </div>
+                <div className="space-y-1 mb-6">
+                  {PROVAS.map((item) => {
+                    const on = !!checked[item.id];
+                    return (
+                      <button key={item.id} onClick={() => setChecked((c) => ({ ...c, [item.id]: !c[item.id] }))} className="w-full flex items-start gap-3 text-left px-3 py-2.5 rounded-lg hover:bg-[#F2EFE6] transition-colors">
+                        {on ? <CheckCircle2 size={19} className="shrink-0 mt-0.5" style={{ color: "#3F6B4A" }} /> : <Circle size={19} className="shrink-0 mt-0.5" style={{ color: "#B9B2A0" }} />}
+                        <span className="text-sm" style={{ color: INK, opacity: on ? 0.6 : 1, textDecoration: on ? "line-through" : "none" }}>{item.texto}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <button onClick={() => setTab("calculo")} className="inline-flex items-center gap-1 text-sm font-medium px-4 py-2 rounded-lg text-white" style={{ backgroundColor: INK }}>
+                  Próximo: Calculadora de Valores <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
+
+            {/* ABA 3: CALCULADORA */}
+            {tab === "calculo" && (
+              <div>
+                <h2 className="text-lg font-semibold mb-4" style={{ color: INK }}>Calculadora de Valores (Estimativa)</h2>
+                <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                  <Field label="Data da Autoexclusão Centralizada" value={dataAutoexclusao} onChange={setDataAutoexclusao} />
+                  <Field label="Data do Depósito Indevido" value={dataFato} onChange={setDataFato} />
+                </div>
+                <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                  <Field label="Valor Perdido / Depositado (R$)" value={valorPerdido} onChange={setValorPerdido} placeholder="Ex: 800" />
+                  <Field label="Hora aproximada do depósito" value={horaFato} onChange={setHoraFato} placeholder="Ex: 06:02" />
+                </div>
+
+                <div className="space-y-3 mb-6">
+                  <label className="flex items-start gap-2 text-sm cursor-pointer p-3 rounded-lg border" style={{ borderColor: PAPER_LINE }}>
+                    <input type="checkbox" checked={dobro} onChange={(e) => setDobro(e.target.checked)} className="mt-1 w-4 h-4" />
+                    <div>
+                      <span style={{ color: INK, fontWeight: 500 }}>Pedir restituição em DOBRO (art. 42, parágrafo único, CDC)</span>
+                      <p className="text-xs mt-1" style={{ color: INK_SOFT }}>️ A restituição em dobro só é devida quando a empresa agiu de má-fé ou negligência grave, sem "engano justificável".</p>
+                    </div>
+                  </label>
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input type="checkbox" checked={danoMoral} onChange={(e) => setDanoMoral(e.target.checked)} className="w-4 h-4" />
+                    <span style={{ color: INK }}>Incluir pedido de Danos Morais</span>
+                  </label>
+                  {danoMoral && <Field label="Valor sugerido para Dano Moral (R$)" value={valorDanoMoral} onChange={setValorDanoMoral} placeholder="5000" />}
+                  {danoMoral && <p className="text-xs" style={{ color: INK_SOFT }}> Média no JEC para este tipo de causa: R$ 3.000 a R$ 5.000. O valor final é arbitrado pelo juiz.</p>}
+                </div>
+
+                <div className="rounded-lg p-4 space-y-1.5 mb-4" style={{ backgroundColor: "#F2EFE6" }}>
+                  <Row label="Valor base" value={fmt(calc.base)} />
+                  {dobro && <Row label="Em dobro (art. 42, CDC)" value={fmt(calc.comDobro)} />}
+                  <Row label={`Juros de mora (1% a.m. × ${calc.meses} meses)`} value={fmt(calc.juros)} />
+                  {danoMoral && <Row label="Danos morais (estimativa)" value={fmt(calc.danoMoral)} />}
+                  <div className="h-px my-2" style={{ backgroundColor: PAPER_LINE }} />
+                  <Row label="Total estimado da causa" value={fmt(calc.total)} bold />
+                </div>
+
+                {calc.excedeLimite ? (
+                  <div className="mb-4 p-4 rounded-lg border border-red-300 bg-red-50 text-red-800 text-sm">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle size={18} className="shrink-0 mt-0.5" />
+                      <div>
+                        <strong>Atenção: Valor acima do limite para Jus Postulandi.</strong>
+                        <p className="mt-1">O valor estimado ({fmt(calc.total)}) ultrapassa 20 salários mínimos (R$ {LIMITE_JEC.toLocaleString("pt-BR")}). Procure um advogado ou Defensoria Pública.</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : calc.total > 0 ? (
+                  <div className="mb-4 p-4 rounded-lg border border-green-300 bg-green-50 text-green-800 text-sm">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 size={18} className="shrink-0 mt-0.5" />
+                      <div>
+                        <strong>Valor dentro do limite para Jus Postulandi.</strong>
+                        <p className="mt-1">O valor estimado ({fmt(calc.total)}) está dentro do limite de 20 salários mínimos para atuação sem advogado no JEC.</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
+                <button onClick={() => setTab("peticao")} disabled={calc.excedeLimite} className="inline-flex items-center gap-1 text-sm font-medium px-4 py-2 rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed" style={{ backgroundColor: INK }}>
+                  Próximo: Montar Petição <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
+
+            {/* ABA 4: PETIÇÃO */}
+            {tab === "peticao" && (
+              <div>
+                <h2 className="text-lg font-semibold mb-4" style={{ color: INK }}>Dados para o Rascunho</h2>
+                <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                  <Field label="Seu nome completo" value={autor.nome} onChange={(v: string) => setAutor({ ...autor, nome: v })} />
+                  <Field label="CPF" value={autor.cpf} onChange={(v: string) => setAutor({ ...autor, cpf: v })} />
+                  <Field label="Endereço completo" value={autor.endereco} onChange={(v: string) => setAutor({ ...autor, endereco: v })} full />
+                  <Field label="Comarca (Cidade)" value={autor.comarca} onChange={(v: string) => setAutor({ ...autor, comarca: v })} />
+                  <Field label="UF" value={autor.uf} onChange={(v: string) => setAutor({ ...autor, uf: v })} />
+                  <Field label="Nome da casa de apostas (ré)" value={reu.nome} onChange={(v: string) => setReu({ ...reu, nome: v })} />
+                  <Field label="CNPJ da ré (se souber)" value={reu.cnpj} onChange={(v: string) => setReu({ ...reu, cnpj: v })} />
+                </div>
+
+                <label className="block text-sm font-medium mb-1" style={{ color: INK_SOFT }}>Relato dos fatos (em suas próprias palavras)</label>
+                <textarea value={relato} onChange={(e) => setRelato(e.target.value)} rows={5} placeholder="Ex: 'Me autoexcluí no Gov.br em 11/12/2025. No dia 22/12, a plataforma aceitou um depósito de R$ 800,00 mesmo com meu bloqueio ativo.'" className="w-full px-3 py-2 rounded-lg border outline-none focus:ring-2 mb-5" style={{ borderColor: PAPER_LINE }} />
+
+                <p className="text-sm font-medium mb-2" style={{ color: INK_SOFT }}>Argumentos Condicionais (Marque apenas se tiver a prova)</p>
+                <div className="space-y-1 mb-5">
+                  {ARGUMENTOS_CONDICIONAIS.map((a) => (
+                    <button key={a.id} onClick={() => toggleArg(a.id)} className="w-full flex items-start gap-3 text-left px-3 py-2 rounded-lg hover:bg-[#F2EFE6]">
+                      {argsCondSel[a.id] ? <CheckCircle2 size={18} className="shrink-0 mt-0.5" style={{ color: "#3F6B4A" }} /> : <Circle size={18} className="shrink-0 mt-0.5" style={{ color: "#B9B2A0" }} />}
+                      <span className="text-sm" style={{ color: INK }}>{a.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mt-5 mb-4"><DisclaimerBar compact /></div>
+                <label className="flex items-start gap-2 text-sm mb-4 cursor-pointer" onClick={() => setAckDisclaimer(!ackDisclaimer)}>
+                  {ackDisclaimer ? <CheckCircle2 size={18} className="shrink-0 mt-0.5" style={{ color: "#3F6B4A" }} /> : <Circle size={18} className="shrink-0 mt-0.5" style={{ color: "#B9B2A0" }} />}
+                  <span style={{ color: INK }}>Li o aviso acima e entendo que devo revisar o texto, prazos e normas antes de protocolar.</span>
+                </label>
+
+                <button onClick={gerarPeticao} disabled={!ackDisclaimer} className="inline-flex items-center gap-1 text-sm font-medium px-4 py-2 rounded-lg text-white disabled:opacity-40 disabled:cursor-not-allowed" style={{ backgroundColor: INK }}>
+                  Gerar Rascunho da Petição <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
+
+            {/* ABA 5: RESULTADO */}
+            {tab === "resultado" && (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-semibold" style={{ color: INK }}>Rascunho Gerado</h2>
+                  <div className="flex gap-2">
+                    <button onClick={copiar} className="inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg border" style={{ borderColor: PAPER_LINE, color: INK }}>
+                      <Copy size={14} /> Copiar Texto
+                    </button>
+                    <button onClick={baixarPDF} className="inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg text-white" style={{ backgroundColor: INK }}>
+                      <Download size={14} /> Baixar PDF Formatado
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="rounded-lg border p-6 whitespace-pre-wrap text-sm leading-relaxed max-h-[600px] overflow-y-auto mb-4" style={{ backgroundColor: "#FFFDF8", borderColor: PAPER_LINE, color: "#2A2A28", fontFamily: "Georgia, 'Times New Roman', serif" }}>
+                  {geradoTexto}
+                </div>
+                
+                <div className="p-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-sm">
+                  <strong>💡 Dica Profissional:</strong> Clique em <strong>"Baixar PDF Formatado"</strong> para obter o documento com margens, fonte Times New Roman, texto justificado e espaçamento 1.5, pronto para ser impresso ou anexado no PJe.
+                </div>
+              </div>
+            )}
+
           </div>
-          <p className="text-xs mb-6 max-w-2xl mx-auto" style={{ color: INK_SOFT }}>
-            <strong>Aviso Legal:</strong> Esta plataforma não é um escritório de advocacia e não oferece assessoria jurídica personalizada. 
-            Trata-se de uma ferramenta de automação de redação para auxiliar cidadãos no exercício do jus postulandi (Lei 9.099/95). 
-            Revise sempre o documento gerado antes de protocolar.
-          </p>
-          <p className="text-xs" style={{ color: "#9CA3AF" }}>
-            © {new Date().getFullYear()} RecuperaJogo. Todos os direitos reservados.
-          </p>
         </div>
-      </footer>
-
+      </div>
     </div>
   );
 }
