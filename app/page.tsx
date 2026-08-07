@@ -14,7 +14,7 @@ const GREEN_BORDER = "#BBF7D0";
 
 export default function LandingPage() {
   // ⚠️ ATENÇÃO: Substitua este link pelo seu link REAL do Stripe (Modo Live)
-  const stripeLink = "https://buy.stripe.com/SEU_LINK_LIVE_AQUI"; 
+  const stripeLink = "https://buy.stripe.com/3cIbJ12W71"; 
 
   return (
     <div className="min-h-screen w-full" style={{ backgroundColor: PAPER }}>
