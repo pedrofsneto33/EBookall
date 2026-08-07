@@ -12,6 +12,7 @@ const GREEN_BG = "#F0FDF4";
 const GREEN_BORDER = "#BBF7D0";
 
 export default function LandingPage() {
+  // Link real do Stripe (Modo Live)
   const stripeLink = "https://buy.stripe.com/3cIbJ12W71ZUgAofGZeQM00";
 
   return (
@@ -58,7 +59,7 @@ export default function LandingPage() {
           <a href="/gerador?perfil=autoexclusao"
              className="block border-2 rounded-xl p-6 text-left hover:shadow-lg transition-all"
              style={{ borderColor: PAPER_LINE, backgroundColor: "#FFF" }}>
-            <span className="text-3xl"></span>
+            <span className="text-3xl">🚫</span>
             <h3 className="font-semibold text-lg mt-2 mb-1" style={{ color: INK }}>
               Fui bloqueado e mesmo assim consegui depositar de novo
             </h3>
@@ -178,17 +179,21 @@ export default function LandingPage() {
               </li>
             </ul>
             
+            {/* LINK CORRIGIDO PARA BUSCA NO GOOGLE */}
             <div className="mt-6 text-center">
               <a 
-                href="https://rsa.cnj.jus.br/ja/"
+                href="https://www.google.com/search?q=Juizado+Especial+C%C3%ADvel+mais+pr%C3%B3ximo+de+mim"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg border transition-colors hover:bg-white"
                 style={{ borderColor: "#16A34A", color: "#16A34A" }}
               >
                 <MapPin size={16} />
-                Encontre o Juizado Especial mais perto de você
+                Buscar Juizado Especial no Google
               </a>
+              <p className="text-xs mt-2" style={{ color: INK_SOFT }}>
+                Ou acesse diretamente o site do Tribunal de Justiça (TJ) do seu estado.
+              </p>
             </div>
           </div>
         </div>
