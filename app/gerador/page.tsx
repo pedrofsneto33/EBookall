@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   AlertTriangle, CheckCircle2, Circle, Calculator, FileText,
   ClipboardList, Copy, Download, ChevronRight, Scale, Info,
-  AlertCircle, User, Heart, Shield, LogOut, Lock, MessageCircle
+  AlertCircle, User, Heart, Shield, LogOut, Lock, MessageCircle, Loader2
 } from "lucide-react";
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer';
 import { supabase } from "../login/supabase"; 
@@ -181,21 +181,26 @@ function Field({ label, value, onChange, full, placeholder }: { label: string; v
 export default function GeradorMaterialJuridico() {
   const router = useRouter();
   
-  // ✅ Busca o usuário real logado no Supabase
+  // ✅ Estados de autenticação
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true); // 🔒 Tela de carregamento enquanto verifica sessão
 
+  // 🔒 VERIFICAÇÃO DE AUTENTICAÇÃO — redireciona se não estiver logado
   useEffect(() => {
-    const getUser = async () => {
+    const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        // ✅ Correção: usa ?? null para converter undefined em null
-        setUserEmail(session.user.email ?? null);
-        setUserId(session.user.id ?? null);
+      if (!session?.user) {
+        // Não está logado → manda pro login com a URL de retorno
+        router.replace(`/login?redirect=/gerador`);
+        return;
       }
+      setUserEmail(session.user.email ?? null);
+      setUserId(session.user.id ?? null);
+      setLoading(false);
     };
-    getUser();
-  }, []);
+    checkAuth();
+  }, [router]);
 
   const [petitionCount, setPetitionCount] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
@@ -309,6 +314,18 @@ export default function GeradorMaterialJuridico() {
     URL.revokeObjectURL(url);
   }
   const provasMarcadas = Object.values(checked).filter(Boolean).length;
+
+  // 🔒 TELA DE CARREGAMENTO (enquanto verifica sessão)
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#F2EFE6" }}>
+        <div className="text-center">
+          <Loader2 size={40} className="mx-auto mb-4 animate-spin" style={{ color: SEAL }} />
+          <p className="text-sm font-medium" style={{ color: INK }}>Verificando acesso...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full" style={{ backgroundColor: "#F2EFE6" }}>
@@ -512,7 +529,6 @@ export default function GeradorMaterialJuridico() {
                   <strong>💡 Dica Profissional:</strong> Clique em <strong>"Baixar PDF Formatado"</strong> para obter o documento com margens, fonte Times New Roman, texto justificado e espaçamento 1.5, pronto para ser impresso ou anexado no PJe.
                 </div>
 
-                {/* ✅ BOTÃO DE COMPARTILHAMENTO ORGÂNICO */}
                 <div className="mt-6 p-5 rounded-lg border text-center" style={{ backgroundColor: AMBER_BG, borderColor: AMBER_BORDER }}>
                   <p className="text-sm font-semibold mb-3" style={{ color: INK }}>Conhece alguém que também foi prejudicado por casa de apostas?</p>
                   <p className="text-xs mb-4" style={{ color: INK_SOFT }}>Esse público se indica muito entre si. Compartilhe o RecuperaJogo e ajude outra pessoa a recuperar o que é dela.</p>
