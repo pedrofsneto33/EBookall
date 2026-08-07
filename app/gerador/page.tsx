@@ -5,15 +5,12 @@ import { useRouter } from "next/navigation";
 import {
   AlertTriangle, CheckCircle2, Circle, Calculator, FileText,
   ClipboardList, Copy, Download, ChevronRight, Scale, Info,
-  AlertCircle, User, Heart, Shield, LogOut, Lock
+  AlertCircle, User, Heart, Shield, LogOut, Lock, MessageCircle
 } from "lucide-react";
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer';
 
 import { supabase } from "../login/supabase"; 
 
-// =========================================================================
-// 1. ESTILOS DO PDF
-// =========================================================================
 const pdfStyles = StyleSheet.create({
   page: { padding: 50, fontFamily: 'Times-Roman', fontSize: 12, lineHeight: 1.5 },
   header: { textAlign: 'center', marginBottom: 20, fontSize: 12, fontWeight: 'bold', textTransform: 'uppercase' },
@@ -60,9 +57,6 @@ const PeticaoPDF = ({ dados }: { dados: any }) => (
   </Document>
 );
 
-// =========================================================================
-// 2. CONSTANTES E ARGUMENTOS
-// =========================================================================
 const INK = "#1E2A3A";
 const INK_SOFT = "#3D4C5E";
 const PAPER = "#FBF9F4";
@@ -112,7 +106,6 @@ const ARGUMENTOS_UNIVERSAIS = [
   },
 ];
 
-// ✅ AJUSTE FINAL: Argumento de Ludopatia com a ressalva de dano moral
 const ARGUMENTO_LUDOPATIA = {
   id: "ludo_vulnerabilidade", 
   label: "Nulidade das Apostas por Ludopatia (Lei 14.790/2023, art. 26)",
@@ -135,9 +128,6 @@ const ARGUMENTOS_CONDICIONAIS = [
   },
 ];
 
-// =========================================================================
-// 3. COMPONENTES DE UI
-// =========================================================================
 function TabButton({ active, onClick, icon: Icon, n, label }: any) {
   return (
     <button onClick={onClick} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors w-full ${active ? "text-white" : "text-[#3D4C5E] hover:bg-[#EFEADE]"}`} style={active ? { backgroundColor: INK } : { backgroundColor: "transparent" }}>
@@ -177,9 +167,6 @@ function Field({ label, value, onChange, full, placeholder }: any) {
   );
 }
 
-// =========================================================================
-// 4. COMPONENTE PRINCIPAL
-// =========================================================================
 export default function GeradorMaterialJuridico() {
   const router = useRouter();
   const [userEmail, setUserEmail] = useState<string | null>("usuario@teste.com");
@@ -192,7 +179,6 @@ export default function GeradorMaterialJuridico() {
   const [dadosPDF, setDadosPDF] = useState<any>(null);
   const [geradoTexto, setGeradoTexto] = useState("");
   
-  // ✅ PERFIL: Lê da URL ou usa o padrão
   const [perfil, setPerfil] = useState<"generico" | "ludopatia">("generico");
 
   useEffect(() => {
@@ -336,7 +322,6 @@ export default function GeradorMaterialJuridico() {
 
           <div className="rounded-xl border p-6" style={{ backgroundColor: PAPER, borderColor: PAPER_LINE }}>
             
-            {/* ABA 0: PERFIL */}
             {tab === "perfil" && (
               <div>
                 <h2 className="text-lg font-semibold mb-4" style={{ color: INK }}>Selecione o Perfil do seu Caso</h2>
@@ -354,7 +339,6 @@ export default function GeradorMaterialJuridico() {
                     <input type="radio" checked={perfil === "ludopatia"} onChange={() => setPerfil("ludopatia")} className="mt-1 w-4 h-4" />
                     <div>
                       <span className="text-sm font-bold block" style={{ color: INK }}>Ludopatia / Saúde Mental (Vulnerabilidade)</span>
-                      {/* ✅ AJUSTE FINAL: Texto suavizado sobre o laudo */}
                       <p className="text-xs mt-1" style={{ color: INK_SOFT }}>Inclui argumentos sobre nulidade das apostas pela Lei 14.790/2023 (art. 26). Laudo não é sempre obrigatório, mas fortalece muito o caso — e pode ser obtido de graça no CAPS.</p>
                     </div>
                   </label>
@@ -363,7 +347,6 @@ export default function GeradorMaterialJuridico() {
               </div>
             )}
 
-            {/* ABA 1: ROTEIRO */}
             {tab === "roteiro" && (
               <div>
                 <h2 className="text-lg font-semibold mb-4" style={{ color: INK }}>Passo a Passo Pré-Processual</h2>
@@ -388,7 +371,6 @@ export default function GeradorMaterialJuridico() {
               </div>
             )}
 
-            {/* ABA 2: PROVAS */}
             {tab === "provas" && (
               <div>
                 <div className="flex items-center justify-between mb-4"><h2 className="text-lg font-semibold" style={{ color: INK }}>Checklist de Provas</h2><span className="text-xs font-medium" style={{ color: INK_SOFT }}>{provasMarcadas}/{PROVAS.length} reunidas</span></div>
@@ -407,7 +389,6 @@ export default function GeradorMaterialJuridico() {
               </div>
             )}
 
-            {/* ABA 3: CÁLCULO */}
             {tab === "calculo" && (
               <div>
                 <h2 className="text-lg font-semibold mb-4" style={{ color: INK }}>Calculadora de Valores (Estimativa)</h2>
@@ -455,7 +436,6 @@ export default function GeradorMaterialJuridico() {
               </div>
             )}
 
-            {/* ABA 4: PETIÇÃO */}
             {tab === "peticao" && (
               <div>
                 <h2 className="text-lg font-semibold mb-4" style={{ color: INK }}>Dados para o Rascunho</h2>
@@ -490,7 +470,6 @@ export default function GeradorMaterialJuridico() {
               </div>
             )}
 
-            {/* ABA 5: RESULTADO */}
             {tab === "resultado" && (
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -505,6 +484,25 @@ export default function GeradorMaterialJuridico() {
                 </div>
                 <div className="p-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-sm">
                   <strong>💡 Dica Profissional:</strong> Clique em <strong>"Baixar PDF Formatado"</strong> para obter o documento com margens, fonte Times New Roman, texto justificado e espaçamento 1.5, pronto para ser impresso ou anexado no PJe.
+                </div>
+
+                {/* ✅ NOVO: BOTÃO DE COMPARTILHAMENTO ORGÂNICO */}
+                <div className="mt-6 p-5 rounded-lg border text-center" style={{ backgroundColor: AMBER_BG, borderColor: AMBER_BORDER }}>
+                  <p className="text-sm font-semibold mb-3" style={{ color: INK }}>
+                    Conhece alguém que também foi prejudicado por casa de apostas?
+                  </p>
+                  <p className="text-xs mb-4" style={{ color: INK_SOFT }}>
+                    Esse público se indica muito entre si. Compartilhe o RecuperaJogo e ajude outra pessoa a recuperar o que é dela.
+                  </p>
+                  <a 
+                    href={`https://wa.me/?text=${encodeURIComponent("Acabei de ver uma ferramenta que ajuda a processar casa de apostas que ignoram autoexclusão. Dá uma olhada: https://recuperajogo.vercel.app")}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-white text-sm font-medium transition-transform hover:scale-105" 
+                    style={{ backgroundColor: "#25D366" }}
+                  >
+                    <MessageCircle size={16} /> Compartilhar no WhatsApp
+                  </a>
                 </div>
               </div>
             )}

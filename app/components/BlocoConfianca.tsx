@@ -9,7 +9,7 @@ const GREEN_BG = "#EEF4EF";
 const GREEN_BORDER = "#B9CFC0";
 const GREEN = "#3F6B4A";
 
-// Número de WhatsApp do Pedro (formato internacional)
+// ✅ Número real do Pedro (formato internacional)
 const WHATSAPP_NUMERO = "5586988117925";
 const WHATSAPP_MSG = encodeURIComponent("Oi! Tenho uma dúvida sobre o RecuperaJogo.");
 
@@ -66,7 +66,7 @@ export function Garantia() {
   );
 }
 
-export function BotaoWhatsApp({ floating = false }: { floating?: boolean }) {
+export function BotaoWhatsApp({ floating = false }) {
   const base =
     "inline-flex items-center gap-2 px-4 py-3 rounded-full text-sm font-medium text-white shadow-lg";
   return (
@@ -83,6 +83,7 @@ export function BotaoWhatsApp({ floating = false }: { floating?: boolean }) {
   );
 }
 
+// ✅ Link corrigido: busca no Google (o rsa.cnj.jus.br está fora do ar)
 export function LocalizarJuizado() {
   return (
     <a
@@ -93,7 +94,7 @@ export function LocalizarJuizado() {
       style={{ borderColor: "#E4DFD1", color: INK }}
     >
       <MapPin size={16} style={{ color: SEAL }} />
-      Encontrar o Juizado Especial mais perto de você
+      Buscar Juizado Especial no Google
     </a>
   );
 }

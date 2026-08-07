@@ -1,161 +1,85 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { CheckCircle2, ArrowRight, FileText, Shield, Scale, User, Zap } from "lucide-react";
-import { supabase } from "../login/supabase";
+import React, { useEffect } from "react";
+import Link from "next/link";
+import { Scale, CheckCircle2, ArrowRight, FileText, Shield } from "lucide-react";
 
 const INK = "#1E2A3A";
 const INK_SOFT = "#3D4C5E";
 const PAPER = "#FBF9F4";
+const PAPER_LINE = "#E4DFD1";
 const SEAL = "#8A6D3B";
 const GREEN_BG = "#F0FDF4";
 const GREEN_BORDER = "#BBF7D0";
-const AMBER_BG = "#FBF1DD";
-const AMBER_BORDER = "#D8B368";
 
 export default function PaginaObrigado() {
-  const router = useRouter();
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-
+  // ✅ Rastrear compra no Plausible
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user?.email) {
-        setUserEmail(session.user.email);
-      }
-    };
-    checkSession();
+    if (typeof window !== 'undefined' && (window as any).plausible) {
+      (window as any).plausible('Compra Confirmada');
+    }
   }, []);
 
   return (
-    <div className="min-h-screen w-full" style={{ backgroundColor: "#F2EFE6" }}>
-      
-      {/* Header */}
-      <header className="border-b px-4 py-3 flex items-center justify-between shadow-sm" style={{ backgroundColor: PAPER, borderColor: "#E4DFD1" }}>
-        <div className="flex items-center gap-2">
-          <Scale size={20} style={{ color: SEAL }} />
-          <span className="text-lg font-semibold" style={{ color: INK, fontFamily: "Georgia, serif" }}>
-            RecuperaJogo
-          </span>
-        </div>
-        {userEmail && (
-          <div className="flex items-center gap-2 text-sm" style={{ color: INK_SOFT }}>
-            <User size={14} />
-            <span>{userEmail}</span>
-          </div>
-        )}
-      </header>
-
-      {/* Conteúdo Principal */}
-      <main className="max-w-3xl mx-auto px-4 py-16">
+    <div className="min-h-screen w-full flex items-center justify-center p-4" style={{ backgroundColor: PAPER }}>
+      <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl border p-8 text-center" style={{ borderColor: PAPER_LINE }}>
         
-        {/* Confirmação de Pagamento */}
-        <div className="rounded-xl border-2 p-8 text-center mb-8" style={{ borderColor: GREEN_BORDER, backgroundColor: GREEN_BG }}>
-          <CheckCircle2 size={64} className="mx-auto mb-4" style={{ color: "#16A34A" }} />
-          <h1 className="text-3xl font-bold mb-3" style={{ color: INK, fontFamily: "Georgia, serif" }}>
-            Pagamento Confirmado!
-          </h1>
-          <p className="text-lg" style={{ color: INK_SOFT }}>
-            Seu acesso ao RecuperaJogo está 100% liberado.
-          </p>
+        <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: GREEN_BG }}>
+          <CheckCircle2 size={36} style={{ color: "#16A34A" }} />
         </div>
 
-        {/* O que fazer agora */}
-        <div className="rounded-xl border p-8 mb-8" style={{ backgroundColor: PAPER, borderColor: "#E4DFD1" }}>
-          <h2 className="text-2xl font-bold mb-6" style={{ color: INK, fontFamily: "Georgia, serif" }}>
-            O que fazer agora?
-          </h2>
-          
-          <div className="space-y-6">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-bold text-lg" style={{ backgroundColor: SEAL, color: "#FFF" }}>
-                1
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-1" style={{ color: INK }}>
-                  Acesse o Gerador de Petição
-                </h3>
-                <p className="text-sm" style={{ color: INK_SOFT }}>
-                  Clique no botão abaixo. Lá você vai montar sua petição passo a passo, com argumentos jurídicos blindados baseados na IN 31/2025 e na Nota Informativa 1864.
-                </p>
-              </div>
-            </div>
+        <h1 className="text-3xl font-bold mb-3" style={{ color: INK, fontFamily: "Georgia, serif" }}>
+          Pagamento confirmado!
+        </h1>
+        <p className="text-base mb-6" style={{ color: INK_SOFT }}>
+          Seu acesso ao RecuperaJogo foi liberado. Você receberá um e-mail com os detalhes de login em instantes.
+        </p>
 
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-bold text-lg" style={{ backgroundColor: SEAL, color: "#FFF" }}>
-                2
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-1" style={{ color: INK }}>
-                  Reúna suas provas
-                </h3>
-                <p className="text-sm" style={{ color: INK_SOFT }}>
-                  Antes de começar, tenha em mãos: print da autoexclusão, extrato da casa de apostas, comprovantes de depósito e e-mails do suporte. O gerador vai te guiar no checklist completo.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-bold text-lg" style={{ backgroundColor: SEAL, color: "#FFF" }}>
-                3
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-1" style={{ color: INK }}>
-                  Gere e baixe seu PDF
-                </h3>
-                <p className="text-sm" style={{ color: INK_SOFT }}>
-                  O sistema calcula o valor da causa, insere os argumentos corretos e gera um PDF formatado com cara de petição profissional. É só revisar, assinar e protocolar no JEC.
-                </p>
-              </div>
-            </div>
-          </div>
+        <div className="rounded-xl border p-5 mb-6 text-left" style={{ backgroundColor: GREEN_BG, borderColor: GREEN_BORDER }}>
+          <h3 className="font-bold mb-2 flex items-center gap-2" style={{ color: INK }}>
+            <FileText size={18} style={{ color: "#16A34A" }} />
+            Próximos passos:
+          </h3>
+          <ol className="space-y-2 text-sm" style={{ color: INK }}>
+            <li className="flex items-start gap-2">
+              <span className="font-bold" style={{ color: "#16A34A" }}>1.</span>
+              <span>Faça login com o e-mail que você usou na compra.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="font-bold" style={{ color: "#16A34A" }}>2.</span>
+              <span>Escolha o perfil do seu caso (Autoexclusão ou Ludopatia).</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="font-bold" style={{ color: "#16A34A" }}>3.</span>
+              <span>Siga o passo a passo e gere sua petição em PDF.</span>
+            </li>
+          </ol>
         </div>
 
-        {/* Botão Principal */}
-        <div className="text-center mb-8">
-          <button 
-            onClick={() => router.push("/gerador")}
-            className="inline-flex items-center gap-2 text-base font-medium px-8 py-4 rounded-lg transition-transform hover:scale-105"
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Link 
+            href="/login"
+            className="inline-flex items-center justify-center gap-2 text-base font-bold px-6 py-3 rounded-lg transition-transform hover:scale-105"
             style={{ backgroundColor: SEAL, color: "#FFF" }}
           >
-            <FileText size={20} />
-            Ir para o Gerador de Petição
-            <ArrowRight size={18} />
-          </button>
-          {!userEmail && (
-            <p className="text-xs mt-3" style={{ color: INK_SOFT }}>
-              Se você não estiver logado, será redirecionado para a página de login.
-            </p>
-          )}
+            Acessar o Gerador <ArrowRight size={18} />
+          </Link>
+          <Link 
+            href="/guia"
+            className="inline-flex items-center justify-center gap-2 text-sm font-medium px-6 py-3 rounded-lg border transition-colors hover:bg-[#EFEADE]"
+            style={{ borderColor: SEAL, color: SEAL }}
+          >
+            Reler o Guia Gratuito
+          </Link>
         </div>
 
-        {/* Dica Importante */}
-        <div className="rounded-lg border p-6" style={{ backgroundColor: AMBER_BG, borderColor: AMBER_BORDER }}>
-          <div className="flex items-start gap-3">
-            <Zap size={24} className="shrink-0 mt-1" style={{ color: SEAL }} />
-            <div>
-              <h3 className="text-lg font-semibold mb-2" style={{ color: INK }}>
-                💡 Dica importante sobre seu acesso
-              </h3>
-              <p className="text-sm" style={{ color: "#5C4A22" }}>
-                Você agora tem acesso total ao motor jurídico do RecuperaJogo. Diferente de modelos estáticos da internet, nossa ferramenta se adapta ao seu caso específico (seja autoexclusão genérica ou por saúde mental) e calcula os juros corretos automaticamente. 
-                <br /><br />
-                <strong>Siga as abas na ordem:</strong> comece pelo "Perfil do Caso" e vá avançando. O sistema foi desenhado para que você não precise pensar em qual artigo de lei usar — nós já fizemos a parte pesada para você.
-              </p>
-            </div>
-          </div>
+        <div className="mt-8 pt-6 border-t" style={{ borderColor: PAPER_LINE }}>
+          <p className="text-xs flex items-center justify-center gap-2" style={{ color: INK_SOFT }}>
+            <Shield size={14} />
+            Dúvidas? Fale conosco pelo WhatsApp: (86) 98811-7925
+          </p>
         </div>
-
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t py-8 text-center" style={{ borderColor: "#E4DFD1", backgroundColor: PAPER }}>
-        <p className="text-xs" style={{ color: INK_SOFT }}>
-          © {new Date().getFullYear()} RecuperaJogo. Todos os direitos reservados.
-        </p>
-      </footer>
-
+      </div>
     </div>
   );
 }
