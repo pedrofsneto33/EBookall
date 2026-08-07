@@ -3,9 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Scale, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
-
-// Se o seu arquivo supabase.ts estiver na pasta 'app', mude para "../supabase"
-import { supabase } from "./supabase"; 
+import { supabase } from "./supabase";
 
 const INK = "#1E2A3A";
 const INK_SOFT = "#3D4C5E";
@@ -17,11 +15,12 @@ const AMBER_BORDER = "#D8B368";
 
 export default function Login() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLogin, setIsLogin] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [isLogin, setIsLogin] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>("");
   const [messageType, setMessageType] = useState<"success" | "error">("success");
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -30,24 +29,36 @@ export default function Login() {
     setMessage("");
 
     if (isLogin) {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password.trim(),
+      });
+      
       if (error) {
-        setMessage("Erro: " + error.message);
+        console.error("Erro no login:", error.message);
+        setMessage("Erro: " + (error.message === "Invalid login credentials" ? "E-mail ou senha incorretos." : error.message));
         setMessageType("error");
         setLoading(false);
       } else {
         setMessage("Login realizado! Redirecionando...");
         setMessageType("success");
-        setTimeout(() => router.replace("/gerador"), 500);
+        setTimeout(() => {
+          router.replace("/gerador");
+        }, 500);
       }
     } else {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password: password.trim(),
+      });
+      
       if (error) {
+        console.error("Erro no cadastro:", error.message);
         setMessage("Erro: " + error.message);
         setMessageType("error");
         setLoading(false);
       } else {
-        setMessage("Conta criada! Verifique seu e-mail.");
+        setMessage("Conta criada com sucesso! Verifique seu e-mail para confirmar e depois faça o login.");
         setMessageType("success");
         setIsLogin(true);
         setLoading(false);
@@ -76,10 +87,7 @@ export default function Login() {
             <input 
               type="email" 
               value={email}
-              onChange={(e) => {
-                console.log("✅ Tecla pressionada:", e.target.value); // DEBUG
-                setEmail(e.target.value);
-              }}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border outline-none focus:ring-2 transition-all"
               style={{ borderColor: PAPER_LINE, backgroundColor: PAPER }}
               placeholder="seu@email.com"
@@ -127,7 +135,10 @@ export default function Login() {
             {isLogin ? "Ainda não tem uma conta?" : "Já possui uma conta?"}{" "}
             <button 
               type="button"
-              onClick={() => { setIsLogin(!isLogin); setMessage(""); }}
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setMessage("");
+              }}
               className="font-semibold hover:underline transition-colors"
               style={{ color: SEAL }}
             >
