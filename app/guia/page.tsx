@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Scale, FileText, CheckCircle2, ArrowRight, Shield, AlertTriangle, Heart, BookOpen, Gavel, Lock, Calculator, MapPin } from "lucide-react";
+import { Scale, BookOpen, CheckCircle2, ArrowRight, Lock, AlertTriangle } from "lucide-react";
+import CapturaLead from "../components/CapturaLead";
 
 const INK = "#1E2A3A";
 const INK_SOFT = "#3D4C5E";
@@ -8,246 +9,144 @@ const PAPER_LINE = "#E4DFD1";
 const SEAL = "#8A6D3B";
 const AMBER_BG = "#FBF1DD";
 const AMBER_BORDER = "#D8B368";
-const GREEN_BG = "#F0FDF4";
-const GREEN_BORDER = "#BBF7D0";
 
-export default function LandingPage() {
-  // ⚠️ ATENÇÃO: Substitua este link pelo seu link REAL do Stripe (Modo Live)
-  const stripeLink = "https://buy.stripe.com/SEU_LINK_LIVE_AQUI"; 
-
+export default function GuiaPage() {
   return (
     <div className="min-h-screen w-full" style={{ backgroundColor: PAPER }}>
-      
       {/* HEADER */}
       <header className="border-b px-6 py-4 flex items-center justify-between" style={{ backgroundColor: PAPER, borderColor: PAPER_LINE }}>
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <Scale size={22} style={{ color: SEAL }} />
-          <span className="text-xl font-bold" style={{ color: INK, fontFamily: "Georgia, serif" }}>
-            RecuperaJogo
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <Link href="/guia" className="text-sm font-medium hover:underline" style={{ color: INK_SOFT }}>
-            Guia Gratuito
-          </Link>
-          <Link 
-            href="/login" 
-            className="text-sm font-semibold px-4 py-2 rounded-lg border transition-colors hover:bg-[#EFEADE]"
-            style={{ borderColor: SEAL, color: SEAL }}
-          >
-            Acessar Sistema
-          </Link>
-        </div>
+          <span className="text-xl font-bold" style={{ color: INK, fontFamily: "Georgia, serif" }}>RecuperaJogo</span>
+        </Link>
+        <Link href="/" className="text-sm font-medium hover:underline" style={{ color: INK_SOFT }}>
+          ← Voltar para Home
+        </Link>
       </header>
 
-      {/* HERO SECTION */}
-      <section className="max-w-4xl mx-auto px-6 py-16 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-6" style={{ backgroundColor: AMBER_BG, color: "#5C4A22", border: `1px solid ${AMBER_BORDER}` }}>
-          <Shield size={14} />
-          Baseado na Lei 14.790/2023, IN 31/2025 e no Código de Defesa do Consumidor
-        </div>
-        
-        <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-6" style={{ color: INK, fontFamily: "Georgia, serif" }}>
-          A casa de apostas lucrou com seu vício? A lei exige que ela devolva seu dinheiro.
-        </h1>
-        
-        <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto" style={{ color: INK_SOFT }}>
-          A Lei das Bets (14.790/2023) considera nulas as apostas de pessoas com ludopatia. Se a plataforma não identificou seu comportamento compulsivo ou ignorou sua autoexclusão, ela violou a lei. Gere sua petição e exija a restituição.
-        </p>
-
-        {/* HISTÓRIA CURTA (HERO) */}
-        <div className="max-w-2xl mx-auto mb-8 p-4 rounded-lg border-l-4" style={{ backgroundColor: "#F8F6F0", borderColor: SEAL }}>
-          <p className="text-sm italic text-left" style={{ color: INK_SOFT }}>
-            "Eu mesmo processei casas de apostas sozinho, sem advogado, pelo Juizado Especial — e recuperei o que era meu. Numa terceira, perdi na primeira instância e recorri. Este site nasceu do que aprendi: <strong>a plataforma é desenhada para te prender, mas a lei brasileira protege o seu direito de sair.</strong>"
+      <main className="max-w-3xl mx-auto px-6 py-12">
+        {/* TÍTULO */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-4" style={{ backgroundColor: AMBER_BG, color: "#5C4A22", border: `1px solid ${AMBER_BORDER}` }}>
+            <BookOpen size={14} /> Guia Gratuito · Parte 1 de 2
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: INK, fontFamily: "Georgia, serif" }}>
+            Recuperei Meu Dinheiro das Bets Sozinho — E Você Também Pode
+          </h1>
+          <p className="text-lg" style={{ color: INK_SOFT }}>
+            Guia prático do Juizado Especial para quem apostou, perdeu e quer os fatos, não promessa milagrosa.
           </p>
         </div>
 
-        <a 
-          href={stripeLink}
-          className="inline-flex items-center gap-2 text-lg font-bold px-8 py-4 rounded-lg transition-transform hover:scale-105 shadow-lg"
-          style={{ backgroundColor: SEAL, color: "#FFF" }}
-        >
-          Gerar Minha Petição Agora
-          <ArrowRight size={20} />
-        </a>
-
-        {/* DISCLAIMER DE 1 LINHA */}
-        <p className="text-xs mt-4 max-w-xl mx-auto" style={{ color: INK_SOFT }}>
-          <AlertTriangle size={12} className="inline mr-1" />
-          Isto não é assessoria jurídica. Ferramenta de automação para causas até 20 salários-mínimos (jus postulandi). Revise antes de protocolar.
-        </p>
-      </section>
-
-      {/* PROBLEMA / CONTRADIÇÃO */}
-      <section className="py-16 px-6" style={{ backgroundColor: "#F2EFE6" }}>
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-2xl font-bold mb-6 text-center" style={{ color: INK, fontFamily: "Georgia, serif" }}>
-            A contradição que a casa de apostas não quer que você veja
-          </h2>
-          <div className="bg-white p-6 rounded-xl border shadow-sm" style={{ borderColor: PAPER_LINE }}>
-            <p className="text-base leading-relaxed mb-4" style={{ color: INK }}>
-              Você se autoexclui. A plataforma confirma o bloqueio. Mas, horas depois, o sistema aceita um novo depósito seu. 
-            </p>
-            <p className="text-base leading-relaxed mb-4" style={{ color: INK }}>
-              Isso não é azar. É uma falha grave na prestação do serviço. A casa de apostas descumpriu uma obrigação regulatória federal ao não integrar seu bloqueio ao sistema oficial (SIGAP) no prazo de 30 dias, conforme a <strong>IN SPA/MF nº 31/2025</strong>.
-            </p>
-            <p className="text-base leading-relaxed" style={{ color: INK }}>
-              E se você nunca chegou a se autoexcluir formalmente? A <strong>Lei 14.790/2023 (art. 26)</strong> impõe às operadoras o dever de monitorar comportamento compulsivo e identificar padrões de ludopatia. O dever é da casa, não seu.
-            </p>
-          </div>
+        {/* AVISO LEGAL */}
+        <div className="flex gap-3 items-start rounded-lg border px-4 py-3 mb-8" style={{ backgroundColor: AMBER_BG, borderColor: AMBER_BORDER }}>
+          <AlertTriangle size={18} className="shrink-0 mt-0.5" style={{ color: SEAL }} />
+          <p className="text-sm leading-relaxed" style={{ color: "#5C4A22" }}>
+            <strong>AVISO IMPORTANTE:</strong> Este material é educativo, baseado em experiência pessoal real. Não é assessoria jurídica. As ferramentas mencionadas são de automação de documentos — quem decide, revisa e protocola é sempre você (jus postulandi). Prazos e normas podem ter mudado; confirme sempre a versão vigente.
+          </p>
         </div>
-      </section>
 
-      {/* MINHA HISTÓRIA (VERSÃO COMPLETA) */}
-      <section className="py-16 px-6">
-        <div className="max-w-3xl mx-auto">
-          <div className="flex items-center gap-3 mb-6">
-            <BookOpen size={24} style={{ color: SEAL }} />
-            <h2 className="text-2xl font-bold" style={{ color: INK, fontFamily: "Georgia, serif" }}>
-              Minha História
+        {/* CAPÍTULOS GRATUITOS (1 a 3) */}
+        <div className="space-y-8 mb-12">
+          <Capitulo
+            n="1"
+            titulo="Você Não Está Sozinho Nisso"
+            texto="Eu depositei dinheiro numa casa de apostas achando que sabia o que estava fazendo. Não sabia. Em algum momento minha conta foi bloqueada — e, mesmo bloqueada, horas depois a plataforma aceitou um novo depósito meu, de R$ 25. Isso não devia ter acontecido. Se o sistema me bloqueou por segurança ou irregularidade, como aceitou dinheiro meu duas horas e meia depois? Foi esse detalhe — pequeno, quase escondido num e-mail de suporte — que me fez perceber que o problema não era só 'eu apostei e perdi, azar o meu'. Tinha uma contradição ali, documentada, com hora certa. Levantamento do DataSenado mostra que quatro em cada dez apostadores mensais no Brasil já estão endividados, com contas atrasadas há mais de 90 dias — isso não é um problema individual seu, é um padrão de um setor que movimenta bilhões."
+          />
+          <Capitulo
+            n="2"
+            titulo="Os Dois Erros Que Pioram Tudo"
+            texto="Erro 1: tentar 'recuperar' apostando mais. Sei que a vontade existe — errar por menos, tentar de novo, 'só mais uma'. Só que isso não é recuperação, é aprofundar o buraco. Organizações que acompanham dependência em jogo são categóricas: quem tenta se recuperar apostando de novo, na prática, só piora a situação financeira. Erro 2: reclamar direto com a casa de apostas sem provas organizadas. A maioria das pessoas manda mensagem de suporte, recebe uma resposta padrão, e desiste ali. O suporte da casa de apostas não existe pra te dar razão — existe pra te manter satisfeito o suficiente pra você não sair."
+          />
+          <Capitulo
+            n="3"
+            titulo="O Caminho Que Pouca Gente Conhece: o Juizado Especial"
+            texto="Existe uma regra na lei brasileira (Lei 9.099/95, art. 9º) chamada jus postulandi: em causas de até 20 salários-mínimos, você pode entrar com uma ação sozinho, sem precisar de advogado, no Juizado Especial Cível (JEC). Foi assim que eu processei duas casas de apostas diferentes — sem pagar honorário nenhum, sem dividir nada do valor recuperado. Isso é diferente de contratar um escritório de advocacia — que hoje já existem muitos especializados nesse tipo de causa, cobrando geralmente por êxito (só recebem se você ganhar, tirando uma porcentagem do valor). Não há nada de errado nisso, é uma opção válida. Mas se sua causa é pequena, ou você simplesmente prefere não dividir o que é seu, o Juizado Especial com jus postulandi é uma porta que existe, é legal, e pouquíssima gente sabe que pode usar sozinha."
+          />
+        </div>
+
+        {/* BLOCO DE CAPTURA */}
+        <div className="my-12">
+          <CapturaLead />
+        </div>
+
+        {/* CAPÍTULOS LIBERADOS (4 a 7) */}
+        <div className="space-y-8 mt-12">
+          <Capitulo
+            n="4"
+            titulo="Passo 1: Reunir as Provas Certas"
+            texto="Prova é o que decide um processo — não a indignação, não o quanto você perdeu, mas o que está documentada. Checklist do que reunir: (1) Extrato/histórico completo da conta na casa de apostas (depósitos, saques, apostas realizadas); (2) Comprovantes bancários de cada depósito (Pix, cartão, boleto) — com data e hora; (3) Prints ou e-mails de conversas com o suporte da casa de apostas; (4) Print da tela de bloqueio/exclusão da conta, com data e hora visíveis; (5) Se aplicável: print de depósito aceito depois do bloqueio — essa contradição, sozinha, já é um argumento forte; (6) Termos de uso / política vigentes da casa na época dos fatos; (7) Protocolo de reclamação no Procon ou consumidor.gov.br, se já tiver registrado; (8) Situação cadastral / CNPJ da empresa (Receita Federal, ou sites como Casa dos Dados). Reserve um único e-mail ou pasta só pra isso. Salve tudo com nome e data no arquivo (ex: 'print-bloqueio-23-12.png'). Quando chegar a hora de montar o argumento, você vai agradecer a organização."
+          />
+          <Capitulo
+            n="5"
+            titulo="Passo 2: Montar o Argumento (A Base Legal Real)"
+            texto="Você não precisa ser advogado pra entender o essencial. O Código de Defesa do Consumidor (CDC) protege você nessa relação, porque apostar numa plataforma é, sim, uma relação de consumo. Mas existe uma lei específica que mudou tudo em 2023. A Lei nº 14.790/2023 (Lei das Bets), no artigo 26, estabelece que: 'É nula de pleno direito a aposta realizada por pessoa diagnosticada com transtorno do jogo patológico.' Isso significa que, se você tem diagnóstico de ludopatia (CID-10 F63.0 ou CID-11 6C50), as apostas que você fez são juridicamente nulas — e você tem direito à restituição dos valores perdidos, independente de ter feito autoexclusão formal ou não. A lei também impõe às operadoras o dever de: monitorar comportamento de risco dos usuários; oferecer mecanismos efetivos de jogo responsável; identificar padrões de comportamento compulsivo. O dever é da casa de apostas de identificar o padrão, não do usuário de ter se autoexcluído primeiro. Três pilares que sustentam esse tipo de causa: (1) Nulidade das apostas por ludopatia (Lei 14.790/2023, art. 26); (2) Dever de monitoramento da operadora; (3) Responsabilidade objetiva do fornecedor (art. 14 do CDC). Jurisprudência real: 10ª Vara Cível de São Paulo condenou casa de apostas por falha na prestação do serviço ao não identificar padrão inequívoco de comportamento compulsivo, admitindo restituição parcial de valores. Em outro caso documentado, casa de apostas foi condenada a devolver R$ 217 mil a uma consumidora que demonstrou ter recorrido a empréstimos com familiares e uso recorrente de cartão de crédito para sustentar o vício. Sobre o laudo médico: laudo médico não é sempre obrigatório, mas fortalece muito o caso. O diagnóstico deve ser feito preferencialmente por médico psiquiatra, identificando a doença pelos códigos CID-10 F63.0 ou CID-11 6C50. Você pode conseguir esse laudo de graça no CAPS, via SUS."
+          />
+          <Capitulo
+            n="6"
+            titulo="Passo 3: Protocolar e o Que Esperar"
+            texto="Com as provas organizadas e o argumento montado, o próximo passo é dar entrada no Juizado Especial Cível da sua cidade — presencialmente, ou pelo PJe/e-Proc do seu estado, dependendo de como o tribunal local organiza isso. Coisas que eu queria ter sabido antes de começar: (1) Guarde cópia de tudo que você protocola. Parece óbvio, mas em meio à ansiedade do primeiro processo, gente esquece. (2) Prepare-se pra audiência de conciliação primeiro. Na maioria dos casos, antes de qualquer decisão do juiz, existe uma tentativa de acordo. Chegar com valor mínimo aceitável já definido na sua cabeça ajuda a não decidir sob pressão. (3) Nem toda primeira instância é favorável — e não é o fim. Existe o recurso inominado, um novo pedido de análise por uma turma recursal. Perder na primeira rodada dói, mas não encerra o caminho se você ainda acredita no argumento e tem prova pra sustentar. (4) Prazos existem e são curtos — tanto pra contestação da outra parte quanto pra eventual recurso seu. Anote a data de cada notificação assim que ela chegar. Não existe fórmula que garanta vitória — quem decide é o juiz, caso a caso. O que existe é diferença enorme entre chegar organizado, com prova e argumento, e chegar só com a certeza de que foi enganado."
+          />
+          <Capitulo
+            n="7"
+            titulo="Antes de Fechar: o Que Importa Mais que o Dinheiro"
+            texto="Se você chegou até aqui pensando só em reaver o que perdeu, quero fechar com uma coisa que aprendi no processo: processar é sobre justiça, não sobre voltar a apostar assim que o dinheiro cair na conta. Se em algum momento da leitura você reconheceu em si mesmo dificuldade real de controlar quanto aposta, isso pesa mais do que qualquer restituição — e existe ajuda gratuita, oficial, pra isso. Autoexclusão pelo governo — gratuito, leva menos de 5 minutos: acesse gov.br/autoexclusaoapostas com uma conta gov.br nível prata ou ouro. Escolha o motivo e o prazo do bloqueio (determinado ou indeterminado). Em até 72 horas, todas as casas de apostas licenciadas no Brasil bloqueiam sua conta automaticamente. Apoio psicológico gratuito, pelo governo: CAPS (Centro de Atenção Psicossocial) — atendimento especializado gratuito; UBS (Unidade Básica de Saúde) — porta de entrada do SUS, pode te encaminhar. Nenhum dos dois cobra nada. Nenhum exige que você 'prove' que tem um problema — é só chegar e pedir ajuda. E se quiser seguir com o processo de forma profissional: montar uma petição do zero, caçar os artigos de lei certos, calcular os juros de mora e formatar tudo nas regras do Juizado Especial dá trabalho e margem a erros. Foi por isso que eu desenvolvi o RecuperaJogo. Não é um modelo genérico de internet. É um gerador inteligente que já insere todos esses argumentos blindados (incluindo a Lei 14.790/2023 e a jurisprudência real) diretamente no seu caso, com base nas provas que você tem. O sistema te guia passo a passo, calcula o valor exato da sua causa (com trava de segurança de 20 salários-mínimos) e te entrega um PDF formatado com cara de petição profissional, pronto para você apenas revisar, assinar e protocolar."
+          />
+
+          {/* CTA FINAL COM ÂNCORA DE PREÇO */}
+          <div className="rounded-2xl border-2 p-8 text-center mt-12" style={{ borderColor: SEAL, backgroundColor: "#FFF" }}>
+            <h2 className="text-2xl font-bold mb-4" style={{ color: INK, fontFamily: "Georgia, serif" }}>
+              Pronto pra transformar esse conhecimento em petição pronta?
             </h2>
-          </div>
-          
-          <div className="space-y-4 text-base leading-relaxed" style={{ color: INK }}>
-            <p>
-              Não sou advogado. Sou uma pessoa comum que decidiu não aceitar calado quando uma casa de apostas fez algo que eu sabia que estava errado.
-            </p>
-            <p>
-              Usando o <em>jus postulandi</em> — o direito de processar sozinho em causas até 20 salários-mínimos — entrei com ação contra duas casas de apostas diferentes. Recuperei o valor de uma delas em dobro, como manda o Código de Defesa do Consumidor. Da outra, o dinheiro voltou antes mesmo do processo terminar.
-            </p>
-            <p>
-              Numa terceira causa, não foi tão simples: perdi na primeira instância. Podia ter parado ali. Não parei — entrei com recurso, porque continuava acreditando no argumento e tinha a prova pra sustentar. Esse processo segue até hoje.
-            </p>
-            <p>
-              Foi nesse caminho — juntando prova, entendendo a lei, errando e ajustando — que percebi uma coisa: quase ninguém sabe que pode fazer isso sozinho. A maioria acha que precisa de advogado, desiste na primeira resposta automática do suporte, ou nem sabe que existe uma lei (14.790/2023) que torna nulas as apostas de quem tem ludopatia.
-            </p>
-            <p className="font-semibold" style={{ color: SEAL }}>
-              O RecuperaJogo existe pra encurtar esse caminho pra quem está exatamente onde eu estava.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* O QUE ESTÁ INCLUSO */}
-      <section className="py-16 px-6" style={{ backgroundColor: "#F2EFE6" }}>
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold mb-10 text-center" style={{ color: INK, fontFamily: "Georgia, serif" }}>
-            O que você recebe ao acessar o sistema
-          </h2>
-          
-          <div className="grid md:grid-cols-2 gap-6">
-            {[
-              { icon: FileText, title: "Gerador de Petição em PDF", desc: "Formatação forense profissional (Times New Roman, justificado), pronto para imprimir e protocolar." },
-              { icon: Gavel, title: "Argumentos Jurídicos Blindados", desc: "Lei 14.790/2023 (art. 26), IN 31/2025, Art. 42 do CDC e jurisprudência real já inseridos." },
-              { icon: Calculator, title: "Calculadora de Juros e Danos Morais", desc: "Estimativa exata do valor da causa com trava de segurança para o limite do JEC." },
-              { icon: Lock, title: "3 Petições Completas Inclusas", desc: "Seu investimento único de R$ 137 garante a geração de até 3 petições completas." },
-            ].map((item, i) => (
-              <div key={i} className="flex gap-4 p-5 rounded-xl bg-white border" style={{ borderColor: PAPER_LINE }}>
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: AMBER_BG }}>
-                  <item.icon size={20} style={{ color: SEAL }} />
-                </div>
-                <div>
-                  <h3 className="font-bold mb-1" style={{ color: INK }}>{item.title}</h3>
-                  <p className="text-sm" style={{ color: INK_SOFT }}>{item.desc}</p>
-                </div>
+            
+            {/* ÂNCORA DE PREÇO */}
+            <div className="max-w-md mx-auto mb-6 p-4 rounded-lg" style={{ backgroundColor: AMBER_BG, border: `1px solid ${AMBER_BORDER}` }}>
+              <p className="text-sm mb-2" style={{ color: "#5C4A22" }}>
+                <strong>Comparação honesta:</strong>
+              </p>
+              <div className="space-y-2 text-sm" style={{ color: INK }}>
+                <p> <strong>Advogado especializado:</strong> cobra de 20% a 40% do valor recuperado por êxito. Numa causa de R$ 5.000, você fica com R$ 3.000 a R$ 4.000.</p>
+                <p>⚖️ <strong>RecuperaJogo:</strong> pagamento único de R$ 137. Você fica com <strong>100% do que recuperar</strong>.</p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* SEÇÃO ÉTICA / SAÚDE MENTAL */}
-      <section className="py-16 px-6">
-        <div className="max-w-3xl mx-auto">
-          <div className="p-6 rounded-xl border-2" style={{ borderColor: GREEN_BORDER, backgroundColor: GREEN_BG }}>
-            <div className="flex items-center gap-3 mb-4">
-              <Heart size={24} style={{ color: "#16A34A" }} />
-              <h2 className="text-xl font-bold" style={{ color: INK }}>
-                Antes de processar, cuide de você
-              </h2>
             </div>
-            <p className="text-sm mb-4" style={{ color: INK_SOFT }}>
-              Processar é sobre justiça, não sobre voltar a apostar. Se você sente que perdeu o controle, existe ajuda gratuita e oficial:
-            </p>
-            <ul className="space-y-2 text-sm" style={{ color: INK }}>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 size={16} className="shrink-0 mt-0.5" style={{ color: "#16A34A" }} />
-                <span><strong>Autoexclusão Governamental:</strong> Acesse gov.br/autoexclusaoapostas. Bloqueia todas as casas licenciadas em 72h.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 size={16} className="shrink-0 mt-0.5" style={{ color: "#16A34A" }} />
-                <span><strong>Apoio Psicológico Gratuito (SUS):</strong> Procure o CAPS (Centro de Atenção Psicossocial) ou sua UBS mais próxima. Não exige comprovação, é só chegar. <strong>O laudo obtido aqui também fortalece seu processo.</strong></span>
-              </li>
-            </ul>
-            
-            <div className="mt-6 text-center">
-              <a 
-                href="https://rsa.cnj.jus.br/ja/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg border transition-colors hover:bg-white"
-                style={{ borderColor: "#16A34A", color: "#16A34A" }}
-              >
-                <MapPin size={16} />
-                Encontre o Juizado Especial mais perto de você
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* PREÇO E CTA FINAL */}
-      <section className="py-16 px-6 text-center" style={{ backgroundColor: INK }}>
-        <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl font-bold mb-4" style={{ color: PAPER, fontFamily: "Georgia, serif" }}>
-            Pronto para exigir o que é seu?
-          </h2>
-          <p className="text-base mb-8" style={{ color: INK_SOFT }}>
-            Pagamento único. Sem mensalidades.
-          </p>
-
-          <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md mx-auto mb-6">
-            <p className="text-sm font-semibold uppercase tracking-wider mb-2" style={{ color: INK_SOFT }}>
-              Investimento Único
-            </p>
-            <div className="flex items-baseline justify-center gap-1 mb-4">
-              <span className="text-4xl font-bold" style={{ color: INK }}>R$ 137</span>
-            </div>
-            <p className="text-sm mb-6" style={{ color: INK_SOFT }}>
-              <strong>3 petições completas inclusas</strong> + calculadora + argumentos da Lei 14.790/2023.
-              <br />
-              Menos do que um honorário de advogado — e com o mesmo resultado jurídico.
-            </p>
-            
-            <a 
-              href={stripeLink}
-              className="block w-full text-center text-base font-bold px-6 py-4 rounded-lg transition-transform hover:scale-105"
+            <a
+              href="/login"
+              className="inline-flex items-center gap-2 text-base font-bold px-8 py-4 rounded-lg transition-transform hover:scale-105 shadow-lg"
               style={{ backgroundColor: SEAL, color: "#FFF" }}
             >
-              Quero Gerar Minha Petição
+              Acessar o Gerador de Petição <ArrowRight size={20} />
             </a>
-
-            <p className="text-[10px] mt-4" style={{ color: INK_SOFT }}>
-              Pagamento 100% seguro via Stripe. Acesso liberado na hora.
+            <p className="text-xs mt-3" style={{ color: INK_SOFT }}>
+              3 petições completas inclusas · Garantia de 7 dias · Pagamento seguro via Stripe
             </p>
           </div>
-
-          <p className="text-xs max-w-xl mx-auto" style={{ color: "#8A96A6" }}>
-            <AlertTriangle size={12} className="inline mr-1" />
-            O gerador não exige laudo médico, mas quanto mais evidência você reunir (prints, e-mails, protocolos, laudo do CAPS), mais forte fica seu argumento perante o juiz.
-          </p>
         </div>
-      </section>
+      </main>
 
       {/* FOOTER */}
       <footer className="border-t py-8 px-6 text-center" style={{ backgroundColor: PAPER, borderColor: PAPER_LINE }}>
+        <div className="flex flex-col items-center gap-2 mb-4">
+          <Link href="/politica-privacidade" className="text-xs hover:underline" style={{ color: INK_SOFT }}>Política de Privacidade</Link>
+        </div>
         <p className="text-xs" style={{ color: INK_SOFT }}>
           © {new Date().getFullYear()} RecuperaJogo. Todos os direitos reservados.
-          <br />
-          Este site não possui vínculo com o Poder Judiciário ou com a Secretaria de Prêmios e Apostas (SPA/MF).
         </p>
       </footer>
+    </div>
+  );
+}
 
+function Capitulo({ n, titulo, texto }: { n: string; titulo: string; texto: string }) {
+  return (
+    <div className="rounded-xl border p-6" style={{ backgroundColor: "#FFF", borderColor: PAPER_LINE }}>
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style={{ backgroundColor: SEAL, color: "#FFF" }}>
+          {n}
+        </div>
+        <h3 className="text-lg font-bold" style={{ color: INK, fontFamily: "Georgia, serif" }}>{titulo}</h3>
+      </div>
+      <p className="text-sm leading-relaxed" style={{ color: INK }}>{texto}</p>
     </div>
   );
 }
