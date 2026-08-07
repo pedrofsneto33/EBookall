@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer';
 
-// ⚠️ CAMINHO DO SUPABASE (Mantenha o que estava funcionando no seu projeto)
 import { supabase } from "../login/supabase"; 
 
 // =========================================================================
@@ -86,7 +85,7 @@ const SEAL = "#8A6D3B";
 const AMBER_BG = "#FBF1DD";
 const AMBER_BORDER = "#D8B368";
 const LIMITE_JEC = 28240.00;
-const MAX_PETICOES = 3; // LIMITE DE GERAÇÕES POR USUÁRIO
+const MAX_PETICOES = 3;
 
 const PROVAS = [
   { id: "autoexclusao", texto: "Print do registro de Autoexclusão Centralizada (Gov.br/SPA) com data e motivo visíveis" },
@@ -95,7 +94,8 @@ const PROVAS = [
   { id: "email_bloqueio", texto: "E-mail da empresa informando o 'bloqueio imediato' (com data e hora)" },
   { id: "chat", texto: "Print do Chat/Suporte com a negativa ou resposta evasiva (com protocolo)" },
   { id: "consumidor_gov", texto: "Print da reclamação no Consumidor.gov.br ou Procon" },
-  { id: "medico", texto: "(Opcional) Receitas/atestados que corroboram a vulnerabilidade declarada na autoexclusão" },
+  { id: "laudo", texto: "Laudo médico/psiquiátrico com CID-10 F63.0 ou CID-11 6C50 (obtido de graça no CAPS/SUS)" },
+  { id: "emprestimos", texto: "Comprovantes de empréstimos familiares ou uso recorrente de cartão para apostar" },
   { id: "cnpj", texto: "CNPJ da operadora (Casa dos Dados / Receita Federal)" },
 ];
 
@@ -126,9 +126,16 @@ const ARGUMENTOS_UNIVERSAIS = [
   },
 ];
 
+// ✅ NOVO: Argumento de Ludopatia com Lei 14.790/2023
 const ARGUMENTO_LUDOPATIA = {
-  id: "ludo_vulnerabilidade", label: "Consumidor Hipervulnerável e Frustração de Política Pública",
-  texto: () => `A parte Autora realizou a autoexclusão motivada por "perda de controle sobre o jogo (saúde mental)", conforme registro oficial.\n\nConforme dados oficiais da SPA/MF (Nota Informativa SEI nº 1864/2026/MF), a Plataforma Centralizada de Autoexclusão já contabiliza mais de 925 mil solicitações, sendo que aproximadamente 67% correspondem a pedidos por prazo indeterminado, com a principal motivação concentrando-se em "perda de controle sobre o jogo".\n\nA Requerida, ao frustrar esse mecanismo estatal de proteção, comprometeu a confiança legítima depositada pelo consumidor em sistema oficial destinado à proteção de sua integridade psíquica, configurando dano moral qualificado.`,
+  id: "ludo_vulnerabilidade",
+  label: "Nulidade das Apostas por Ludopatia (Lei 14.790/2023, art. 26)",
+  texto: () =>
+    `A parte Autora é portadora de transtorno do jogo patológico (ludopatia), conforme diagnóstico médico (CID-10 F63.0 / CID-11 6C50), obtido via CAPS/SUS.\n\n` +
+    `A Lei nº 14.790/2023 (Lei das Bets), em seu artigo 26, estabelece que "é nula de pleno direito a aposta realizada por pessoa diagnosticada com transtorno do jogo patológico".\n\n` +
+    `A Requerida, ao não identificar o padrão inequívoco de comportamento compulsivo da parte Autora (depósitos frequentes, uso de múltiplos meios de pagamento, apostas em horários incomuns, empréstimos para sustentar o vício), descumpriu o dever legal de monitoramento imposto pela própria Lei 14.790/2023.\n\n` +
+    `Jurisprudência do TJSP (10ª Vara Cível de São Paulo) já reconheceu falha na prestação do serviço por omissão da plataforma em identificar padrão de comportamento compulsivo, admitindo restituição de valores. Em outro caso documentado, casa de apostas foi condenada a devolver R$ 217 mil a consumidora que demonstrou ter recorrido a empréstimos familiares para sustentar o vício.\n\n` +
+    `As apostas realizadas pela parte Autora são, portanto, nulas de pleno direito, cabendo a restituição integral dos valores depositados.`,
 };
 
 const ARGUMENTOS_CONDICIONAIS = [
@@ -192,9 +199,9 @@ export default function GeradorMaterialJuridico() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   
-  // CONTROLE DE LIMITE DE PETIÇÕES
   const [petitionCount, setPetitionCount] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
 
   const [tab, setTab] = useState("perfil");
   const [checked, setChecked] = useState<Record<string, boolean>>({});
@@ -202,16 +209,13 @@ export default function GeradorMaterialJuridico() {
   const [dadosPDF, setDadosPDF] = useState<any>(null);
   const [geradoTexto, setGeradoTexto] = useState("");
 
-  // PERFIL
   const [perfil, setPerfil] = useState<"generico" | "ludopatia">("generico");
 
-  // ROTEIRO PRÉVIO
   const [tentativaChat, setTentativaChat] = useState(false);
   const [protocoloChat, setProtocoloChat] = useState("");
   const [tentativaConsumidorGov, setTentativaConsumidorGov] = useState(false);
   const [protocoloConsumidorGov, setProtocoloConsumidorGov] = useState("");
 
-  // CALCULADORA
   const [valorPerdido, setValorPerdido] = useState("");
   const [dataFato, setDataFato] = useState("");
   const [horaFato, setHoraFato] = useState("");
@@ -237,7 +241,6 @@ export default function GeradorMaterialJuridico() {
 
   const fmt = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-  // PETIÇÃO
   const [autor, setAutor] = useState({ nome: "", cpf: "", endereco: "", comarca: "", uf: "" });
   const [reu, setReu] = useState({ nome: "", cnpj: "" });
   const [relato, setRelato] = useState("");
@@ -245,24 +248,35 @@ export default function GeradorMaterialJuridico() {
 
   const toggleArg = (id: string) => setArgsCondSel((s) => ({ ...s, [id]: !s[id] }));
 
-  // VERIFICAÇÃO DE SESSÃO E LIMITE
+  // ✅ CORREÇÃO DEFINITIVA DO LOOP - verifica pathname antes de redirecionar
   useEffect(() => {
+    if (sessionChecked) return;
+
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      console.log("🔍 Verificando sessão...");
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error("❌ Erro ao buscar sessão:", error);
+        setSessionChecked(true);
+        return;
+      }
+
+      console.log("📦 Sessão:", session);
+
       if (session?.user) {
-        // ✅ CORREÇÃO AQUI: Usamos '?? null' para garantir que undefined vire null
+        console.log("✅ Usuário logado:", session.user.email);
         setUserEmail(session.user.email ?? null);
         setUserId(session.user.id ?? null);
 
-        // Busca o contador no banco
-        const { data: usageData, error } = await supabase
+        const { data: usageData, error: usageError } = await supabase
           .from('petition_usage')
           .select('count')
           .eq('user_id', session.user.id)
           .single();
 
-        if (error && error.code !== 'PGRST116') { // PGRST116 é "not found" (primeiro acesso)
-          console.error("Erro ao buscar uso:", error);
+        if (usageError && usageError.code !== 'PGRST116') {
+          console.error("Erro ao buscar uso:", usageError);
         }
 
         if (usageData) {
@@ -270,11 +284,18 @@ export default function GeradorMaterialJuridico() {
           if (usageData.count >= MAX_PETICOES) setLimitReached(true);
         }
       } else {
-        router.replace("/login");
+        console.log("️ Sem sessão, redirecionando para login...");
+        // ✅ IMPORTANTE: Só redireciona se NÃO estiver já em /login
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+          router.replace("/login");
+        }
       }
+      
+      setSessionChecked(true);
     };
+
     checkSession();
-  }, [router]);
+  }, [sessionChecked, router]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -282,7 +303,6 @@ export default function GeradorMaterialJuridico() {
   };
 
   function gerarPeticao() {
-    // VERIFICAÇÃO DO LIMITE ANTES DE GERAR
     if (limitReached || petitionCount >= MAX_PETICOES) {
       alert(`Você atingiu o limite de ${MAX_PETICOES} petições permitidas para sua conta. Entre em contato com o suporte para adquirir mais gerações.`);
       return;
@@ -292,7 +312,7 @@ export default function GeradorMaterialJuridico() {
     
     const argumentosFinais = [
       ...ARGUMENTOS_UNIVERSAIS.map((a, i) => ({ titulo: `${["II", "III", "IV", "V", "VI", "VII"][i]} — ${a.label.toUpperCase()}`, texto: a.texto() })),
-      ...(perfil === "ludopatia" ? [{ titulo: "VIII — CONSUMIDOR HIPERVULNERÁVEL E FRUSTRAÇÃO DE POLÍTICA PÚBLICA", texto: ARGUMENTO_LUDOPATIA.texto() }] : []),
+      ...(perfil === "ludopatia" ? [{ titulo: "VIII — NULIDADE DAS APOSTAS POR LUDOPATIA (LEI 14.790/2023, ART. 26)", texto: ARGUMENTO_LUDOPATIA.texto() }] : []),
       ...ARGUMENTOS_CONDICIONAIS.filter((a) => argsCondSel[a.id]).map((a, i) => {
         const numRomano = perfil === "ludopatia" ? ["IX", "X"][i] : ["VIII", "IX"][i];
         return { titulo: `${numRomano} — ${a.label.toUpperCase()}`, texto: a.texto(dataFato, horaFato) };
@@ -328,7 +348,6 @@ export default function GeradorMaterialJuridico() {
     setGeradoTexto(`[VISUALIZAÇÃO EM TEXTO PLANO - BAIXE O PDF PARA A FORMATAÇÃO JURÍDICA COMPLETA]\n\n${dados.enderecamento}\n\n${dados.qualificacao}\n\n${dados.tituloAcao}\n\n${dados.qualificacaoReu}\n\nI — DOS FATOS\n\n${dados.fatos}\n\n[ARGUMENTOS JURÍDICOS INSERIDOS AUTOMATICAMENTE NO PDF]\n\n${dados.onusProva}\n\n${textoRoteiro ? `DO DESVIO PRODUTIVO\n\n${textoRoteiro}\n\n` : ""}DOS PEDIDOS\n\n${dados.pedidos}\n\nDá-se à causa o valor de ${dados.valorCausa}.\n\nNestes termos,\npede deferimento.\n\n${dados.cidadeData}\n\n${dados.autorNome}`);
     setTab("resultado");
 
-    // INCREMENTA O CONTADOR NO BANCO APÓS GERAR
     const newCount = petitionCount + 1;
     supabase.from('petition_usage').upsert({ user_id: userId, count: newCount }).then(({ error }) => {
       if (error) console.error("Erro ao salvar uso:", error);
@@ -361,7 +380,6 @@ export default function GeradorMaterialJuridico() {
   return (
     <div className="min-h-screen w-full" style={{ backgroundColor: "#F2EFE6" }}>
       
-      {/* === HEADER DO USUÁRIO LOGADO === */}
       <header className="border-b px-4 py-3 flex items-center justify-between shadow-sm" style={{ backgroundColor: "#FBF9F4", borderColor: "#E4DFD1" }}>
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "#FBF1DD" }}>
@@ -376,7 +394,6 @@ export default function GeradorMaterialJuridico() {
         </div>
         
         <div className="flex items-center gap-4">
-          {/* INDICADOR DE LIMITE */}
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border" style={{ borderColor: limitReached ? "#FECACA" : "#E4DFD1", backgroundColor: limitReached ? "#FEF2F2" : "#FFF" }}>
             <FileText size={14} style={{ color: limitReached ? "#991B1B" : SEAL }} />
             <span className="text-xs font-semibold" style={{ color: limitReached ? "#991B1B" : INK }}>
@@ -404,7 +421,6 @@ export default function GeradorMaterialJuridico() {
 
         <div className="mb-6"><DisclaimerBar /></div>
 
-        {/* AVISO DE LIMITE ATINGIDO */}
         {limitReached && (
           <div className="mb-6 p-4 rounded-lg border border-red-300 bg-red-50 text-red-800 text-sm flex items-start gap-3">
             <Lock size={20} className="shrink-0 mt-0.5" />
@@ -426,7 +442,6 @@ export default function GeradorMaterialJuridico() {
 
           <div className="rounded-xl border p-6" style={{ backgroundColor: PAPER, borderColor: PAPER_LINE }}>
 
-            {/* ABA 0: PERFIL */}
             {tab === "perfil" && (
               <div>
                 <h2 className="text-lg font-semibold mb-4" style={{ color: INK }}>Selecione o Perfil do seu Caso</h2>
@@ -445,7 +460,7 @@ export default function GeradorMaterialJuridico() {
                     <input type="radio" checked={perfil === "ludopatia"} onChange={() => setPerfil("ludopatia")} className="mt-1 w-4 h-4" />
                     <div>
                       <span className="text-sm font-bold block" style={{ color: INK }}>Ludopatia / Saúde Mental (Vulnerabilidade)</span>
-                      <p className="text-xs mt-1" style={{ color: INK_SOFT }}>Inclui argumentos sobre consumidor hipervulnerável, frustração de política pública de jogo responsável e dano moral qualificado. <strong>Não exige laudo médico.</strong></p>
+                      <p className="text-xs mt-1" style={{ color: INK_SOFT }}>Inclui argumentos sobre nulidade das apostas pela Lei 14.790/2023 (art. 26), consumidor hipervulnerável e jurisprudência real. <strong>Laudo não é obrigatório, mas fortalece muito o caso (obtenha de graça no CAPS).</strong></p>
                     </div>
                   </label>
                 </div>
@@ -456,7 +471,6 @@ export default function GeradorMaterialJuridico() {
               </div>
             )}
 
-            {/* ABA 1: ROTEIRO PRÉVIO */}
             {tab === "roteiro" && (
               <div>
                 <h2 className="text-lg font-semibold mb-4" style={{ color: INK }}>Passo a Passo Pré-Processual</h2>
@@ -483,7 +497,6 @@ export default function GeradorMaterialJuridico() {
               </div>
             )}
 
-            {/* ABA 2: PROVAS */}
             {tab === "provas" && (
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -507,7 +520,6 @@ export default function GeradorMaterialJuridico() {
               </div>
             )}
 
-            {/* ABA 3: CALCULADORA */}
             {tab === "calculo" && (
               <div>
                 <h2 className="text-lg font-semibold mb-4" style={{ color: INK }}>Calculadora de Valores (Estimativa)</h2>
@@ -525,7 +537,7 @@ export default function GeradorMaterialJuridico() {
                     <input type="checkbox" checked={dobro} onChange={(e) => setDobro(e.target.checked)} className="mt-1 w-4 h-4" />
                     <div>
                       <span style={{ color: INK, fontWeight: 500 }}>Pedir restituição em DOBRO (art. 42, parágrafo único, CDC)</span>
-                      <p className="text-xs mt-1" style={{ color: INK_SOFT }}>️ A restituição em dobro só é devida quando a empresa agiu de má-fé ou negligência grave, sem "engano justificável".</p>
+                      <p className="text-xs mt-1" style={{ color: INK_SOFT }}>A restituição em dobro só é devida quando a empresa agiu de má-fé ou negligência grave, sem "engano justificável".</p>
                     </div>
                   </label>
                   <label className="flex items-center gap-2 text-sm cursor-pointer">
@@ -533,7 +545,7 @@ export default function GeradorMaterialJuridico() {
                     <span style={{ color: INK }}>Incluir pedido de Danos Morais</span>
                   </label>
                   {danoMoral && <Field label="Valor sugerido para Dano Moral (R$)" value={valorDanoMoral} onChange={setValorDanoMoral} placeholder="5000" />}
-                  {danoMoral && <p className="text-xs" style={{ color: INK_SOFT }}> Média no JEC para este tipo de causa: R$ 3.000 a R$ 5.000. O valor final é arbitrado pelo juiz.</p>}
+                  {danoMoral && <p className="text-xs" style={{ color: INK_SOFT }}>Média no JEC para este tipo de causa: R$ 3.000 a R$ 5.000. O valor final é arbitrado pelo juiz.</p>}
                 </div>
 
                 <div className="rounded-lg p-4 space-y-1.5 mb-4" style={{ backgroundColor: "#F2EFE6" }}>
@@ -573,7 +585,6 @@ export default function GeradorMaterialJuridico() {
               </div>
             )}
 
-            {/* ABA 4: PETIÇÃO */}
             {tab === "peticao" && (
               <div>
                 <h2 className="text-lg font-semibold mb-4" style={{ color: INK }}>Dados para o Rascunho</h2>
@@ -617,7 +628,6 @@ export default function GeradorMaterialJuridico() {
               </div>
             )}
 
-            {/* ABA 5: RESULTADO */}
             {tab === "resultado" && (
               <div>
                 <div className="flex items-center justify-between mb-4">

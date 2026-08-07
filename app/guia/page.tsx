@@ -1,5 +1,5 @@
-import React from "react";
-import { Shield, CheckCircle2, AlertTriangle, ExternalLink, Scale, ArrowRight, Clock, FileText, Users } from "lucide-react";
+import Link from "next/link";
+import { Scale, FileText, CheckCircle2, ArrowRight, Shield, AlertTriangle, Heart, BookOpen, Gavel, Lock, Calculator, MapPin } from "lucide-react";
 
 const INK = "#1E2A3A";
 const INK_SOFT = "#3D4C5E";
@@ -11,228 +11,240 @@ const AMBER_BORDER = "#D8B368";
 const GREEN_BG = "#F0FDF4";
 const GREEN_BORDER = "#BBF7D0";
 
-export default function GuiaAutoexclusao() {
+export default function LandingPage() {
+  // ⚠️ ATENÇÃO: Substitua este link pelo seu link REAL do Stripe (Modo Live)
+  const stripeLink = "https://buy.stripe.com/SEU_LINK_LIVE_AQUI"; 
+
   return (
-    <div className="min-h-screen w-full" style={{ backgroundColor: PAPER, color: INK }}>
+    <div className="min-h-screen w-full" style={{ backgroundColor: PAPER }}>
       
       {/* HEADER */}
-      <header className="border-b" style={{ borderColor: PAPER_LINE }}>
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2">
-            <Scale size={24} style={{ color: SEAL }} />
-            <span className="text-xl font-semibold tracking-tight" style={{ fontFamily: "Georgia, serif" }}>
-              RecuperaJogo<span style={{ color: SEAL }}>.</span>
-            </span>
-          </a>
-          <a 
-            href="/gerador" 
-            className="text-sm font-medium px-4 py-2 rounded-lg transition-colors hover:opacity-90"
-            style={{ backgroundColor: INK, color: "#FFF" }}
+      <header className="border-b px-6 py-4 flex items-center justify-between" style={{ backgroundColor: PAPER, borderColor: PAPER_LINE }}>
+        <div className="flex items-center gap-2">
+          <Scale size={22} style={{ color: SEAL }} />
+          <span className="text-xl font-bold" style={{ color: INK, fontFamily: "Georgia, serif" }}>
+            RecuperaJogo
+          </span>
+        </div>
+        <div className="flex items-center gap-4">
+          <Link href="/guia" className="text-sm font-medium hover:underline" style={{ color: INK_SOFT }}>
+            Guia Gratuito
+          </Link>
+          <Link 
+            href="/login" 
+            className="text-sm font-semibold px-4 py-2 rounded-lg border transition-colors hover:bg-[#EFEADE]"
+            style={{ borderColor: SEAL, color: SEAL }}
           >
-            Gerar Petição
-          </a>
+            Acessar Sistema
+          </Link>
         </div>
       </header>
 
-      {/* HERO */}
-      <section className="max-w-3xl mx-auto px-4 py-16 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-6" style={{ backgroundColor: AMBER_BG, color: "#5C4A22" }}>
+      {/* HERO SECTION */}
+      <section className="max-w-4xl mx-auto px-6 py-16 text-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-6" style={{ backgroundColor: AMBER_BG, color: "#5C4A22", border: `1px solid ${AMBER_BORDER}` }}>
           <Shield size={14} />
-          <span>Guia Oficial · 100% Gratuito</span>
+          Baseado na Lei 14.790/2023, IN 31/2025 e no Código de Defesa do Consumidor
         </div>
-        <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight" style={{ fontFamily: "Georgia, serif" }}>
-          Como se <span style={{ color: SEAL }}>Autoexcluir</span> de Todas as Casas de Apostas do Brasil
+        
+        <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-6" style={{ color: INK, fontFamily: "Georgia, serif" }}>
+          A casa de apostas lucrou com seu vício? A lei exige que ela devolva seu dinheiro.
         </h1>
-        <p className="text-lg mb-8" style={{ color: INK_SOFT }}>
-          Passo a passo completo para bloquear seu CPF em todas as plataformas autorizadas pela SPA/MF, usando a ferramenta oficial do Governo Federal.
+        
+        <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto" style={{ color: INK_SOFT }}>
+          A Lei das Bets (14.790/2023) considera nulas as apostas de pessoas com ludopatia. Se a plataforma não identificou seu comportamento compulsivo ou ignorou sua autoexclusão, ela violou a lei. Gere sua petição e exija a restituição.
+        </p>
+
+        {/* HISTÓRIA CURTA (HERO) */}
+        <div className="max-w-2xl mx-auto mb-8 p-4 rounded-lg border-l-4" style={{ backgroundColor: "#F8F6F0", borderColor: SEAL }}>
+          <p className="text-sm italic text-left" style={{ color: INK_SOFT }}>
+            "Eu mesmo processei casas de apostas sozinho, sem advogado, pelo Juizado Especial — e recuperei o que era meu. Numa terceira, perdi na primeira instância e recorri. Este site nasceu do que aprendi: <strong>a plataforma é desenhada para te prender, mas a lei brasileira protege o seu direito de sair.</strong>"
+          </p>
+        </div>
+
+        <a 
+          href={stripeLink}
+          className="inline-flex items-center gap-2 text-lg font-bold px-8 py-4 rounded-lg transition-transform hover:scale-105 shadow-lg"
+          style={{ backgroundColor: SEAL, color: "#FFF" }}
+        >
+          Gerar Minha Petição Agora
+          <ArrowRight size={20} />
+        </a>
+
+        {/* DISCLAIMER DE 1 LINHA */}
+        <p className="text-xs mt-4 max-w-xl mx-auto" style={{ color: INK_SOFT }}>
+          <AlertTriangle size={12} className="inline mr-1" />
+          Isto não é assessoria jurídica. Ferramenta de automação para causas até 20 salários-mínimos (jus postulandi). Revise antes de protocolar.
         </p>
       </section>
 
-      {/* CONTEÚDO PRINCIPAL */}
-      <main className="max-w-3xl mx-auto px-4 pb-20 space-y-12">
-
-        {/* O QUE É */}
-        <section className="rounded-xl border p-8" style={{ backgroundColor: "#FFF", borderColor: PAPER_LINE }}>
-          <h2 className="text-2xl font-bold mb-4" style={{ fontFamily: "Georgia, serif" }}>O que é a Autoexclusão Centralizada?</h2>
-          <p className="text-base mb-4" style={{ color: INK_SOFT }}>
-            É uma ferramenta gratuita do Governo Federal (Ministério da Fazenda/SPA-MF) que permite bloquear seu acesso a <strong>TODAS</strong> as casas de apostas autorizadas no Brasil com um único cadastro.
-          </p>
-          <div className="grid sm:grid-cols-2 gap-4 mt-6">
-            {[
-              { icon: Shield, text: "Bloqueio simultâneo em todas as bets reguladas" },
-              { icon: CheckCircle2, text: "Impede criação de novas contas" },
-              { icon: FileText, text: "Bloqueia acesso a contas antigas" },
-              { icon: Users, text: "Suspende propagandas direcionadas" }
-            ].map((item, i) => (
-              <div key={i} className="flex items-start gap-3 p-3 rounded-lg" style={{ backgroundColor: GREEN_BG }}>
-                <item.icon size={18} className="shrink-0 mt-0.5" style={{ color: "#16A34A" }} />
-                <span className="text-sm" style={{ color: INK }}>{item.text}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* REQUISITOS */}
-        <section className="rounded-xl border p-8" style={{ backgroundColor: "#FFF", borderColor: PAPER_LINE }}>
-          <h2 className="text-2xl font-bold mb-4" style={{ fontFamily: "Georgia, serif" }}>Requisitos Antes de Começar</h2>
-          <div className="space-y-3">
-            {[
-              "Conta Gov.br nível PRATA ou OURO (Bronze não funciona)",
-              "CPF regular (sem pendências na Receita Federal)",
-              "Ser maior de 18 anos",
-              "10 a 15 minutos de tempo livre"
-            ].map((req, i) => (
-              <div key={i} className="flex items-start gap-3">
-                <CheckCircle2 size={18} className="shrink-0 mt-0.5" style={{ color: SEAL }} />
-                <span className="text-sm" style={{ color: INK }}>{req}</span>
-              </div>
-            ))}
-          </div>
-          <div className="mt-6 p-4 rounded-lg border" style={{ backgroundColor: AMBER_BG, borderColor: AMBER_BORDER }}>
-            <p className="text-sm" style={{ color: "#5C4A22" }}>
-              <strong>💡 Dica:</strong> Se sua conta Gov.br for Bronze, faça o upgrade antes (reconhecimento facial ou via banco). O processo leva poucos minutos.
+      {/* PROBLEMA / CONTRADIÇÃO */}
+      <section className="py-16 px-6" style={{ backgroundColor: "#F2EFE6" }}>
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-2xl font-bold mb-6 text-center" style={{ color: INK, fontFamily: "Georgia, serif" }}>
+            A contradição que a casa de apostas não quer que você veja
+          </h2>
+          <div className="bg-white p-6 rounded-xl border shadow-sm" style={{ borderColor: PAPER_LINE }}>
+            <p className="text-base leading-relaxed mb-4" style={{ color: INK }}>
+              Você se autoexclui. A plataforma confirma o bloqueio. Mas, horas depois, o sistema aceita um novo depósito seu. 
+            </p>
+            <p className="text-base leading-relaxed mb-4" style={{ color: INK }}>
+              Isso não é azar. É uma falha grave na prestação do serviço. A casa de apostas descumpriu uma obrigação regulatória federal ao não integrar seu bloqueio ao sistema oficial (SIGAP) no prazo de 30 dias, conforme a <strong>IN SPA/MF nº 31/2025</strong>.
+            </p>
+            <p className="text-base leading-relaxed" style={{ color: INK }}>
+              E se você nunca chegou a se autoexcluir formalmente? A <strong>Lei 14.790/2023 (art. 26)</strong> impõe às operadoras o dever de monitorar comportamento compulsivo e identificar padrões de ludopatia. O dever é da casa, não seu.
             </p>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* PASSO A PASSO */}
-        <section className="rounded-xl border p-8" style={{ backgroundColor: "#FFF", borderColor: PAPER_LINE }}>
-          <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: "Georgia, serif" }}>Passo a Passo Completo</h2>
+      {/* MINHA HISTÓRIA (VERSÃO COMPLETA) */}
+      <section className="py-16 px-6">
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center gap-3 mb-6">
+            <BookOpen size={24} style={{ color: SEAL }} />
+            <h2 className="text-2xl font-bold" style={{ color: INK, fontFamily: "Georgia, serif" }}>
+              Minha História
+            </h2>
+          </div>
           
-          <div className="space-y-8">
+          <div className="space-y-4 text-base leading-relaxed" style={{ color: INK }}>
+            <p>
+              Não sou advogado. Sou uma pessoa comum que decidiu não aceitar calado quando uma casa de apostas fez algo que eu sabia que estava errado.
+            </p>
+            <p>
+              Usando o <em>jus postulandi</em> — o direito de processar sozinho em causas até 20 salários-mínimos — entrei com ação contra duas casas de apostas diferentes. Recuperei o valor de uma delas em dobro, como manda o Código de Defesa do Consumidor. Da outra, o dinheiro voltou antes mesmo do processo terminar.
+            </p>
+            <p>
+              Numa terceira causa, não foi tão simples: perdi na primeira instância. Podia ter parado ali. Não parei — entrei com recurso, porque continuava acreditando no argumento e tinha a prova pra sustentar. Esse processo segue até hoje.
+            </p>
+            <p>
+              Foi nesse caminho — juntando prova, entendendo a lei, errando e ajustando — que percebi uma coisa: quase ninguém sabe que pode fazer isso sozinho. A maioria acha que precisa de advogado, desiste na primeira resposta automática do suporte, ou nem sabe que existe uma lei (14.790/2023) que torna nulas as apostas de quem tem ludopatia.
+            </p>
+            <p className="font-semibold" style={{ color: SEAL }}>
+              O RecuperaJogo existe pra encurtar esse caminho pra quem está exatamente onde eu estava.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* O QUE ESTÁ INCLUSO */}
+      <section className="py-16 px-6" style={{ backgroundColor: "#F2EFE6" }}>
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-bold mb-10 text-center" style={{ color: INK, fontFamily: "Georgia, serif" }}>
+            O que você recebe ao acessar o sistema
+          </h2>
+          
+          <div className="grid md:grid-cols-2 gap-6">
             {[
-              {
-                n: "1",
-                t: "Acesse o Portal Oficial",
-                d: "Entre no site: gov.br/autoexclusaoapostas",
-                link: "https://gov.br/autoexclusaoapostas"
-              },
-              {
-                n: "2",
-                t: "Faça Login com Gov.br",
-                d: "Clique em 'Entrar com Gov.br' e digite seu CPF e senha. Complete a autenticação (pode ser necessário reconhecimento facial)."
-              },
-              {
-                n: "3",
-                t: "Confirme seus Dados",
-                d: "Verifique se estão corretos: CPF, nome completo e data de nascimento. Clique em 'Continuar'."
-              },
-              {
-                n: "4",
-                t: "Escolha o Prazo de Bloqueio",
-                d: "Você tem 5 opções: 1 mês, 3 meses, 6 meses, 12 meses ou Indeterminado.",
-                extra: "️ Prazo Indeterminado: Você pode se arrepender em até 30 dias e reverter facilmente. Após 30 dias, a reversão é muito burocrática (só após 12 meses)."
-              },
-              {
-                n: "5",
-                t: "Informe o Motivo (Opcional)",
-                d: "Você pode escolher: Voluntário, Dificuldades financeiras, Recomendação médica, Perda de controle sobre o jogo (saúde mental), Prevenir uso dos meus dados, ou Não informar.",
-                extra: "💡 Se você tem ludopatia ou perda de controle, marque 'Perda de controle sobre o jogo (saúde mental)'. Isso fortalece seu caso se precisar entrar na justiça depois."
-              },
-              {
-                n: "6",
-                t: "Aceite os Termos e Confirme",
-                d: "Leia o termo de responsabilidade, marque a caixa 'Li e aceito os termos' e clique em 'Confirmar Autoexclusão'."
-              },
-              {
-                n: "7",
-                t: "GUARDE O PROTOCOLO!",
-                d: "O sistema vai gerar um número de protocolo. FAÇA PRINT DA TELA e ANOTE O NÚMERO. Esse protocolo é sua prova de que você se autoexcluiu.",
-                destaque: true
-              }
-            ].map((step, i) => (
-              <div key={i} className="flex gap-4">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 font-bold text-lg" style={{ backgroundColor: SEAL, color: "#FFF" }}>
-                  {step.n}
+              { icon: FileText, title: "Gerador de Petição em PDF", desc: "Formatação forense profissional (Times New Roman, justificado), pronto para imprimir e protocolar." },
+              { icon: Gavel, title: "Argumentos Jurídicos Blindados", desc: "Lei 14.790/2023 (art. 26), IN 31/2025, Art. 42 do CDC e jurisprudência real já inseridos." },
+              { icon: Calculator, title: "Calculadora de Juros e Danos Morais", desc: "Estimativa exata do valor da causa com trava de segurança para o limite do JEC." },
+              { icon: Lock, title: "3 Petições Completas Inclusas", desc: "Seu investimento único de R$ 137 garante a geração de até 3 petições completas." },
+            ].map((item, i) => (
+              <div key={i} className="flex gap-4 p-5 rounded-xl bg-white border" style={{ borderColor: PAPER_LINE }}>
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: AMBER_BG }}>
+                  <item.icon size={20} style={{ color: SEAL }} />
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold mb-1" style={{ color: INK }}>{step.t}</h3>
-                  <p className="text-sm mb-2" style={{ color: INK_SOFT }}>{step.d}</p>
-                  {step.link && (
-                    <a href={step.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm font-medium" style={{ color: SEAL }}>
-                      Acessar portal <ExternalLink size={14} />
-                    </a>
-                  )}
-                  {step.extra && (
-                    <p className="text-xs mt-2 p-3 rounded-lg" style={{ backgroundColor: AMBER_BG, color: "#5C4A22" }}>
-                      {step.extra}
-                    </p>
-                  )}
-                  {step.destaque && (
-                    <div className="mt-2 p-3 rounded-lg border" style={{ backgroundColor: "#FEF3C7", borderColor: "#F59E0B" }}>
-                      <p className="text-sm font-medium" style={{ color: "#92400E" }}>
-                        🚨 Este é o documento mais importante! Sem ele, você não consegue provar que se autoexcluiu.
-                      </p>
-                    </div>
-                  )}
+                <div>
+                  <h3 className="font-bold mb-1" style={{ color: INK }}>{item.title}</h3>
+                  <p className="text-sm" style={{ color: INK_SOFT }}>{item.desc}</p>
                 </div>
               </div>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* PRAZOS */}
-        <section className="rounded-xl border p-8" style={{ backgroundColor: "#FFF", borderColor: PAPER_LINE }}>
-          <h2 className="text-2xl font-bold mb-4" style={{ fontFamily: "Georgia, serif" }}>Prazos Importantes</h2>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="p-4 rounded-lg border" style={{ backgroundColor: GREEN_BG, borderColor: GREEN_BORDER }}>
-              <Clock size={20} className="mb-2" style={{ color: "#16A34A" }} />
-              <h3 className="font-semibold mb-1" style={{ color: INK }}>72 horas</h3>
-              <p className="text-sm" style={{ color: INK_SOFT }}>Prazo para as empresas bloquearem seu CPF após o pedido.</p>
+      {/* SEÇÃO ÉTICA / SAÚDE MENTAL */}
+      <section className="py-16 px-6">
+        <div className="max-w-3xl mx-auto">
+          <div className="p-6 rounded-xl border-2" style={{ borderColor: GREEN_BORDER, backgroundColor: GREEN_BG }}>
+            <div className="flex items-center gap-3 mb-4">
+              <Heart size={24} style={{ color: "#16A34A" }} />
+              <h2 className="text-xl font-bold" style={{ color: INK }}>
+                Antes de processar, cuide de você
+              </h2>
             </div>
-            <div className="p-4 rounded-lg border" style={{ backgroundColor: GREEN_BG, borderColor: GREEN_BORDER }}>
-              <Clock size={20} className="mb-2" style={{ color: "#16A34A" }} />
-              <h3 className="font-semibold mb-1" style={{ color: INK }}>30 dias</h3>
-              <p className="text-sm" style={{ color: INK_SOFT }}>Prazo para integração completa ao sistema SIGAP (IN 31/2025).</p>
+            <p className="text-sm mb-4" style={{ color: INK_SOFT }}>
+              Processar é sobre justiça, não sobre voltar a apostar. Se você sente que perdeu o controle, existe ajuda gratuita e oficial:
+            </p>
+            <ul className="space-y-2 text-sm" style={{ color: INK }}>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 size={16} className="shrink-0 mt-0.5" style={{ color: "#16A34A" }} />
+                <span><strong>Autoexclusão Governamental:</strong> Acesse gov.br/autoexclusaoapostas. Bloqueia todas as casas licenciadas em 72h.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 size={16} className="shrink-0 mt-0.5" style={{ color: "#16A34A" }} />
+                <span><strong>Apoio Psicológico Gratuito (SUS):</strong> Procure o CAPS (Centro de Atenção Psicossocial) ou sua UBS mais próxima. Não exige comprovação, é só chegar. <strong>O laudo obtido aqui também fortalece seu processo.</strong></span>
+              </li>
+            </ul>
+            
+            <div className="mt-6 text-center">
+              <a 
+                href="https://rsa.cnj.jus.br/ja/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg border transition-colors hover:bg-white"
+                style={{ borderColor: "#16A34A", color: "#16A34A" }}
+              >
+                <MapPin size={16} />
+                Encontre o Juizado Especial mais perto de você
+              </a>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* LIMITAÇÕES */}
-        <section className="rounded-xl border p-8" style={{ backgroundColor: "#FFF", borderColor: PAPER_LINE }}>
-          <h2 className="text-2xl font-bold mb-4" style={{ fontFamily: "Georgia, serif" }}>Limitações Importantes</h2>
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <CheckCircle2 size={18} className="shrink-0 mt-0.5" style={{ color: "#16A34A" }} />
-              <div>
-                <p className="text-sm font-medium" style={{ color: INK }}>Funciona para:</p>
-                <p className="text-sm" style={{ color: INK_SOFT }}>Casas de apostas autorizadas pela SPA/MF (domínio .bet.br)</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <AlertTriangle size={18} className="shrink-0 mt-0.5" style={{ color: "#DC2626" }} />
-              <div>
-                <p className="text-sm font-medium" style={{ color: INK }}>NÃO funciona para:</p>
-                <p className="text-sm" style={{ color: INK_SOFT }}>Sites ilegais, plataformas internacionais não fiscalizadas, bets sem domínio .bet.br</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA FINAL */}
-        <section className="rounded-xl border-2 p-8 text-center" style={{ borderColor: SEAL, backgroundColor: AMBER_BG }}>
-          <Scale size={32} className="mx-auto mb-4" style={{ color: SEAL }} />
-          <h2 className="text-2xl font-bold mb-3" style={{ fontFamily: "Georgia, serif", color: INK }}>
-            A casa de apostas aceitou seu depósito mesmo após a autoexclusão?
+      {/* PREÇO E CTA FINAL */}
+      <section className="py-16 px-6 text-center" style={{ backgroundColor: INK }}>
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold mb-4" style={{ color: PAPER, fontFamily: "Georgia, serif" }}>
+            Pronto para exigir o que é seu?
           </h2>
-          <p className="text-base mb-6" style={{ color: INK_SOFT }}>
-            Isso é ilegal. Você tem direito à restituição em dobro + danos morais. Use nosso gerador para criar uma petição profissional para o Juizado Especial Cível.
+          <p className="text-base mb-8" style={{ color: INK_SOFT }}>
+            Pagamento único. Sem mensalidades.
           </p>
-          <a 
-            href="/gerador" 
-            className="inline-flex items-center gap-2 text-base font-medium px-6 py-3 rounded-lg transition-transform hover:scale-105"
-            style={{ backgroundColor: SEAL, color: "#FFF" }}
-          >
-            Gerar Minha Petição Agora <ArrowRight size={18} />
-          </a>
-        </section>
 
-      </main>
+          <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md mx-auto mb-6">
+            <p className="text-sm font-semibold uppercase tracking-wider mb-2" style={{ color: INK_SOFT }}>
+              Investimento Único
+            </p>
+            <div className="flex items-baseline justify-center gap-1 mb-4">
+              <span className="text-4xl font-bold" style={{ color: INK }}>R$ 137</span>
+            </div>
+            <p className="text-sm mb-6" style={{ color: INK_SOFT }}>
+              <strong>3 petições completas inclusas</strong> + calculadora + argumentos da Lei 14.790/2023.
+              <br />
+              Menos do que um honorário de advogado — e com o mesmo resultado jurídico.
+            </p>
+            
+            <a 
+              href={stripeLink}
+              className="block w-full text-center text-base font-bold px-6 py-4 rounded-lg transition-transform hover:scale-105"
+              style={{ backgroundColor: SEAL, color: "#FFF" }}
+            >
+              Quero Gerar Minha Petição
+            </a>
+
+            <p className="text-[10px] mt-4" style={{ color: INK_SOFT }}>
+              Pagamento 100% seguro via Stripe. Acesso liberado na hora.
+            </p>
+          </div>
+
+          <p className="text-xs max-w-xl mx-auto" style={{ color: "#8A96A6" }}>
+            <AlertTriangle size={12} className="inline mr-1" />
+            O gerador não exige laudo médico, mas quanto mais evidência você reunir (prints, e-mails, protocolos, laudo do CAPS), mais forte fica seu argumento perante o juiz.
+          </p>
+        </div>
+      </section>
 
       {/* FOOTER */}
-      <footer className="border-t py-8 text-center" style={{ borderColor: PAPER_LINE, backgroundColor: "#F2EFE6" }}>
+      <footer className="border-t py-8 px-6 text-center" style={{ backgroundColor: PAPER, borderColor: PAPER_LINE }}>
         <p className="text-xs" style={{ color: INK_SOFT }}>
-          © {new Date().getFullYear()} RecuperaJogo. Guia informativo baseado na regulamentação oficial da SPA/MF.
+          © {new Date().getFullYear()} RecuperaJogo. Todos os direitos reservados.
+          <br />
+          Este site não possui vínculo com o Poder Judiciário ou com a Secretaria de Prêmios e Apostas (SPA/MF).
         </p>
       </footer>
 

@@ -4,11 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Scale, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
 
-// ⚠️ ATENÇÃO AO CAMINHO: Se o seu arquivo do Supabase estiver na pasta 'lib', 
-// mude a linha abaixo para: import { supabase } from "../lib/supabase";
+// Se o seu arquivo supabase.ts estiver na pasta 'app', mude para "../supabase"
 import { supabase } from "./supabase"; 
 
-// Paleta "Cartório" (Identidade Visual RecuperaJogo)
 const INK = "#1E2A3A";
 const INK_SOFT = "#3D4C5E";
 const PAPER = "#FBF9F4";
@@ -19,7 +17,6 @@ const AMBER_BORDER = "#D8B368";
 
 export default function Login() {
   const router = useRouter();
-  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
@@ -27,53 +24,32 @@ export default function Login() {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error">("success");
 
-  // REMOVIDO: O useEffect que causava o redirecionamento automático ao carregar a página.
-  // Agora a página permanece estática até o usuário interagir com o formulário.
-
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
 
     if (isLogin) {
-      // --- FAZER LOGIN ---
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        console.error("Erro no login:", error.message);
-        setMessage("Erro: " + (error.message === "Invalid login credentials" ? "E-mail ou senha incorretos." : error.message));
-        setMessageType("error");
-        setLoading(false);
-      } else {
-        console.log("Login bem-sucedido:", data);
-        setMessage("Login realizado! Redirecionando para o gerador...");
-        setMessageType("success");
-        
-        // Redireciona APÓS o clique bem-sucedido no botão
-        // O pequeno delay garante que o cookie da sessão seja gravado no navegador
-        setTimeout(() => {
-          router.replace("/gerador");
-        }, 500);
-      }
-    } else {
-      // --- CRIAR CONTA ---
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      
-      if (error) {
-        console.error("Erro no cadastro:", error.message);
         setMessage("Erro: " + error.message);
         setMessageType("error");
         setLoading(false);
       } else {
-        setMessage("Conta criada com sucesso! Verifique seu e-mail para confirmar e depois faça o login.");
+        setMessage("Login realizado! Redirecionando...");
         setMessageType("success");
-        setIsLogin(true); // Muda automaticamente para a tela de login
+        setTimeout(() => router.replace("/gerador"), 500);
+      }
+    } else {
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) {
+        setMessage("Erro: " + error.message);
+        setMessageType("error");
+        setLoading(false);
+      } else {
+        setMessage("Conta criada! Verifique seu e-mail.");
+        setMessageType("success");
+        setIsLogin(true);
         setLoading(false);
       }
     }
@@ -82,8 +58,6 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: "#F2EFE6" }}>
       <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full border" style={{ borderColor: PAPER_LINE }}>
-        
-        {/* Cabeçalho com Logo */}
         <div className="flex flex-col items-center mb-8">
           <div className="w-12 h-12 rounded-full flex items-center justify-center mb-3" style={{ backgroundColor: AMBER_BG }}>
             <Scale size={24} style={{ color: SEAL }} />
@@ -102,7 +76,10 @@ export default function Login() {
             <input 
               type="email" 
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                console.log("✅ Tecla pressionada:", e.target.value); // DEBUG
+                setEmail(e.target.value);
+              }}
               className="w-full px-4 py-3 rounded-lg border outline-none focus:ring-2 transition-all"
               style={{ borderColor: PAPER_LINE, backgroundColor: PAPER }}
               placeholder="seu@email.com"
@@ -123,7 +100,6 @@ export default function Login() {
             />
           </div>
           
-          {/* Mensagens de Feedback (Erro ou Sucesso) */}
           {message && (
             <div className="p-3 rounded-lg text-sm font-medium flex items-start gap-2"
                  style={messageType === "error" 
@@ -135,7 +111,6 @@ export default function Login() {
             </div>
           )}
 
-          {/* Botão Principal */}
           <button 
             type="submit" 
             disabled={loading}
@@ -147,16 +122,12 @@ export default function Login() {
           </button>
         </form>
 
-        {/* Alternar entre Login e Cadastro */}
         <div className="text-center mt-8 pt-6 border-t" style={{ borderColor: PAPER_LINE }}>
           <p className="text-sm" style={{ color: INK_SOFT }}>
             {isLogin ? "Ainda não tem uma conta?" : "Já possui uma conta?"}{" "}
             <button 
               type="button"
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setMessage("");
-              }}
+              onClick={() => { setIsLogin(!isLogin); setMessage(""); }}
               className="font-semibold hover:underline transition-colors"
               style={{ color: SEAL }}
             >
@@ -165,13 +136,11 @@ export default function Login() {
           </p>
         </div>
 
-        {/* Link de Voltar para a Home */}
         <div className="text-center mt-4">
           <a href="/" className="text-xs flex items-center justify-center gap-1 hover:underline" style={{ color: INK_SOFT }}>
             ← Voltar para a página inicial
           </a>
         </div>
-
       </div>
     </div>
   );
