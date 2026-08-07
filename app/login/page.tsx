@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Scale, AlertCircle, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
 import { supabase } from "./supabase"; 
@@ -13,7 +13,8 @@ const SEAL = "#8A6D3B";
 const AMBER_BG = "#FBF1DD";
 const AMBER_BORDER = "#D8B368";
 
-export default function Login() {
+// 🔒 Componente interno que usa useSearchParams (precisa estar dentro de Suspense)
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/gerador";
@@ -45,7 +46,7 @@ export default function Login() {
         setMessage("Login realizado! Verificando acesso...");
         setMessageType("success");
         
-        // 🔒 VERIFICAÇÃO DE PAGAMENTO IMEDIATA NO LOGIN
+        // 🔒 VERIFICAÇÃO DE PAGAMENTO
         console.log("🔑 Login bem-sucedido. User ID:", data.user.id);
         
         const { data: subscription, error: subError } = await supabase
@@ -54,16 +55,13 @@ export default function Login() {
           .eq('user_id', data.user.id)
           .single();
 
-        console.log("📊 Resultado da verificação no Login:", { subscription, subError });
+        console.log("📊 Resultado da verificação:", { subscription, subError });
 
-        // Se der erro na consulta, ou não tiver registro, ou o status NÃO for 'active'
         if (subError || !subscription || subscription.status !== 'active') {
           console.log("🚫 BLOQUEADO: Redirecionando para PAGAMENTO.");
-          // Redirecionamento imediato, sem setTimeout
           router.replace(`/pagamento?user_id=${data.user.id}`);
         } else {
           console.log("✅ LIBERADO: Redirecionando para", redirect);
-          // Redirecionamento imediato
           router.replace(redirect);
         }
       }
@@ -88,93 +86,107 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: "#F2EFE6" }}>
-      <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full border" style={{ borderColor: PAPER_LINE }}>
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center mb-3" style={{ backgroundColor: AMBER_BG }}>
-            <Scale size={24} style={{ color: SEAL }} />
-          </div>
-          <h1 className="text-2xl font-bold text-center" style={{ color: INK, fontFamily: "Georgia, serif" }}>
-            RecuperaJogo
-          </h1>
-          <p className="text-sm text-center mt-1" style={{ color: INK_SOFT }}>
-            {isLogin ? "Acesse sua área para gerar sua petição" : "Crie sua conta para começar"}
-          </p>
+    <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full border" style={{ borderColor: PAPER_LINE }}>
+      <div className="flex flex-col items-center mb-8">
+        <div className="w-12 h-12 rounded-full flex items-center justify-center mb-3" style={{ backgroundColor: AMBER_BG }}>
+          <Scale size={24} style={{ color: SEAL }} />
+        </div>
+        <h1 className="text-2xl font-bold text-center" style={{ color: INK, fontFamily: "Georgia, serif" }}>
+          RecuperaJogo
+        </h1>
+        <p className="text-sm text-center mt-1" style={{ color: INK_SOFT }}>
+          {isLogin ? "Acesse sua área para gerar sua petição" : "Crie sua conta para começar"}
+        </p>
+      </div>
+      
+      <form onSubmit={handleAuth} className="space-y-5">
+        <div>
+          <label className="block text-sm font-medium mb-1" style={{ color: INK_SOFT }}>E-mail</label>
+          <input 
+            type="email" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-3 rounded-lg border outline-none focus:ring-2 transition-all"
+            style={{ borderColor: PAPER_LINE, backgroundColor: PAPER }}
+            placeholder="seu@email.com"
+            required 
+          />
         </div>
         
-        <form onSubmit={handleAuth} className="space-y-5">
-          <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: INK_SOFT }}>E-mail</label>
-            <input 
-              type="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border outline-none focus:ring-2 transition-all"
-              style={{ borderColor: PAPER_LINE, backgroundColor: PAPER }}
-              placeholder="seu@email.com"
-              required 
-            />
+        <div>
+          <label className="block text-sm font-medium mb-1" style={{ color: INK_SOFT }}>Senha</label>
+          <input 
+            type="password" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-3 rounded-lg border outline-none focus:ring-2 transition-all"
+            style={{ borderColor: PAPER_LINE, backgroundColor: PAPER }}
+            placeholder="••••••••"
+            required 
+          />
+        </div>
+        
+        {message && (
+          <div className="p-3 rounded-lg text-sm font-medium flex items-start gap-2"
+               style={messageType === "error" 
+                 ? { backgroundColor: "#FEF2F2", borderColor: "#FECACA", color: "#991B1B" } 
+                 : { backgroundColor: AMBER_BG, borderColor: AMBER_BORDER, color: "#5C4A22" }
+               }>
+            {messageType === "error" ? <AlertCircle size={18} className="shrink-0 mt-0.5" /> : <CheckCircle2 size={18} className="shrink-0 mt-0.5" />}
+            <span>{message}</span>
+            {loading && messageType === "success" && <Loader2 size={16} className="animate-spin ml-2" />}
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: INK_SOFT }}>Senha</label>
-            <input 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border outline-none focus:ring-2 transition-all"
-              style={{ borderColor: PAPER_LINE, backgroundColor: PAPER }}
-              placeholder="••••••••"
-              required 
-            />
-          </div>
-          
-          {message && (
-            <div className="p-3 rounded-lg text-sm font-medium flex items-start gap-2"
-                 style={messageType === "error" 
-                   ? { backgroundColor: "#FEF2F2", borderColor: "#FECACA", color: "#991B1B" } 
-                   : { backgroundColor: AMBER_BG, borderColor: AMBER_BORDER, color: "#5C4A22" }
-                 }>
-              {messageType === "error" ? <AlertCircle size={18} className="shrink-0 mt-0.5" /> : <CheckCircle2 size={18} className="shrink-0 mt-0.5" />}
-              <span>{message}</span>
-              {loading && messageType === "success" && <Loader2 size={16} className="animate-spin ml-2" />}
-            </div>
-          )}
+        )}
 
+        <button 
+          type="submit" 
+          disabled={loading}
+          className="w-full font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-90"
+          style={{ backgroundColor: SEAL, color: "#FFF" }}
+        >
+          {loading ? "Processando..." : (isLogin ? "Entrar no Sistema" : "Criar Conta Gratuita")}
+          {!loading && <ArrowRight size={18} />}
+        </button>
+      </form>
+
+      <div className="text-center mt-8 pt-6 border-t" style={{ borderColor: PAPER_LINE }}>
+        <p className="text-sm" style={{ color: INK_SOFT }}>
+          {isLogin ? "Ainda não tem uma conta?" : "Já possui uma conta?"}{" "}
           <button 
-            type="submit" 
-            disabled={loading}
-            className="w-full font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed hover:opacity-90"
-            style={{ backgroundColor: SEAL, color: "#FFF" }}
+            type="button"
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setMessage("");
+            }}
+            className="font-semibold hover:underline transition-colors"
+            style={{ color: SEAL }}
           >
-            {loading ? "Processando..." : (isLogin ? "Entrar no Sistema" : "Criar Conta Gratuita")}
-            {!loading && <ArrowRight size={18} />}
+            {isLogin ? "Crie agora" : "Faça login"}
           </button>
-        </form>
-
-        <div className="text-center mt-8 pt-6 border-t" style={{ borderColor: PAPER_LINE }}>
-          <p className="text-sm" style={{ color: INK_SOFT }}>
-            {isLogin ? "Ainda não tem uma conta?" : "Já possui uma conta?"}{" "}
-            <button 
-              type="button"
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setMessage("");
-              }}
-              className="font-semibold hover:underline transition-colors"
-              style={{ color: SEAL }}
-            >
-              {isLogin ? "Crie agora" : "Faça login"}
-            </button>
-          </p>
-        </div>
-
-        <div className="text-center mt-4">
-          <a href="/" className="text-xs flex items-center justify-center gap-1 hover:underline" style={{ color: INK_SOFT }}>
-            ← Voltar para a página inicial
-          </a>
-        </div>
+        </p>
       </div>
+
+      <div className="text-center mt-4">
+        <a href="/" className="text-xs flex items-center justify-center gap-1 hover:underline" style={{ color: INK_SOFT }}>
+          ← Voltar para a página inicial
+        </a>
+      </div>
+    </div>
+  );
+}
+
+// 🔒 Componente principal que envolve o LoginForm em Suspense
+export default function Login() {
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: "#F2EFE6" }}>
+      <Suspense fallback={
+        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full border text-center" style={{ borderColor: PAPER_LINE }}>
+          <Loader2 size={32} className="mx-auto mb-4 animate-spin" style={{ color: SEAL }} />
+          <p className="text-sm" style={{ color: INK_SOFT }}>Carregando...</p>
+        </div>
+      }>
+        <LoginForm />
+      </Suspense>
     </div>
   );
 }

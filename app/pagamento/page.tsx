@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Scale, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
 import { supabase } from "../login/supabase";
@@ -10,7 +10,8 @@ const INK_SOFT = "#3D4C5E";
 const SEAL = "#8A6D3B";
 const AMBER_BG = "#FBF1DD";
 
-export default function PaginaPagamento() {
+// 🔒 Componente interno que usa useSearchParams
+function PagamentoContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get("user_id");
@@ -64,7 +65,6 @@ export default function PaginaPagamento() {
     );
   }
 
-  // Link do Stripe com metadata do user_id
   const stripeLink = `https://buy.stripe.com/3cIbJ12W71ZUgAofGZeQM00?client_reference_id=${userId}`;
 
   return (
@@ -111,5 +111,21 @@ export default function PaginaPagamento() {
         </p>
       </div>
     </div>
+  );
+}
+
+// 🔒 Componente principal que envolve o conteúdo em Suspense
+export default function PaginaPagamento() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#F2EFE6" }}>
+        <div className="text-center">
+          <Loader2 size={40} className="mx-auto mb-4 animate-spin" style={{ color: SEAL }} />
+          <p className="text-sm font-medium" style={{ color: INK }}>Carregando...</p>
+        </div>
+      </div>
+    }>
+      <PagamentoContent />
+    </Suspense>
   );
 }
