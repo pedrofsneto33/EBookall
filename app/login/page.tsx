@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Scale, AlertCircle, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
 import { supabase } from "./supabase"; 
@@ -45,23 +45,26 @@ export default function Login() {
         setMessage("Login realizado! Verificando acesso...");
         setMessageType("success");
         
-        // 🔒 VERIFICAÇÃO DE PAGAMENTO NO LOGIN (Fecha o furo de segurança)
-        const { data: subscription } = await supabase
+        // 🔒 VERIFICAÇÃO DE PAGAMENTO IMEDIATA NO LOGIN
+        console.log("🔑 Login bem-sucedido. User ID:", data.user.id);
+        
+        const { data: subscription, error: subError } = await supabase
           .from('subscriptions')
           .select('status')
           .eq('user_id', data.user.id)
           .single();
 
-        // Se NÃO tiver assinatura ativa, manda pro pagamento, IGNORANDO o redirect
-        if (!subscription || subscription.status !== 'active') {
-          setTimeout(() => {
-            router.replace(`/pagamento?user_id=${data.user.id}`);
-          }, 1000);
+        console.log("📊 Resultado da verificação no Login:", { subscription, subError });
+
+        // Se der erro na consulta, ou não tiver registro, ou o status NÃO for 'active'
+        if (subError || !subscription || subscription.status !== 'active') {
+          console.log("🚫 BLOQUEADO: Redirecionando para PAGAMENTO.");
+          // Redirecionamento imediato, sem setTimeout
+          router.replace(`/pagamento?user_id=${data.user.id}`);
         } else {
-          // Se tiver assinatura ativa, vai para o destino seguro
-          setTimeout(() => {
-            router.replace(redirect);
-          }, 1000);
+          console.log("✅ LIBERADO: Redirecionando para", redirect);
+          // Redirecionamento imediato
+          router.replace(redirect);
         }
       }
     } else {
