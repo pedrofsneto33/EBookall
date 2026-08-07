@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Scale, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
-import { supabase } from "./supabase";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Scale, AlertCircle, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
+import { supabase } from "./supabase"; 
 
 const INK = "#1E2A3A";
 const INK_SOFT = "#3D4C5E";
@@ -15,6 +15,8 @@ const AMBER_BORDER = "#D8B368";
 
 export default function Login() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") || "/gerador";
   
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -40,11 +42,27 @@ export default function Login() {
         setMessageType("error");
         setLoading(false);
       } else {
-        setMessage("Login realizado! Redirecionando...");
+        setMessage("Login realizado! Verificando acesso...");
         setMessageType("success");
-        setTimeout(() => {
-          router.replace("/gerador");
-        }, 500);
+        
+        // 🔒 VERIFICAÇÃO DE PAGAMENTO NO LOGIN (Fecha o furo de segurança)
+        const { data: subscription } = await supabase
+          .from('subscriptions')
+          .select('status')
+          .eq('user_id', data.user.id)
+          .single();
+
+        // Se NÃO tiver assinatura ativa, manda pro pagamento, IGNORANDO o redirect
+        if (!subscription || subscription.status !== 'active') {
+          setTimeout(() => {
+            router.replace(`/pagamento?user_id=${data.user.id}`);
+          }, 1000);
+        } else {
+          // Se tiver assinatura ativa, vai para o destino seguro
+          setTimeout(() => {
+            router.replace(redirect);
+          }, 1000);
+        }
       }
     } else {
       const { error } = await supabase.auth.signUp({
@@ -58,7 +76,7 @@ export default function Login() {
         setMessageType("error");
         setLoading(false);
       } else {
-        setMessage("Conta criada com sucesso! Verifique seu e-mail para confirmar e depois faça o login.");
+        setMessage("Conta criada! Verifique seu e-mail para confirmar e depois faça o login.");
         setMessageType("success");
         setIsLogin(true);
         setLoading(false);
@@ -116,6 +134,7 @@ export default function Login() {
                  }>
               {messageType === "error" ? <AlertCircle size={18} className="shrink-0 mt-0.5" /> : <CheckCircle2 size={18} className="shrink-0 mt-0.5" />}
               <span>{message}</span>
+              {loading && messageType === "success" && <Loader2 size={16} className="animate-spin ml-2" />}
             </div>
           )}
 

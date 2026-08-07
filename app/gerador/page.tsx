@@ -181,25 +181,69 @@ function Field({ label, value, onChange, full, placeholder }: { label: string; v
 export default function GeradorMaterialJuridico() {
   const router = useRouter();
   
-  // ✅ Estados de autenticação
+  // 🔒 Estados de autenticação e pagamento
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true); // 🔒 Tela de carregamento enquanto verifica sessão
+  const [loading, setLoading] = useState(true);
 
-  // 🔒 VERIFICAÇÃO DE AUTENTICAÇÃO — redireciona se não estiver logado
+  // 🔒 VERIFICAÇÃO DE AUTENTICAÇÃO E PAGAMENTO COM LOGS
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        // Não está logado → manda pro login com a URL de retorno
-        router.replace(`/login?redirect=/gerador`);
-        return;
+    const checkAuthAndPayment = async () => {
+      try {
+        console.log("🔍 Verificando autenticação e pagamento...");
+        
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("❌ Erro na sessão:", sessionError);
+          router.replace(`/login?redirect=/gerador`);
+          return;
+        }
+        
+        if (!session?.user) {
+          console.log("❌ Usuário não logado");
+          router.replace(`/login?redirect=/gerador`);
+          return;
+        }
+
+        console.log("✅ Usuário logado:", session.user.email);
+        console.log("🔑 User ID:", session.user.id);
+
+        // ✅ Verifica se o usuário tem assinatura ativa na tabela subscriptions
+        const { data: subscription, error: subError } = await supabase
+          .from('subscriptions')
+          .select('status, user_id')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (subError) {
+          console.error("❌ Erro ao buscar subscription:", subError);
+        }
+
+        console.log("📊 Subscription encontrada:", subscription);
+
+        // Se não tem registro OU status não é "active" → manda para pagamento
+        if (!subscription || subscription.status !== 'active') {
+          console.log("❌ Usuário NÃO tem assinatura ativa. Status:", subscription?.status || "NENHUMA");
+          console.log("🔄 Redirecionando para /pagamento...");
+          
+          // Aguarda um pouco para garantir que o log apareça
+          await new Promise(resolve => setTimeout(resolve, 500));
+          router.replace(`/pagamento?user_id=${session.user.id}`);
+          return;
+        }
+
+        console.log("✅ Usuário tem assinatura ativa! Liberando acesso...");
+        setUserEmail(session.user.email ?? null);
+        setUserId(session.user.id ?? null);
+        setLoading(false);
+      } catch (err) {
+        console.error("❌ Erro inesperado na verificação:", err);
+        setLoading(false);
       }
-      setUserEmail(session.user.email ?? null);
-      setUserId(session.user.id ?? null);
-      setLoading(false);
     };
-    checkAuth();
+    
+    checkAuthAndPayment();
   }, [router]);
 
   const [petitionCount, setPetitionCount] = useState(0);
@@ -315,7 +359,7 @@ export default function GeradorMaterialJuridico() {
   }
   const provasMarcadas = Object.values(checked).filter(Boolean).length;
 
-  // 🔒 TELA DE CARREGAMENTO (enquanto verifica sessão)
+  // 🔒 TELA DE CARREGAMENTO (enquanto verifica sessão e pagamento)
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#F2EFE6" }}>
