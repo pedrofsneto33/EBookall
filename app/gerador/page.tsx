@@ -8,9 +8,11 @@ import {
   AlertCircle, User, Heart, Shield, LogOut, Lock, MessageCircle
 } from "lucide-react";
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer';
-
 import { supabase } from "../login/supabase"; 
 
+// =========================================================================
+// 1. ESTILOS DO PDF
+// =========================================================================
 const pdfStyles = StyleSheet.create({
   page: { padding: 50, fontFamily: 'Times-Roman', fontSize: 12, lineHeight: 1.5 },
   header: { textAlign: 'center', marginBottom: 20, fontSize: 12, fontWeight: 'bold', textTransform: 'uppercase' },
@@ -57,6 +59,9 @@ const PeticaoPDF = ({ dados }: { dados: any }) => (
   </Document>
 );
 
+// =========================================================================
+// 2. CONSTANTES E ARGUMENTOS
+// =========================================================================
 const INK = "#1E2A3A";
 const INK_SOFT = "#3D4C5E";
 const PAPER = "#FBF9F4";
@@ -128,7 +133,10 @@ const ARGUMENTOS_CONDICIONAIS = [
   },
 ];
 
-function TabButton({ active, onClick, icon: Icon, n, label }: any) {
+// =========================================================================
+// 3. COMPONENTES DE UI
+// =========================================================================
+function TabButton({ active, onClick, icon: Icon, n, label }: { active: boolean; onClick: () => void; icon: any; n: string; label: string }) {
   return (
     <button onClick={onClick} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors w-full ${active ? "text-white" : "text-[#3D4C5E] hover:bg-[#EFEADE]"}`} style={active ? { backgroundColor: INK } : { backgroundColor: "transparent" }}>
       <span className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold shrink-0" style={{ backgroundColor: active ? SEAL : "#E4DFD1", color: active ? "#FBF9F4" : INK_SOFT }}>{n}</span>
@@ -158,7 +166,7 @@ function Row({ label, value, bold }: { label: string; value: string; bold?: bool
   );
 }
 
-function Field({ label, value, onChange, full, placeholder }: any) {
+function Field({ label, value, onChange, full, placeholder }: { label: string; value: string; onChange: (v: string) => void; full?: boolean; placeholder?: string }) {
   return (
     <label className={`text-sm ${full ? "sm:col-span-2" : ""}`}>
       <span className="block mb-1 font-medium" style={{ color: INK_SOFT }}>{label}</span>
@@ -167,10 +175,28 @@ function Field({ label, value, onChange, full, placeholder }: any) {
   );
 }
 
+// =========================================================================
+// 4. COMPONENTE PRINCIPAL
+// =========================================================================
 export default function GeradorMaterialJuridico() {
   const router = useRouter();
-  const [userEmail, setUserEmail] = useState<string | null>("usuario@teste.com");
-  const [userId, setUserId] = useState<string | null>("user-teste-id");
+  
+  // ✅ Busca o usuário real logado no Supabase
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        // ✅ Correção: usa ?? null para converter undefined em null
+        setUserEmail(session.user.email ?? null);
+        setUserId(session.user.id ?? null);
+      }
+    };
+    getUser();
+  }, []);
+
   const [petitionCount, setPetitionCount] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
   const [tab, setTab] = useState("perfil");
@@ -291,7 +317,7 @@ export default function GeradorMaterialJuridico() {
           <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ backgroundColor: "#FBF1DD" }}><User size={18} style={{ color: "#8A6D3B" }} /></div>
           <div>
             <p className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: "#3D4C5E" }}>Logado como</p>
-            <p className="text-sm font-bold truncate max-w-[200px]" style={{ color: "#1E2A3A" }}>{userEmail}</p>
+            <p className="text-sm font-bold truncate max-w-[200px]" style={{ color: "#1E2A3A" }}>{userEmail || "Carregando..."}</p>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -486,14 +512,10 @@ export default function GeradorMaterialJuridico() {
                   <strong>💡 Dica Profissional:</strong> Clique em <strong>"Baixar PDF Formatado"</strong> para obter o documento com margens, fonte Times New Roman, texto justificado e espaçamento 1.5, pronto para ser impresso ou anexado no PJe.
                 </div>
 
-                {/* ✅ NOVO: BOTÃO DE COMPARTILHAMENTO ORGÂNICO */}
+                {/* ✅ BOTÃO DE COMPARTILHAMENTO ORGÂNICO */}
                 <div className="mt-6 p-5 rounded-lg border text-center" style={{ backgroundColor: AMBER_BG, borderColor: AMBER_BORDER }}>
-                  <p className="text-sm font-semibold mb-3" style={{ color: INK }}>
-                    Conhece alguém que também foi prejudicado por casa de apostas?
-                  </p>
-                  <p className="text-xs mb-4" style={{ color: INK_SOFT }}>
-                    Esse público se indica muito entre si. Compartilhe o RecuperaJogo e ajude outra pessoa a recuperar o que é dela.
-                  </p>
+                  <p className="text-sm font-semibold mb-3" style={{ color: INK }}>Conhece alguém que também foi prejudicado por casa de apostas?</p>
+                  <p className="text-xs mb-4" style={{ color: INK_SOFT }}>Esse público se indica muito entre si. Compartilhe o RecuperaJogo e ajude outra pessoa a recuperar o que é dela.</p>
                   <a 
                     href={`https://wa.me/?text=${encodeURIComponent("Acabei de ver uma ferramenta que ajuda a processar casa de apostas que ignoram autoexclusão. Dá uma olhada: https://recuperajogo.vercel.app")}`} 
                     target="_blank" 
