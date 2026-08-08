@@ -65,7 +65,7 @@ function PagamentoContent() {
     );
   }
 
-  const stripeLink = `https://buy.stripe.com/3cIbJ12W71ZUgAofGZeQM00?client_reference_id=${userId}`;
+  const stripeLink = `https://buy.stripe.com/test_3cIbJ12W71ZUgAofGZeQM00`;
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: "#F2EFE6" }}>
