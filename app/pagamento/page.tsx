@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Scale, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
-import { supabase } from "../login/supabase";
+import { supabase } from "../login/supabase"; // Mantenha o caminho exato que você já usa
 
 const INK = "#1E2A3A";
 const INK_SOFT = "#3D4C5E";
@@ -65,7 +65,8 @@ function PagamentoContent() {
     );
   }
 
-  const stripeLink = `https://buy.stripe.com/test_3cIbJ12W71ZUgAofGZeQM00`;
+  // ✅ LINK ATUALIZADO PARA PRODUÇÃO (LIVE) - SEM "test_"
+  const stripeLink = "https://buy.stripe.com/3cIbJ12W71ZUgAofGZeQM00";
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: "#F2EFE6" }}>
