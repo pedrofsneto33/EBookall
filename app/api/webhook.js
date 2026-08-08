@@ -5,10 +5,16 @@ import Stripe from "stripe";
 // Inicializa o Stripe com sua chave secreta
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Inicializa o Supabase com a Service Role Key (para poder editar o banco)
+// Inicializa o Supabase com a Service Role Key (para ter permissão de admin)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  }
 );
 
 export async function POST(request) {
@@ -16,8 +22,8 @@ export async function POST(request) {
   const signature = request.headers.get("stripe-signature");
 
   let event;
-  
-  // 1. Verifica se o aviso veio realmente do Stripe (segurança)
+
+  // 1. Verifica se o aviso veio realmente do Stripe
   try {
     event = stripe.webhooks.constructEvent(
       body,
@@ -25,7 +31,7 @@ export async function POST(request) {
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-    console.error(` Erro no Webhook: ${err.message}`);
+    console.error(`❌ Erro no Webhook: ${err.message}`);
     return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 });
   }
 
@@ -33,12 +39,25 @@ export async function POST(request) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
     
-    // Pega o user_id que enviamos no link de pagamento
-    const userId = session.client_reference_id;
+    // Pega o e-mail do cliente que fez o pagamento
+    const userEmail = session.customer_details?.email;
 
-    if (userId) {
-      // 3. Atualiza o status para 'active' na tabela subscriptions
-      const { error } = await supabase
+    console.log("💳 Pagamento concluído para o e-mail:", userEmail);
+
+    if (userEmail) {
+      // 3. Busca o user_id no Supabase usando o e-mail (requer Service Role Key)
+      const { data: { user }, error: userError } = await supabase.auth.admin.getUserByEmail(userEmail);
+
+      if (userError || !user) {
+        console.error("❌ Usuário não encontrado no Supabase:", userError);
+        // Retorna 200 para o Stripe saber que recebemos, mesmo com erro interno
+        return NextResponse.json({ received: true }); 
+      }
+
+      const userId = user.id;
+
+      // 4. Atualiza o status para 'active' na tabela subscriptions
+      const { error: updateError } = await supabase
         .from("subscriptions")
         .update({ 
           status: "active", 
@@ -47,11 +66,13 @@ export async function POST(request) {
         })
         .eq("user_id", userId);
 
-      if (error) {
-        console.error(" Erro ao atualizar subscription:", error);
+      if (updateError) {
+        console.error("❌ Erro ao atualizar subscription:", updateError);
       } else {
-        console.log(`✅ Usuário ${userId} ativado com sucesso!`);
+        console.log(`✅ SUCESSO: Usuário ${userId} (${userEmail}) ativado com sucesso!`);
       }
+    } else {
+      console.warn("⚠️ E-mail do cliente não encontrado na sessão do Stripe.");
     }
   }
 
