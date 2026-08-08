@@ -1,54 +1,59 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import Stripe from "stripe";
 
-// Usa a SERVICE ROLE KEY para poder escrever na tabela subscriptions
+// Inicializa o Stripe com sua chave secreta
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+// Inicializa o Supabase com a Service Role Key (para poder editar o banco)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 export async function POST(request) {
+  const body = await request.text();
+  const signature = request.headers.get("stripe-signature");
+
+  let event;
+  
+  // 1. Verifica se o aviso veio realmente do Stripe (segurança)
   try {
-    const body = await request.text();
-    const sig = request.headers.get("stripe-signature");
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch (err) {
+    console.error(` Erro no Webhook: ${err.message}`);
+    return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 });
+  }
 
-    // Validação do webhook (opcional para MVP, mas recomendado)
-    // const event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  // 2. Se o evento for de "pagamento concluído"
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object;
     
-    // Por enquanto, vamos simplificar:
-    const event = JSON.parse(body);
-    
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object;
-      const userId = session.metadata?.user_id || session.client_reference_id;
-      const sessionId = session.id;
+    // Pega o user_id que enviamos no link de pagamento
+    const userId = session.client_reference_id;
 
-      if (!userId) {
-        console.error("user_id não encontrado no metadata do Stripe");
-        return NextResponse.json({ error: "user_id missing" }, { status: 400 });
-      }
-
-      // ✅ Atualiza o status para "active" na tabela subscriptions
+    if (userId) {
+      // 3. Atualiza o status para 'active' na tabela subscriptions
       const { error } = await supabase
         .from("subscriptions")
-        .update({
-          status: "active",
-          payment_provider_id: sessionId,
-          current_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 ano
+        .update({ 
+          status: "active", 
+          payment_provider_id: session.id,
+          current_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1 ano de acesso
         })
         .eq("user_id", userId);
 
       if (error) {
-        console.error("Erro ao atualizar subscription:", error);
-        return NextResponse.json({ error: "Erro ao atualizar" }, { status: 500 });
+        console.error(" Erro ao atualizar subscription:", error);
+      } else {
+        console.log(`✅ Usuário ${userId} ativado com sucesso!`);
       }
-
-      console.log(`✅ Usuário ${userId} marcado como ativo`);
     }
-
-    return NextResponse.json({ received: true });
-  } catch (err) {
-    console.error("Erro no webhook:", err);
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
+
+  return NextResponse.json({ received: true });
 }
