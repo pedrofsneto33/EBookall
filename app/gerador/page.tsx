@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer';
 import { supabase } from "../login/supabase"; 
+import { ARGUMENTOS, filtrarPorPerfil, Argumento } from "../lib/argumentos-peticao"; 
 
 // =========================================================================
 // 1. ESTILOS DO PDF
@@ -84,44 +85,6 @@ const PROVAS = [
   { id: "cnpj", texto: "CNPJ da operadora (Casa dos Dados / Receita Federal)" },
 ];
 
-const ARGUMENTOS_UNIVERSAIS = [
-  { 
-    id: "univ_sigap", label: "Dever de Consulta ao SIGAP (IN 31/2025)", 
-    texto: () => `A parte Autora realizou Autoexclusão Centralizada no âmbito do sistema oficial da Secretaria de Prêmios e Apostas do Ministério da Fazenda (SPA/MF).\n\nConteúdo baseado na IN SPA/MF nº 31/2025 (arts. 2º e 3º), que estabelece o dever obrigatório do operador consultar o SIGAP previamente à autorização de acesso, cadastro ou realização de operações.\n\nA parte Ré, ao aceitar depósitos após a formalização da autoexclusão, descumpriu obrigação regulatória vinculante, configurando falha grave na prestação do serviço (art. 14, CDC).` 
-  },
-  { 
-    id: "univ_prazo_30_dias", label: "Prazo de 30 dias para Integração (IN 31/2025, art. 15)", 
-    texto: () => `A Requerida tenta utilizar o prazo de 90 dias da Portaria SPA/MF nº 2.579/2025 como excludente de responsabilidade. Contudo, a IN SPA/MF nº 31/2025 (art. 15) estabeleceu o prazo de 30 dias para integração ao sistema de impedidos.\n\nO prazo de 90 dias refere-se exclusivamente à adaptação cadastral e tecnológica, não suspendendo o dever material de bloqueio, conforme esclarecido pela própria SPA/MF.` 
-  },
-  { 
-    id: "univ_cdc_cc", label: "Distinção: Art. 814 CC (Dívida de Jogo) vs. Art. 42 CDC (Repetição de Indébito)", 
-    texto: () => `A lide não versa sobre cobrança de dívida de jogo (art. 814 do Código Civil), mas sobre repetição de indébito por violação de obrigação regulatória (art. 42, parágrafo único, do CDC).\n\nO cerne da demanda é a falha no bloqueio da conta após autoexclusão centralizada, não o resultado de apostas. A aplicação do art. 814 do CC ao caso é indevida.` 
-  },
-  { 
-    id: "univ_responsabilidade", label: "Responsabilidade Objetiva e Fortuito Interno (Súmula 479 STJ)", 
-    texto: () => `Nos termos do art. 14 do CDC, a responsabilidade da fornecedora é objetiva, independendo de dolo ou culpa.\n\nEventuais falhas operacionais, inconsistências sistêmicas ou problemas internos de integração configuram fortuito interno, risco da atividade (Súmula 479 do STJ).` 
-  },
-  { 
-    id: "univ_laudo", label: "Desnecessidade de Laudo Médico para Autoexclusão", 
-    texto: () => `A regulamentação da autoexclusão centralizada não exige laudo médico, interdição judicial ou comprovação de incapacidade civil para gerar o dever de bloqueio.\n\nO dever nasce da própria formalização da autoexclusão no sistema oficial da SPA/MF. A tentativa de condicionar a proteção à demonstração de incapacidade formal não encontra respaldo normativo.` 
-  },
-  { 
-    id: "univ_bloqueio_72h", label: "Dever de Bloqueio em 72 Horas (Art. 7º da Portaria 2.579/2025)", 
-    texto: () => `O art. 7º da Portaria SPA/MF nº 2.579/2025 estabelece que, identificado o status 'Impedido - Autoexclusão Centralizada' no SIGAP, o operador deve imediatamente impedir novas apostas e encerrar a conta no prazo máximo de 3 (três) dias.\n\nA falha no bloqueio dentro deste prazo configura defeito na prestação do serviço (art. 14, §1º, II, CDC).` 
-  },
-];
-
-const ARGUMENTO_LUDOPATIA = {
-  id: "ludo_vulnerabilidade", 
-  label: "Nulidade das Apostas por Ludopatia (Lei 14.790/2023, art. 26)",
-  texto: () =>
-    `A parte Autora é portadora de transtorno do jogo patológico (ludopatia), conforme diagnóstico médico (CID-10 F63.0 / CID-11 6C50), obtido via CAPS/SUS.\n\n` +
-    `A Lei nº 14.790/2023 (Lei das Bets), em seu artigo 26, estabelece que "é nula de pleno direito a aposta realizada por pessoa diagnosticada com transtorno do jogo patológico".\n\n` +
-    `A Requerida, ao não identificar o padrão inequívoco de comportamento compulsivo da parte Autora (depósitos frequentes, uso de múltiplos meios de pagamento, apostas em horários incomuns, empréstimos para sustentar o vício), descumpriu o dever legal de monitoramento imposto pela própria Lei 14.790/2023.\n\n` +
-    `Jurisprudência do TJSP (10ª Vara Cível de São Paulo) já reconheceu falha na prestação do serviço por omissão da plataforma em identificar padrão de comportamento compulsivo, admitindo restituição de valores. Em outro caso documentado, casa de apostas foi condenada a devolver R$ 217 mil a consumidora que demonstrou ter recorrido a empréstimos familiares para sustentar o vício.\n\n` +
-    `As apostas realizadas pela parte Autora são, portanto, nulas de pleno direito, cabendo a restituição integral dos valores depositados. A restituição do valor perdido tem base jurídica mais consolidada. Já o dano moral depende do juízo do caso — parte da jurisprudência ainda trata perda em jogo como risco assumido, embora a violação do dever de cuidado da plataforma seja um forte argumento para sua concessão.`,
-};
-
 const ARGUMENTOS_CONDICIONAIS = [
   { 
     id: "cond_email", label: "Tenho E-mail de Bloqueio + Depósito posterior (Contradição Temporal)", 
@@ -181,68 +144,46 @@ function Field({ label, value, onChange, full, placeholder }: { label: string; v
 export default function GeradorMaterialJuridico() {
   const router = useRouter();
   
-  // 🔒 Estados de autenticação e pagamento
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔒 VERIFICAÇÃO DE AUTENTICAÇÃO E PAGAMENTO COM LOGS
   useEffect(() => {
     const checkAuthAndPayment = async () => {
       try {
-        console.log("🔍 Verificando autenticação e pagamento...");
-        
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (sessionError) {
-          console.error("❌ Erro na sessão:", sessionError);
-          router.replace(`/login?redirect=/gerador`);
-          return;
-        }
-        
-        if (!session?.user) {
-          console.log("❌ Usuário não logado");
+        if (sessionError || !session?.user) {
           router.replace(`/login?redirect=/gerador`);
           return;
         }
 
-        console.log("✅ Usuário logado:", session.user.email);
-        console.log("🔑 User ID:", session.user.id);
-
-        // ✅ Verifica se o usuário tem assinatura ativa na tabela subscriptions
-        const { data: subscription, error: subError } = await supabase
+        const { data: subscription } = await supabase
           .from('subscriptions')
-          .select('status, user_id')
+          .select('status, user_id, peticoes_usadas')
           .eq('user_id', session.user.id)
           .single();
 
-        if (subError) {
-          console.error("❌ Erro ao buscar subscription:", subError);
-        }
-
-        console.log("📊 Subscription encontrada:", subscription);
-
-        // Se não tem registro OU status não é "active" → manda para pagamento
         if (!subscription || subscription.status !== 'active') {
-          console.log("❌ Usuário NÃO tem assinatura ativa. Status:", subscription?.status || "NENHUMA");
-          console.log("🔄 Redirecionando para /pagamento...");
-          
-          // Aguarda um pouco para garantir que o log apareça
-          await new Promise(resolve => setTimeout(resolve, 500));
           router.replace(`/pagamento?user_id=${session.user.id}`);
           return;
         }
 
-        console.log("✅ Usuário tem assinatura ativa! Liberando acesso...");
         setUserEmail(session.user.email ?? null);
         setUserId(session.user.id ?? null);
+        
+        // Carrega o contador real do banco de dados
+        const usadas = subscription?.peticoes_usadas || 0;
+        setPetitionCount(usadas);
+        if (usadas >= MAX_PETICOES) {
+          setLimitReached(true);
+        }
+        
         setLoading(false);
       } catch (err) {
-        console.error("❌ Erro inesperado na verificação:", err);
         setLoading(false);
       }
     };
-    
     checkAuthAndPayment();
   }, [router]);
 
@@ -254,17 +195,14 @@ export default function GeradorMaterialJuridico() {
   const [dadosPDF, setDadosPDF] = useState<any>(null);
   const [geradoTexto, setGeradoTexto] = useState("");
   
-  const [perfil, setPerfil] = useState<"generico" | "ludopatia">("generico");
+  const [perfil, setPerfil] = useState<"autoexclusao" | "ludopatia">("autoexclusao");
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const perfilParam = params.get('perfil');
-      if (perfilParam === 'ludopatia') {
-        setPerfil('ludopatia');
-      } else if (perfilParam === 'autoexclusao') {
-        setPerfil('generico');
-      }
+      if (perfilParam === 'ludopatia') setPerfil('ludopatia');
+      else if (perfilParam === 'autoexclusao') setPerfil('autoexclusao');
     }
   }, []);
 
@@ -304,21 +242,24 @@ export default function GeradorMaterialJuridico() {
     if (limitReached || petitionCount >= MAX_PETICOES) { alert(`Você atingiu o limite de ${MAX_PETICOES} petições.`); return; }
     const valorCausa = calc.total > 0 ? fmt(calc.total) : "[preencher valor da causa]";
     
-    const argumentosFinais = [
-      ...ARGUMENTOS_UNIVERSAIS.map((a, i) => ({ titulo: `${["II", "III", "IV", "V", "VI", "VII"][i]} — ${a.label.toUpperCase()}`, texto: a.texto() })),
-      ...(perfil === "ludopatia" ? [{ titulo: "VIII — NULIDADE DAS APOSTAS POR LUDOPATIA (LEI 14.790/2023, ART. 26)", texto: ARGUMENTO_LUDOPATIA.texto() }] : []),
-      ...ARGUMENTOS_CONDICIONAIS.filter((a) => argsCondSel[a.id]).map((a, i) => { 
-        const numRomano = perfil === "ludopatia" ? ["IX", "X"][i] : ["VIII", "IX"][i]; 
-        return { titulo: `${numRomano} — ${a.label.toUpperCase()}`, texto: a.texto(dataFato, horaFato) }; 
-      }),
-    ];
+    const argumentosDinamicos = filtrarPorPerfil(perfil).map((a) => ({ 
+      titulo: a.label.toUpperCase(), 
+      texto: a.texto(dataFato) 
+    }));
+
+    const argumentosCondicionais = ARGUMENTOS_CONDICIONAIS.filter((a) => argsCondSel[a.id]).map((a, i) => { 
+      const numRomano = ["VIII", "IX", "X", "XI"][i]; 
+      return { titulo: `${numRomano} — ${a.label.toUpperCase()}`, texto: a.texto(dataFato, horaFato) }; 
+    });
+
+    const argumentosFinais = [...argumentosDinamicos, ...argumentosCondicionais];
     
     let textoRoteiro = "";
     if (tentativaChat || tentativaConsumidorGov) {
       textoRoteiro = `A parte Autora, agindo de boa-fé, tentou resolver a questão administrativamente antes de buscar o Judiciário. `;
       if (tentativaChat) textoRoteiro += `Entrou em contato com o suporte da Ré em data anterior, obtendo o protocolo ${protocoloChat || "[NÚMERO]"}, e `;
       if (tentativaConsumidorGov) textoRoteiro += `registrou reclamação formal no Consumidor.gov.br sob o nº ${protocoloConsumidorGov || "[NÚMERO]"}. `;
-      textoRoteiro += `A Ré, contudo, limitou-se a oferecer respostas automatizadas e evasivas, invocando supostos 'prazos de adaptação' já desmentidos pela própria autoridade reguladora (SPA/MF), ou simplesmente ignorou a demanda. Tal conduta configura claro Desvio Produtivo do Consumidor.`;
+      textoRoteiro += `A Ré, contudo, limitou-se a oferecer respostas automatizadas e evasivas. Tal conduta configura claro Desvio Produtivo do Consumidor.`;
     }
     
     const pedidos = `Diante do exposto, requer-se:\n\na) a restituição do valor de ${valorCausa}${dobro ? ", em dobro, nos termos do art. 42, parágrafo único, do CDC" : ""}, corrigido monetariamente e acrescido de juros de mora de 1% ao mês desde a data do(s) fato(s);\n\n${danoMoral ? `b) a condenação da Ré ao pagamento de indenização por danos morais, em valor não inferior a ${fmt(parseFloat(valorDanoMoral) || 0)}, observando-se os princípios da proporcionalidade e caráter pedagógico;\n` : ""}c) a inversão do ônus da prova, conforme fundamentado;\n\nd) a citação da parte Ré para, querendo, apresentar contestação, sob pena de revelia.`;
@@ -339,12 +280,27 @@ export default function GeradorMaterialJuridico() {
     };
     
     setDadosPDF(dados);
-    setGeradoTexto(`[VISUALIZAÇÃO EM TEXTO PLANO]\n\n${dados.enderecamento}\n\n${dados.qualificacao}\n\n${dados.tituloAcao}\n\n${dados.qualificacaoReu}\n\nI — DOS FATOS\n\n${dados.fatos}\n\n[ARGUMENTOS JURÍDICOS INSERIDOS AUTOMATICAMENTE NO PDF]\n\n${dados.onusProva}\n\n${textoRoteiro ? `DO DESVIO PRODUTIVO\n\n${textoRoteiro}\n\n` : ""}DOS PEDIDOS\n\n${dados.pedidos}\n\nDá-se à causa o valor de ${dados.valorCausa}.\n\nNestes termos,\npede deferimento.\n\n${dados.cidadeData}\n\n${dados.autorNome}`);
+    
+    let textoPreview = `${dados.enderecamento}\n\n${dados.qualificacao}\n\n${dados.tituloAcao}\n\n${dados.qualificacaoReu}\n\nI — DOS FATOS\n\n${dados.fatos}\n\n`;
+    argumentosFinais.forEach((arg, i) => {
+      textoPreview += `${i + 1}. ${arg.titulo}\n${arg.texto}\n\n`;
+    });
+    textoPreview += `DO DESVIO PRODUTIVO\n\n${textoRoteiro || "Não informado."}\n\nDOS PEDIDOS\n\n${dados.pedidos}\n\nDá-se à causa o valor de ${dados.valorCausa}.\n\nNestes termos,\npede deferimento.\n\n${dados.cidadeData}\n\n${dados.autorNome}`;
+    
+    setGeradoTexto(textoPreview);
     setTab("resultado");
     
     const newCount = petitionCount + 1;
     setPetitionCount(newCount);
     if (newCount >= MAX_PETICOES) setLimitReached(true);
+
+    // Salva o novo contador no Supabase
+    if (userId) {
+      supabase
+        .from('subscriptions')
+        .update({ peticoes_usadas: newCount })
+        .eq('user_id', userId);
+    }
   }
 
   function copiar() { navigator.clipboard.writeText(geradoTexto); alert("Texto copiado!"); }
@@ -359,7 +315,6 @@ export default function GeradorMaterialJuridico() {
   }
   const provasMarcadas = Object.values(checked).filter(Boolean).length;
 
-  // 🔒 TELA DE CARREGAMENTO (enquanto verifica sessão e pagamento)
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#F2EFE6" }}>
@@ -414,10 +369,10 @@ export default function GeradorMaterialJuridico() {
                 <h2 className="text-lg font-semibold mb-4" style={{ color: INK }}>Selecione o Perfil do seu Caso</h2>
                 <p className="text-sm mb-6" style={{ color: INK_SOFT }}>Isso definirá quais argumentos jurídicos serão incluídos na sua petição.</p>
                 <div className="space-y-4">
-                  <label className={`flex items-start gap-4 p-4 rounded-lg border cursor-pointer transition-all ${perfil === "generico" ? "border-[#8A6D3B] bg-[#FBF9F4] ring-2 ring-[#8A6D3B]" : "border-[#E4DFD1] hover:bg-white"}`} onClick={() => setPerfil("generico")}>
-                    <input type="radio" checked={perfil === "generico"} onChange={() => setPerfil("generico")} className="mt-1 w-4 h-4" />
+                  <label className={`flex items-start gap-4 p-4 rounded-lg border cursor-pointer transition-all ${perfil === "autoexclusao" ? "border-[#8A6D3B] bg-[#FBF9F4] ring-2 ring-[#8A6D3B]" : "border-[#E4DFD1] hover:bg-white"}`} onClick={() => setPerfil("autoexclusao")}>
+                    <input type="radio" checked={perfil === "autoexclusao"} onChange={() => setPerfil("autoexclusao")} className="mt-1 w-4 h-4" />
                     <div>
-                      <span className="text-sm font-bold block" style={{ color: INK }}>Autoexclusão Genérica (Controle Financeiro/Prevenção)</span>
+                      <span className="text-sm font-bold block" style={{ color: INK }}>Autoexclusão / Bloqueio Violado</span>
                       <p className="text-xs mt-1" style={{ color: INK_SOFT }}>Foco na quebra de contrato regulatório, falha no dever de bloqueio e responsabilidade objetiva da operadora.</p>
                     </div>
                   </label>
@@ -426,7 +381,7 @@ export default function GeradorMaterialJuridico() {
                     <input type="radio" checked={perfil === "ludopatia"} onChange={() => setPerfil("ludopatia")} className="mt-1 w-4 h-4" />
                     <div>
                       <span className="text-sm font-bold block" style={{ color: INK }}>Ludopatia / Saúde Mental (Vulnerabilidade)</span>
-                      <p className="text-xs mt-1" style={{ color: INK_SOFT }}>Inclui argumentos sobre nulidade das apostas pela Lei 14.790/2023 (art. 26). Laudo não é sempre obrigatório, mas fortalece muito o caso — e pode ser obtido de graça no CAPS.</p>
+                      <p className="text-xs mt-1" style={{ color: INK_SOFT }}>Inclui argumentos sobre nulidade das apostas pela Lei 14.790/2023 (art. 26). Laudo não é sempre obrigatório, mas fortalece muito o caso.</p>
                     </div>
                   </label>
                 </div>
@@ -537,7 +492,8 @@ export default function GeradorMaterialJuridico() {
                 </div>
                 <label className="block text-sm font-medium mb-1" style={{ color: INK_SOFT }}>Relato dos fatos (em suas próprias palavras)</label>
                 <textarea value={relato} onChange={(e) => setRelato(e.target.value)} rows={5} placeholder="Ex: 'Me autoexcluí no Gov.br em 11/12/2025. No dia 22/12, a plataforma aceitou um depósito de R$ 800,00 mesmo com meu bloqueio ativo.'" className="w-full px-3 py-2 rounded-lg border outline-none focus:ring-2 mb-5" style={{ borderColor: PAPER_LINE }} />
-                <p className="text-sm font-medium mb-2" style={{ color: INK_SOFT }}>Argumentos Condicionais (Marque apenas se tiver a prova)</p>
+                
+                <p className="text-sm font-medium mb-2" style={{ color: INK_SOFT }}>Argumentos Condicionais (Marque apenas se tiver a prova específica)</p>
                 <div className="space-y-1 mb-5">
                   {ARGUMENTOS_CONDICIONAIS.map((a) => (
                     <button key={a.id} onClick={() => toggleArg(a.id)} className="w-full flex items-start gap-3 text-left px-3 py-2 rounded-lg hover:bg-[#F2EFE6]">
@@ -546,6 +502,7 @@ export default function GeradorMaterialJuridico() {
                     </button>
                   ))}
                 </div>
+                
                 <div className="mt-5 mb-4"><DisclaimerBar compact /></div>
                 <label className="flex items-start gap-2 text-sm mb-4 cursor-pointer" onClick={() => setAckDisclaimer(!ackDisclaimer)}>
                   {ackDisclaimer ? <CheckCircle2 size={18} className="shrink-0 mt-0.5" style={{ color: "#3F6B4A" }} /> : <Circle size={18} className="shrink-0 mt-0.5" style={{ color: "#B9B2A0" }} />}
