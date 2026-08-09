@@ -11,9 +11,6 @@ import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer
 import { supabase } from "../login/supabase"; 
 import { ARGUMENTOS, filtrarPorPerfil, Argumento } from "../lib/argumentos-peticao"; 
 
-// =========================================================================
-// 1. ESTILOS DO PDF
-// =========================================================================
 const pdfStyles = StyleSheet.create({
   page: { padding: 50, fontFamily: 'Times-Roman', fontSize: 12, lineHeight: 1.5 },
   header: { textAlign: 'center', marginBottom: 20, fontSize: 12, fontWeight: 'bold', textTransform: 'uppercase' },
@@ -60,9 +57,6 @@ const PeticaoPDF = ({ dados }: { dados: any }) => (
   </Document>
 );
 
-// =========================================================================
-// 2. CONSTANTES E ARGUMENTOS
-// =========================================================================
 const INK = "#1E2A3A";
 const INK_SOFT = "#3D4C5E";
 const PAPER = "#FBF9F4";
@@ -96,9 +90,6 @@ const ARGUMENTOS_CONDICIONAIS = [
   },
 ];
 
-// =========================================================================
-// 3. COMPONENTES DE UI
-// =========================================================================
 function TabButton({ active, onClick, icon: Icon, n, label }: { active: boolean; onClick: () => void; icon: any; n: string; label: string }) {
   return (
     <button onClick={onClick} className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors w-full ${active ? "text-white" : "text-[#3D4C5E] hover:bg-[#EFEADE]"}`} style={active ? { backgroundColor: INK } : { backgroundColor: "transparent" }}>
@@ -138,55 +129,12 @@ function Field({ label, value, onChange, full, placeholder }: { label: string; v
   );
 }
 
-// =========================================================================
-// 4. COMPONENTE PRINCIPAL
-// =========================================================================
 export default function GeradorMaterialJuridico() {
   const router = useRouter();
   
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAuthAndPayment = async () => {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError || !session?.user) {
-          router.replace(`/login?redirect=/gerador`);
-          return;
-        }
-
-        const { data: subscription } = await supabase
-          .from('subscriptions')
-          .select('status, user_id, peticoes_usadas')
-          .eq('user_id', session.user.id)
-          .single();
-
-        if (!subscription || subscription.status !== 'active') {
-          router.replace(`/pagamento?user_id=${session.user.id}`);
-          return;
-        }
-
-        setUserEmail(session.user.email ?? null);
-        setUserId(session.user.id ?? null);
-        
-        // Carrega o contador real do banco de dados
-        const usadas = subscription?.peticoes_usadas || 0;
-        setPetitionCount(usadas);
-        if (usadas >= MAX_PETICOES) {
-          setLimitReached(true);
-        }
-        
-        setLoading(false);
-      } catch (err) {
-        setLoading(false);
-      }
-    };
-    checkAuthAndPayment();
-  }, [router]);
-
   const [petitionCount, setPetitionCount] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
   const [tab, setTab] = useState("perfil");
@@ -194,18 +142,7 @@ export default function GeradorMaterialJuridico() {
   const [ackDisclaimer, setAckDisclaimer] = useState(false);
   const [dadosPDF, setDadosPDF] = useState<any>(null);
   const [geradoTexto, setGeradoTexto] = useState("");
-  
   const [perfil, setPerfil] = useState<"autoexclusao" | "ludopatia">("autoexclusao");
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const perfilParam = params.get('perfil');
-      if (perfilParam === 'ludopatia') setPerfil('ludopatia');
-      else if (perfilParam === 'autoexclusao') setPerfil('autoexclusao');
-    }
-  }, []);
-
   const [tentativaChat, setTentativaChat] = useState(false);
   const [protocoloChat, setProtocoloChat] = useState("");
   const [tentativaConsumidorGov, setTentativaConsumidorGov] = useState(false);
@@ -217,11 +154,88 @@ export default function GeradorMaterialJuridico() {
   const [dobro, setDobro] = useState(false);
   const [danoMoral, setDanoMoral] = useState(true);
   const [valorDanoMoral, setValorDanoMoral] = useState("5000");
+  const [autor, setAutor] = useState({ nome: "", cpf: "", endereco: "", comarca: "", uf: "" });
+  const [reu, setReu] = useState({ nome: "", cnpj: "" });
+  const [relato, setRelato] = useState("");
+  const [argsCondSel, setArgsCondSel] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const perfilParam = params.get('perfil');
+      if (perfilParam === 'ludopatia') setPerfil('ludopatia');
+      else if (perfilParam === 'autoexclusao') setPerfil('autoexclusao');
+    }
+  }, []);
+
+  useEffect(() => {
+    const checkAuthAndPayment = async () => {
+      try {
+        console.log("🔍 [DEBUG] Iniciando verificação...");
+        
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError || !session?.user) {
+          console.log("❌ [DEBUG] Usuário não logado");
+          router.replace(`/login?redirect=/gerador`);
+          return;
+        }
+
+        console.log("✅ [DEBUG] Usuário logado:", session.user.email);
+
+        const { data: subscription, error: subError } = await supabase
+          .from('subscriptions')
+          .select('status, user_id, peticoes_usadas')
+          .eq('user_id', session.user.id)
+          .single();
+
+        if (subError) {
+          console.error("❌ [DEBUG] Erro ao buscar subscription:", subError);
+        }
+
+        console.log(" [DEBUG] Subscription:", subscription);
+
+        if (!subscription || subscription.status !== 'active') {
+          console.log("⚠️ [DEBUG] Sem assinatura ativa");
+          router.replace(`/pagamento?user_id=${session.user.id}`);
+          return;
+        }
+
+        console.log("✅ [DEBUG] Assinatura ativa confirmada");
+
+        const usadas = subscription?.peticoes_usadas ?? 0;
+        console.log("🔢 [DEBUG] Petições usadas do banco:", usadas);
+
+        setUserEmail(session.user.email ?? null);
+        setUserId(session.user.id ?? null);
+        setPetitionCount(usadas);
+        
+        if (usadas >= MAX_PETICOES) {
+          console.log("🔒 [DEBUG] Limite atingido - bloqueando");
+          setLimitReached(true);
+        } else {
+          console.log("🔓 [DEBUG] Limite não atingido - liberando");
+          setLimitReached(false);
+        }
+        
+        setLoading(false);
+      } catch (err) {
+        console.error(" [DEBUG] Erro inesperado:", err);
+        setLoading(false);
+      }
+    };
+    
+    checkAuthAndPayment();
+  }, [router]);
 
   const calc = useMemo(() => {
     const base = parseFloat(valorPerdido) || 0;
     let meses = 0;
-    if (dataFato) { const d1 = new Date(dataFato); const d2 = new Date(); meses = Math.max(0, (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth())); }
+    if (dataFato) { 
+      const d1 = new Date(dataFato); 
+      const d2 = new Date(); 
+      meses = Math.max(0, (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth())); 
+    }
     const comDobro = dobro ? base * 2 : base;
     const juros = comDobro * 0.01 * meses;
     const danoMoralValor = danoMoral ? parseFloat(valorDanoMoral) || 0 : 0;
@@ -230,16 +244,20 @@ export default function GeradorMaterialJuridico() {
   }, [valorPerdido, dataFato, dobro, danoMoral, valorDanoMoral]);
 
   const fmt = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-  const [autor, setAutor] = useState({ nome: "", cpf: "", endereco: "", comarca: "", uf: "" });
-  const [reu, setReu] = useState({ nome: "", cnpj: "" });
-  const [relato, setRelato] = useState("");
-  const [argsCondSel, setArgsCondSel] = useState<Record<string, boolean>>({});
+  
   const toggleArg = (id: string) => setArgsCondSel((s) => ({ ...s, [id]: !s[id] }));
 
-  const handleLogout = async () => { await supabase.auth.signOut(); router.replace("/"); };
+  const handleLogout = async () => { 
+    await supabase.auth.signOut(); 
+    router.replace("/"); 
+  };
 
-  function gerarPeticao() {
-    if (limitReached || petitionCount >= MAX_PETICOES) { alert(`Você atingiu o limite de ${MAX_PETICOES} petições.`); return; }
+  const gerarPeticao = async () => {
+    if (limitReached || petitionCount >= MAX_PETICOES) { 
+      alert(`Você atingiu o limite de ${MAX_PETICOES} petições.`); 
+      return; 
+    }
+    
     const valorCausa = calc.total > 0 ? fmt(calc.total) : "[preencher valor da causa]";
     
     const argumentosDinamicos = filtrarPorPerfil(perfil).map((a) => ({ 
@@ -291,28 +309,43 @@ export default function GeradorMaterialJuridico() {
     setTab("resultado");
     
     const newCount = petitionCount + 1;
+    console.log("💾 [DEBUG] Salvando no banco - novo contador:", newCount);
+    console.log("💾 [DEBUG] User ID:", userId);
+    
     setPetitionCount(newCount);
-    if (newCount >= MAX_PETICOES) setLimitReached(true);
+    if (newCount >= MAX_PETICOES) {
+      console.log(" [DEBUG] Atingiu limite após gerar");
+      setLimitReached(true);
+    }
 
-    // Salva o novo contador no Supabase
     if (userId) {
-      supabase
+      const { error } = await supabase
         .from('subscriptions')
         .update({ peticoes_usadas: newCount })
         .eq('user_id', userId);
+      
+      if (error) {
+        console.error("❌ [DEBUG] Erro ao salvar peticoes_usadas:", error);
+      } else {
+        console.log("✅ [DEBUG] Petições salvas com sucesso no banco!");
+      }
     }
-  }
+  };
 
-  function copiar() { navigator.clipboard.writeText(geradoTexto); alert("Texto copiado!"); }
-  async function baixarPDF() {
+  const copiar = () => { navigator.clipboard.writeText(geradoTexto); alert("Texto copiado!"); };
+  
+  const baixarPDF = async () => {
     if (!dadosPDF) return;
     const blob = await pdf(<PeticaoPDF dados={dadosPDF} />).toBlob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     const nomeArquivo = autor.nome ? autor.nome.replace(/[^a-zA-Z0-9]/g, '_') : 'Rascunho';
-    a.href = url; a.download = `Peticao_${nomeArquivo}.pdf`; a.click();
+    a.href = url; 
+    a.download = `Peticao_${nomeArquivo}.pdf`; 
+    a.click();
     URL.revokeObjectURL(url);
-  }
+  };
+  
   const provasMarcadas = Object.values(checked).filter(Boolean).length;
 
   if (loading) {
