@@ -1,5 +1,5 @@
 // ============================================================
-// 1. TIPOS
+// 1. TIPOS (TypeScript)
 // ============================================================
 export interface Argumento {
   id: string;
@@ -26,14 +26,17 @@ export interface DadosPeticao {
   pedidosSelecionados: string[];
   danoMoral: boolean;
   dobro: boolean;
+  valorBase: number; // Adicionado para corrigir o texto da restituição
   valorCausa: number;
 }
 
 // ============================================================
-// 2. ARGUMENTOS (20 no total - COM dicaProva)
+// 2. ARGUMENTOS (25 no total - Sem erros de sintaxe)
 // ============================================================
 export const ARGUMENTOS: Argumento[] = [
-  // AUTOEXCLUSÃO (10)
+  // ============================================================
+  // AUTOEXCLUSÃO (10 originais + 2 novos do caso real)
+  // ============================================================
   {
     id: "nao_mero_descumprimento",
     perfis: ["autoexclusao"],
@@ -104,8 +107,24 @@ export const ARGUMENTOS: Argumento[] = [
     texto: () => `Eventual devolução parcial, pela parte Ré, de valores movimentados após a autoexclusão possui relevância jurídica significativa: se inexistisse falha ou irregularidade, não haveria razão lógica para qualquer restituição voluntária. Tal devolução constitui indício de reconhecimento implícito de anormalidade operacional.`,
     dicaProva: "💡 Anexe o comprovante da devolução parcial feita pela casa de apostas."
   },
+  {
+    id: "prazo_3_dias_bloqueio",
+    perfis: ["autoexclusao"],
+    label: "A casa não provou que consultou o SIGAP e me bloqueou no prazo de 3 dias",
+    texto: () => `Cabe exclusivamente à parte Ré o ônus de comprovar que realizou a consulta periódica ao SIGAP e promoveu o bloqueio da conta no prazo legal. Nos termos do art. 7º da Portaria SPA/MF nº 2.579/2025, identificada a situação de "Impedido", a operadora tem o dever de encerrar a conta em até 3 (três) dias. A ausência de apresentação dos logs de consulta por parte da Ré atrai a presunção de veracidade dos fatos alegados pelo Autor, nos termos do art. 400 do CPC.`,
+    dicaProva: "💡 Estratégia de ouro: o ônus de provar a consulta é da casa. Se não anexarem os logs, o juiz presume que não consultaram."
+  },
+  {
+    id: "confissao_falha_operacional",
+    perfis: ["autoexclusao"],
+    label: "A casa admitiu por escrito que teve 'falha operacional' no sistema",
+    texto: () => `A própria parte Ré admitiu, em manifestação oficial, a ocorrência de 'inconsistência na integração de seus sistemas automatizados de verificação de restrições'. Tal confissão expressa afasta qualquer alegação de regularidade da conduta e confirma a falha na prestação do serviço, nos termos do art. 14 do CDC e da Súmula 479 do STJ (por analogia), que responsabiliza o fornecedor por fortuito interno relativo a falhas em seus próprios sistemas.`,
+    dicaProva: "💡 Use se a casa admitiu por escrito (e-mail, contestação, Reclame Aqui) que teve falha no sistema."
+  },
 
-  // LUDOPATIA (5)
+  // ============================================================
+  // LUDOPATIA (5 originais)
+  // ============================================================
   {
     id: "nulidade_art26",
     perfis: ["ludopatia"],
@@ -142,7 +161,9 @@ export const ARGUMENTOS: Argumento[] = [
     dicaProva: "💡 Argumento preventivo excelente para blindar a petição contra contestações padrão."
   },
 
-  // COMPARTILHADOS (5)
+  // ============================================================
+  // COMPARTILHADOS (5 originais + 2 novos do caso real)
+  // ============================================================
   {
     id: "hipervulnerabilidade",
     perfis: ["autoexclusao", "ludopatia"],
@@ -177,6 +198,20 @@ export const ARGUMENTOS: Argumento[] = [
     label: 'A casa usou os "Termos de Uso" pra negar meu reembolso',
     texto: () => `A parte Ré tenta se eximir de sua responsabilidade citando cláusulas genéricas de seus "Termos de Uso". Tais cláusulas são nulas de pleno direito por serem abusivas, nos termos do art. 51 do CDC, pois buscam anular a responsabilidade do fornecedor.`,
     dicaProva: "💡 Anexe o print da negativa da casa de aposta onde eles citam os 'Termos e Condições'."
+  },
+  {
+    id: "dano_moral_autonomo",
+    perfis: ["autoexclusao", "ludopatia"],
+    label: "Mesmo que a casa devolva o dinheiro, quero dano moral pela violação dos meus direitos",
+    texto: () => `A eventual restituição dos valores materiais pela parte Ré não exclui o direito à indenização por danos morais, que possui causa de pedir autônoma e distinta — a violação a direito de personalidade do consumidor vulnerável, decorrente da falha na prestação do serviço (arts. 5º, V e X, da CF; 186 e 927 do CC; e 6º, VI, do CDC). A reparação material não exclui a indenização moral, tratando-se de pretensões cumuláveis.`,
+    dicaProva: "💡 Essencial se a casa já devolveu o dinheiro mas você quer continuar pedindo dano moral."
+  },
+  {
+    id: "dimensao_coletiva_925mil",
+    perfis: ["autoexclusao", "ludopatia"],
+    label: "Quero destacar que meu caso não é isolado — são mais de 925 mil autoexcluídos no Brasil",
+    texto: () => `Conforme dados oficiais da própria SPA/MF (Nota Informativa SEI nº 1864/2026/MF), a Plataforma Centralizada de Autoexclusão já contabiliza mais de 925 mil solicitações. Diante de universo dessa magnitude, a falha aqui identificada — descumprimento do dever de consulta periódica ao SIGAP e de bloqueio tempestivo — não pode ser tratada como questão de interesse exclusivamente individual, sendo razoável supor a existência de outros consumidores na mesma situação em todo o território nacional.`,
+    dicaProva: "💡 Argumento forte para pedir ofício ao Ministério Público (tutela coletiva)."
   },
 ];
 
@@ -246,9 +281,13 @@ export function gerarPeticao({
   pedidosSelecionados = [],
   danoMoral = false,
   dobro = false,
+  valorBase = 0,
   valorCausa = 0,
 }: DadosPeticao): string {
   const fmt = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  
+  const valorBaseFmt = valorBase > 0 ? fmt(valorBase) : "[preencher valor da causa]";
+  const valorDobroFmt = valorBase > 0 ? fmt(valorBase * 2) : "[valor em dobro]";
   const valorCausaFmt = valorCausa > 0 ? fmt(valorCausa) : "[preencher valor da causa]";
 
   let n = 3;
@@ -267,7 +306,7 @@ export function gerarPeticao({
   const temNulidadeArt26 = perfil === "ludopatia" && argumentosSelecionados.includes("nulidade_art26");
 
   const listaPedidos = [
-    `a restituição do valor de ${valorCausaFmt}${dobro ? ", em dobro, nos termos do art. 42, parágrafo único, do CDC" : ""}, corrigido monetariamente e acrescido de juros de mora de 1% ao mês desde a data do(s) fato(s)`,
+    `a restituição do valor de ${valorBaseFmt}${dobro ? `, em DOBRO (totalizando ${valorDobroFmt}), nos termos do art. 42, parágrafo único, do CDC` : ""}, corrigido monetariamente e acrescido de juros de mora de 1% ao mês desde a data do(s) fato(s)`,
   ];
 
   if (temNulidadeArt26) {

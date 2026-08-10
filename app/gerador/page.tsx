@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   AlertTriangle, CheckCircle2, Circle, Calculator, FileText,
   ClipboardList, Copy, Download, ChevronRight, Scale, Info,
-  AlertCircle, User, Heart, Shield, LogOut, Lock, MessageCircle, Loader2
+  AlertCircle, User, Heart, Shield, LogOut, Lock, MessageCircle, Loader2, Paperclip
 } from "lucide-react";
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer';
 import { supabase } from "../login/supabase"; 
@@ -70,6 +70,7 @@ const PAPER_LINE = "#E4DFD1";
 const SEAL = "#8A6D3B";
 const AMBER_BG = "#FBF1DD";
 const AMBER_BORDER = "#D8B368";
+const GREEN = "#3F6B4A";
 const LIMITE_JEC = 28240.00;
 const MAX_PETICOES = 3;
 
@@ -251,9 +252,10 @@ export default function GeradorMaterialJuridico() {
       return;
     }
     
+    // ✅ CORREÇÃO: Valor base para restituição (separado do total)
+    const valorBaseRestituicao = calc.base > 0 ? fmt(calc.base) : "[preencher valor da causa]";
     const valorCausa = calc.total > 0 ? fmt(calc.total) : "[preencher valor da causa]";
     
-    // ✅ AGORA USA APENAS OS ARGUMENTOS SELECIONADOS PELO USUÁRIO
     const argumentosDinamicos = ARGUMENTOS.filter(a => argumentosSelecionados.includes(a.id)).map((a) => ({ 
       titulo: a.label.toUpperCase(), 
       texto: a.texto(dataFato) 
@@ -274,7 +276,8 @@ export default function GeradorMaterialJuridico() {
       textoRoteiro += `A Ré, contudo, limitou-se a oferecer respostas automatizadas e evasivas. Tal conduta configura claro Desvio Produtivo do Consumidor.`;
     }
     
-    const pedidos = `Diante do exposto, requer-se:\n\na) a restituição do valor de ${valorCausa}${dobro ? ", em dobro, nos termos do art. 42, parágrafo único, do CDC" : ""}, corrigido monetariamente e acrescido de juros de mora de 1% ao mês desde a data do(s) fato(s);\n\n${danoMoral ? `b) a condenação da Ré ao pagamento de indenização por danos morais, em valor não inferior a ${fmt(parseFloat(valorDanoMoral) || 0)}, observando-se os princípios da proporcionalidade e caráter pedagógico;\n` : ""}c) a inversão do ônus da prova, conforme fundamentado;\n\nd) a citação da parte Ré para, querendo, apresentar contestação, sob pena de revelia.`;
+    // ✅ CORREÇÃO: Pedidos com valores corretos e detalhados
+    const pedidos = `Diante do exposto, requer-se:\n\na) a restituição do valor de ${valorBaseRestituicao}${dobro ? `, em DOBRO (totalizando ${fmt(calc.comDobro)}), nos termos do art. 42, parágrafo único, do CDC` : ""}, corrigido monetariamente e acrescido de juros de mora de 1% ao mês desde a data do(s) fato(s)${calc.meses > 0 ? ` (totalizando ${fmt(calc.juros)} de juros)` : ""};\n\n${danoMoral ? `b) a condenação da Ré ao pagamento de indenização por danos morais, em valor não inferior a ${fmt(parseFloat(valorDanoMoral) || 0)}, observando-se os princípios da proporcionalidade e caráter pedagógico;\n` : ""}c) a inversão do ônus da prova, conforme fundamentado;\n\nd) a citação da parte Ré para, querendo, apresentar contestação, sob pena de revelia.`;
     
     const dados = {
       enderecamento: `EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DO JUIZADO ESPECIAL CÍVEL DA COMARCA DE ${autor.comarca || "[COMARCA]"} – ${autor.uf || "[UF]"}`,
@@ -501,7 +504,6 @@ export default function GeradorMaterialJuridico() {
                 <label className="block text-sm font-medium mb-1" style={{ color: INK_SOFT }}>Relato dos fatos (em suas próprias palavras)</label>
                 <textarea value={relato} onChange={(e) => setRelato(e.target.value)} rows={5} placeholder="Ex: 'Me autoexcluí no Gov.br em 11/12/2025. No dia 22/12, a plataforma aceitou um depósito de R$ 800,00 mesmo com meu bloqueio ativo.'" className="w-full px-3 py-2 rounded-lg border outline-none focus:ring-2 mb-5" style={{ borderColor: PAPER_LINE }} />
                 
-                {/* ✅ SELEÇÃO DE ARGUMENTOS DINÂMICOS COM DICAS DE PROVA */}
                 <p className="text-sm font-medium mb-2" style={{ color: INK_SOFT }}>Selecione os argumentos que se aplicam ao seu caso:</p>
                 <div className="space-y-2 mb-6">
                   {filtrarPorPerfil(perfil).map((arg) => (
@@ -519,7 +521,6 @@ export default function GeradorMaterialJuridico() {
                   ))}
                 </div>
 
-                {/* ✅ CHECKLIST DE PROVAS DINÂMICO (O que você pediu) */}
                 {argumentosSelecionados.length > 0 && (
                   <div className="mb-6 p-4 rounded-lg border" style={{ backgroundColor: "#FFFBEB", borderColor: AMBER_BORDER }}>
                     <h3 className="text-sm font-semibold mb-3 flex items-center gap-2" style={{ color: INK }}>
@@ -578,6 +579,37 @@ export default function GeradorMaterialJuridico() {
                 <div className="p-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-sm">
                   <strong>💡 Dica Profissional:</strong> Clique em <strong>"Baixar PDF Formatado"</strong> para obter o documento com margens, fonte Times New Roman, texto justificado e espaçamento 1.5, pronto para ser impresso ou anexado no PJe.
                 </div>
+
+                {/* ✅ NOVO: AVISO SOBRE ANEXAR DOCUMENTOS NO JEC */}
+                {provasMarcadas > 0 && (
+                  <div className="mt-4 p-5 rounded-lg border-2" style={{ backgroundColor: "#FEF3C7", borderColor: AMBER_BORDER }}>
+                    <div className="flex items-start gap-3">
+                      <Paperclip size={24} className="shrink-0 mt-0.5" style={{ color: SEAL }} />
+                      <div>
+                        <h3 className="font-bold text-base mb-2" style={{ color: INK }}>⚠️ IMPORTANTE: Anexe seus documentos no JEC!</h3>
+                        <p className="text-sm mb-3" style={{ color: INK }}>
+                          Você marcou <strong>{provasMarcadas} documento(s)</strong> no Checklist de Provas. 
+                          <strong> Todos eles devem ser anexados em formato PDF</strong> junto com esta petição no sistema do Juizado Especial Cível da sua região.
+                        </p>
+                        <div className="bg-white p-3 rounded border border-amber-200">
+                          <p className="text-xs font-semibold mb-2" style={{ color: SEAL }}>📎 Documentos que você precisa anexar:</p>
+                          <ul className="space-y-1">
+                            {PROVAS.filter(p => checked[p.id]).map((p) => (
+                              <li key={p.id} className="text-xs flex items-start gap-2" style={{ color: INK }}>
+                                <CheckCircle2 size={12} className="shrink-0 mt-0.5" style={{ color: GREEN }} />
+                                <span>{p.texto}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <p className="text-xs mt-3" style={{ color: INK_SOFT }}>
+                           <strong>Dica:</strong> A maioria dos tribunais aceita protocolo online via PJe ou e-SAJ. Converta todos os prints e comprovantes para PDF antes de anexar. 
+                          Se tiver dúvidas sobre como protocolar, procure a Defensoria Pública da sua região — o atendimento é gratuito.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="mt-6 p-5 rounded-lg border text-center" style={{ backgroundColor: AMBER_BG, borderColor: AMBER_BORDER }}>
                   <p className="text-sm font-semibold mb-3" style={{ color: INK }}>Conhece alguém que também foi prejudicado por casa de apostas?</p>
