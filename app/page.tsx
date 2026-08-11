@@ -5,7 +5,8 @@ import {
   Scale, Shield, FileText, CheckCircle2, AlertTriangle,
   ArrowRight, Lock, Clock, Users, MessageCircle,
   ChevronDown, ChevronUp, Gavel, BookOpen, TrendingUp,
-  Quote, Mail, Building2, Brain, Heart, Phone, ExternalLink, FileCheck
+  Quote, Mail, Building2, Brain, Heart, Phone, ExternalLink, FileCheck,
+  Calculator
 } from "lucide-react";
 
 const INK = "#1E2A3A";
@@ -20,9 +21,36 @@ const GREEN_BG = "#E8F5E9";
 
 export default function LandingPage() {
   const [faqAberto, setFaqAberto] = useState<number | null>(null);
+  const [calcStep, setCalcStep] = useState(1);
+  const [calcData, setCalcData] = useState({
+    valorPerdido: "",
+    fezAutoexclusao: "",
+    dividaUrgente: "outros",
+    email: ""
+  });
 
   const toggleFaq = (index: number) => {
     setFaqAberto(faqAberto === index ? null : index);
+  };
+
+  const handleCalcChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setCalcData({ ...calcData, [e.target.name]: e.target.value });
+  };
+
+  const handleCalcNext = () => {
+    if (calcStep === 1 && !calcData.valorPerdido) return alert("Por favor, informe um valor estimado.");
+    if (calcStep === 2 && !calcData.fezAutoexclusao) return alert("Por favor, selecione uma opção.");
+    if (calcStep === 3 && !calcData.email.includes("@")) return alert("Por favor, informe um e-mail válido.");
+    setCalcStep(calcStep + 1);
+  };
+
+  const getDicaDivida = () => {
+    switch (calcData.dividaUrgente) {
+      case "aluguel": return "Priorize quitar o aluguel para garantir sua moradia. O valor que você busca recuperar pode ser a chave para tirar esse peso das suas costas.";
+      case "cartao": return "Juros de cartão de crédito corroem qualquer renda. Usar a restituição para quitar essa dívida é a decisão financeira mais inteligente.";
+      case "agiota": return "Sua segurança física e mental vem em primeiro lugar. Busque apoio imediato e use qualquer valor recuperado para estancar essa dívida de alto risco.";
+      default: return "Organize suas prioridades. Quite primeiro as dívidas que geram juros altos ou que colocam sua segurança em risco.";
+    }
   };
 
   // PERFIL 1: AUTOEXCLUSÃO
@@ -77,7 +105,6 @@ export default function LandingPage() {
     "Garantia de funcionamento de 7 dias"
   ];
 
-  // Classe utilitária para links do menu com hover funcional
   const menuLinkClass = "transition-colors duration-200 hover:text-[#1E2A3A]";
 
   return (
@@ -96,10 +123,10 @@ export default function LandingPage() {
             </div>
           </div>
           <nav className="hidden lg:flex items-center gap-6 text-sm font-medium" style={{ color: INK_SOFT }}>
+            <a href="#calculadora" className={menuLinkClass}>Calculadora Grátis</a>
             <a href="#como-funciona" className={menuLinkClass}>Como Funciona</a>
             <a href="#fundamentacao" className={menuLinkClass}>Fundamentação Legal</a>
             <a href="#guia" className={menuLinkClass}>Guia Gratuito</a>
-            <a href="#garantia" className={menuLinkClass}>Garantia</a>
             <a href="#faq" className={menuLinkClass}>FAQ</a>
           </nav>
           <a href="/login" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-white text-sm font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg" style={{ backgroundColor: SEAL }}>
@@ -126,8 +153,8 @@ export default function LandingPage() {
               <a href="/login" className="inline-flex items-center gap-3 px-8 py-4 rounded-xl text-white text-lg font-bold transition-all duration-300 hover:scale-105 hover:shadow-xl" style={{ background: `linear-gradient(135deg, ${SEAL} 0%, ${SEAL_DARK} 100%)` }}>
                 Quero Recuperar Meu Dinheiro <ArrowRight size={20} />
               </a>
-              <a href="#como-funciona" className="inline-flex items-center gap-2 px-6 py-4 rounded-xl text-sm font-semibold border-2 transition-all duration-300 hover:bg-white/50 hover:scale-105" style={{ borderColor: SEAL, color: SEAL, backgroundColor: "transparent" }}>
-                Ver Como Funciona
+              <a href="#calculadora" className="inline-flex items-center gap-2 px-6 py-4 rounded-xl text-sm font-semibold border-2 transition-all duration-300 hover:bg-white/50 hover:scale-105" style={{ borderColor: SEAL, color: SEAL, backgroundColor: "transparent" }}>
+                Calcular Minha Recuperação
               </a>
             </div>
             <div className="flex flex-wrap items-center gap-6 text-sm" style={{ color: INK_SOFT }}>
@@ -209,7 +236,6 @@ export default function LandingPage() {
           </div>
           
           <div className="grid md:grid-cols-2 gap-8">
-            {/* Bloco Autoexclusão */}
             <div className="space-y-4">
               <h4 className="text-xl font-bold flex items-center gap-2 mb-4" style={{ color: SEAL }}>
                 <Lock size={20} /> AUTOEXCLUSÃO IGNORADA
@@ -227,7 +253,6 @@ export default function LandingPage() {
               ))}
             </div>
 
-            {/* Bloco Ludopatia */}
             <div className="space-y-4">
               <h4 className="text-xl font-bold flex items-center gap-2 mb-4" style={{ color: SEAL }}>
                 <Brain size={20} /> PERDA DE CONTROLE (LUDOPATIA)
@@ -355,134 +380,269 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ANTES DE PROCESSAR, CUIDE DE VOCÊ (GUIA) */}
-      <section id="guia" className="py-16 md:py-20 px-4 sm:px-6" style={{ backgroundColor: "#FFF" }}>
+      {/* CALCULADORA DE DÍVIDA ZERO */}
+      <section id="calculadora" className="py-16 md:py-20 px-4 sm:px-6" style={{ backgroundColor: "#FFF" }}>
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-10">
+            <Calculator size={48} className="mx-auto mb-4" style={{ color: SEAL }} />
+            <h3 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: INK, fontFamily: "Georgia, serif" }}>Calculadora de Dívida Zero</h3>
+            <p className="text-lg" style={{ color: INK_SOFT }}>Descubra em 3 passos como organizar sua situação e buscar o que é seu por direito.</p>
+          </div>
+
+          {calcStep < 4 && (
+            <div className="mb-8">
+              <div className="flex justify-between text-xs font-semibold mb-2" style={{ color: INK_SOFT }}>
+                <span>Passo {calcStep} de 3</span>
+                <span>{Math.round((calcStep / 3) * 100)}% concluído</span>
+              </div>
+              <div className="h-2 rounded-full" style={{ backgroundColor: "#E4DFD1" }}>
+                <div className="h-2 rounded-full transition-all duration-500" style={{ width: `${(calcStep / 3) * 100}%`, backgroundColor: SEAL }}></div>
+              </div>
+            </div>
+          )}
+
+          {calcStep === 1 && (
+            <div className="p-8 rounded-2xl border-2 shadow-sm" style={{ backgroundColor: PAPER, borderColor: AMBER_BORDER }}>
+              <h4 className="text-2xl font-bold mb-2" style={{ color: INK, fontFamily: "Georgia, serif" }}>Quanto você estima ter perdido?</h4>
+              <p className="text-sm mb-6" style={{ color: INK_SOFT }}>Seja honesto consigo mesmo. Esse número nos ajuda a traçar a melhor estratégia.</p>
+              <label className="block mb-6">
+                <span className="text-sm font-medium block mb-2" style={{ color: INK }}>Valor total estimado (R$)</span>
+                <input 
+                  type="number" 
+                  name="valorPerdido" 
+                  value={calcData.valorPerdido} 
+                  onChange={handleCalcChange} 
+                  placeholder="Ex: 2500" 
+                  className="w-full px-4 py-3 rounded-lg border text-lg outline-none focus:ring-2" 
+                  style={{ borderColor: "#E4DFD1", backgroundColor: "#FFF" }}
+                />
+              </label>
+              <button onClick={handleCalcNext} className="w-full py-3 rounded-lg text-white font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity" style={{ backgroundColor: SEAL }}>
+                Próximo <ArrowRight size={18} />
+              </button>
+            </div>
+          )}
+
+          {calcStep === 2 && (
+            <div className="p-8 rounded-2xl border-2 shadow-sm" style={{ backgroundColor: PAPER, borderColor: AMBER_BORDER }}>
+              <h4 className="text-2xl font-bold mb-2" style={{ color: INK, fontFamily: "Georgia, serif" }}>Você chegou a pedir a Autoexclusão no Gov.br?</h4>
+              <p className="text-sm mb-6" style={{ color: INK_SOFT }}>Isso é fundamental para saber se a casa descumpriu a regulamentação.</p>
+              <div className="space-y-3 mb-6">
+                {["sim", "nao", "nao_sabia"].map((opcao) => (
+                  <label key={opcao} className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${calcData.fezAutoexclusao === opcao ? "ring-2" : "hover:bg-gray-50"}`} style={{ borderColor: calcData.fezAutoexclusao === opcao ? SEAL : "#E4DFD1", backgroundColor: calcData.fezAutoexclusao === opcao ? AMBER_BG : "#FFF" }}>
+                    <input type="radio" name="fezAutoexclusao" value={opcao} checked={calcData.fezAutoexclusao === opcao} onChange={handleCalcChange} className="w-4 h-4" style={{ accentColor: SEAL }} />
+                    <span className="text-sm font-medium" style={{ color: INK }}>
+                      {opcao === "sim" ? "Sim, fiz o pedido formal." : opcao === "nao" ? "Não, não cheguei a fazer." : "Não sabia que isso existia."}
+                    </span>
+                  </label>
+                ))}
+              </div>
+              <div className="flex gap-3">
+                <button onClick={() => setCalcStep(1)} className="flex-1 py-3 rounded-lg font-medium border hover:bg-gray-50" style={{ borderColor: "#E4DFD1", color: INK_SOFT }}>Voltar</button>
+                <button onClick={handleCalcNext} className="flex-[2] py-3 rounded-lg text-white font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity" style={{ backgroundColor: SEAL }}>
+                  Próximo <ArrowRight size={18} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {calcStep === 3 && (
+            <div className="p-8 rounded-2xl border-2 shadow-sm" style={{ backgroundColor: PAPER, borderColor: AMBER_BORDER }}>
+              <h4 className="text-2xl font-bold mb-2" style={{ color: INK, fontFamily: "Georgia, serif" }}>Qual é sua dívida mais urgente hoje?</h4>
+              <p className="text-sm mb-6" style={{ color: INK_SOFT }}>Vamos personalizar seu plano de ação.</p>
+              
+              <label className="block mb-4">
+                <span className="text-sm font-medium block mb-2" style={{ color: INK }}>Prioridade de pagamento</span>
+                <select name="dividaUrgente" value={calcData.dividaUrgente} onChange={handleCalcChange} className="w-full px-4 py-3 rounded-lg border outline-none focus:ring-2" style={{ borderColor: "#E4DFD1", backgroundColor: "#FFF" }}>
+                  <option value="aluguel">Aluguel / Moradia</option>
+                  <option value="cartao">Cartão de Crédito / Empréstimo</option>
+                  <option value="agiota">Dívida com agiota / Risco físico</option>
+                  <option value="outros">Outros (Nome sujo, contas básicas)</option>
+                </select>
+              </label>
+
+              <label className="block mb-6">
+                <span className="text-sm font-medium block mb-2" style={{ color: INK }}>Seu melhor e-mail (para enviar o plano)</span>
+                <input 
+                  type="email" 
+                  name="email" 
+                  value={calcData.email} 
+                  onChange={handleCalcChange} 
+                  placeholder="seuemail@exemplo.com" 
+                  className="w-full px-4 py-3 rounded-lg border outline-none focus:ring-2" 
+                  style={{ borderColor: "#E4DFD1", backgroundColor: "#FFF" }}
+                />
+              </label>
+
+              <div className="flex gap-3">
+                <button onClick={() => setCalcStep(2)} className="flex-1 py-3 rounded-lg font-medium border hover:bg-gray-50" style={{ borderColor: "#E4DFD1", color: INK_SOFT }}>Voltar</button>
+                <button onClick={handleCalcNext} className="flex-[2] py-3 rounded-lg text-white font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity" style={{ backgroundColor: GREEN }}>
+                  Gerar Meu Plano <CheckCircle2 size={18} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {calcStep === 4 && (
+            <div className="space-y-6">
+              <div className="text-center p-6 rounded-2xl" style={{ backgroundColor: GREEN_BG, border: `2px solid ${GREEN}` }}>
+                <CheckCircle2 size={48} className="mx-auto mb-3" style={{ color: GREEN }} />
+                <h4 className="text-2xl font-bold mb-2" style={{ color: INK, fontFamily: "Georgia, serif" }}>Seu Plano de Ação Personalizado</h4>
+                <p className="text-sm" style={{ color: INK_SOFT }}>Baseado nas suas respostas, aqui está o caminho mais seguro.</p>
+              </div>
+
+              <div className="p-6 rounded-xl border-2" style={{ backgroundColor: "#FFF", borderColor: "#E4DFD1" }}>
+                <h5 className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: SEAL }}>
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold text-white" style={{ backgroundColor: SEAL }}>1</span>
+                  Estanque o sangramento (Imediato)
+                </h5>
+                <p className="text-sm mb-3" style={{ color: INK_SOFT }}>
+                  {calcData.fezAutoexclusao === "nao" || calcData.fezAutoexclusao === "nao_sabia" 
+                    ? "Você ainda não fez a autoexclusão. Antes de pensar em dinheiro, proteja sua mente." 
+                    : "Ótimo que você já pediu a autoexclusão. Vamos garantir que nenhum app consiga burlar isso."}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <a href="https://www.gov.br/autoexclusaoapostas" target="_blank" rel="noopener noreferrer" className="flex-1 py-2 px-4 rounded-lg text-sm font-semibold text-center border hover:bg-gray-50" style={{ borderColor: SEAL, color: SEAL }}>
+                    Autoexclusão Gov.br
+                  </a>
+                  <a href="https://gamban.com" target="_blank" rel="noopener noreferrer" className="flex-1 py-2 px-4 rounded-lg text-sm font-semibold text-center text-white hover:opacity-90" style={{ backgroundColor: SEAL }}>
+                    Instalar Gamban
+                  </a>
+                </div>
+              </div>
+
+              <div className="p-6 rounded-xl border-2" style={{ backgroundColor: "#FFF", borderColor: "#E4DFD1" }}>
+                <h5 className="text-lg font-bold mb-3 flex items-center gap-2" style={{ color: SEAL }}>
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold text-white" style={{ backgroundColor: SEAL }}>2</span>
+                  Organize a Dívida Urgente
+                </h5>
+                <p className="text-sm mb-3 p-3 rounded-lg" style={{ backgroundColor: AMBER_BG, color: SEAL_DARK }}>
+                  <strong>Sua prioridade:</strong><br/>
+                  {getDicaDivida()}
+                </p>
+                <div className="flex items-start gap-2 text-sm" style={{ color: INK_SOFT }}>
+                  <Heart size={16} className="shrink-0 mt-0.5" style={{ color: GREEN }} />
+                  <span>Se o peso estiver grande demais, ligue <strong>188 (CVV)</strong> ou procure o CAPS. É gratuito.</span>
+                </div>
+              </div>
+
+              <div className="p-6 rounded-xl border-2 text-center" style={{ backgroundColor: PAPER, borderColor: AMBER_BORDER }}>
+                <h5 className="text-lg font-bold mb-3 flex items-center justify-center gap-2" style={{ color: INK }}>
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold text-white" style={{ backgroundColor: GREEN }}>3</span>
+                  Busque o que é seu por direito
+                </h5>
+                <p className="text-sm mb-4" style={{ color: INK_SOFT }}>
+                  Como você mencionou <strong>R$ {Number(calcData.valorPerdido).toLocaleString("pt-BR")}</strong> e um cenário de {calcData.fezAutoexclusao === "sim" ? "autoexclusão ignorada" : "falta de controle"}, você se encaixa no perfil de quem pode buscar a restituição via Juizado Especial.
+                </p>
+                <div className="p-4 rounded-lg mb-4 text-left text-xs" style={{ backgroundColor: "#FFF", border: `1px solid ${AMBER_BORDER}` }}>
+                  <strong>⚠️ Transparência:</strong> O RecuperaJogo usa tecnologia apenas para formatar sua petição com base em fatos reais. Não é uma petição genérica de robô.
+                </div>
+                <a href="/login" className="block w-full py-4 rounded-xl text-white text-lg font-bold transition-all hover:scale-105 hover:shadow-lg" style={{ backgroundColor: SEAL }}>
+                  Quero montar minha petição (R$ 137)
+                </a>
+                <p className="text-xs mt-3" style={{ color: INK_SOFT }}>Enviamos uma cópia deste plano para {calcData.email || "seu e-mail"}.</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ANTES DE PROCESSAR, CUIDE DE VOCÊ */}
+      <section id="guia" className="py-16 md:py-20 px-4 sm:px-6" style={{ backgroundColor: PAPER }}>
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
             <Heart size={40} className="mx-auto mb-4" style={{ color: SEAL }} />
             <h3 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: INK, fontFamily: "Georgia, serif" }}>Perdeu dinheiro? Vamos colocar a casa em ordem primeiro.</h3>
-            <p className="text-lg" style={{ color: INK_SOFT }}>Processar é sobre justiça, não sobre voltar a apostar. Se você sente que perdeu o controle, existe ajuda gratuita e imediata.</p>
+            <p className="text-lg" style={{ color: INK_SOFT }}>Processar é sobre justiça, não sobre voltar a apostar.</p>
           </div>
 
           <div className="space-y-6">
-            {/* Bloco 1: Autoexclusão */}
-            <div className="p-6 rounded-xl border-2" style={{ backgroundColor: PAPER, borderColor: "#E4DFD1" }}>
+            <div className="p-6 rounded-xl border-2" style={{ backgroundColor: "#FFF", borderColor: "#E4DFD1" }}>
               <h4 className="text-xl font-bold mb-3 flex items-center gap-2" style={{ color: INK }}>
                 <span className="flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white" style={{ backgroundColor: SEAL }}>1</span>
                 Pare o sangramento primeiro
               </h4>
               <p className="text-sm mb-3" style={{ color: INK_SOFT }}>
-                A <strong>Plataforma Centralizada de Autoexclusão</strong> do Governo Federal bloqueia seu CPF em todas as casas autorizadas de uma vez. É gratuito, leva 5 minutos e as casas têm 72h pra obedecer.
+                A <strong>Plataforma Centralizada de Autoexclusão</strong> bloqueia seu CPF em todas as casas autorizadas. Gratuito, 5 minutos, 72h pra obedecer.
               </p>
               <a href="https://www.gov.br/autoexclusaoapostas" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold hover:underline" style={{ color: SEAL }}>
-                🔗 Acesse: gov.br/autoexclusaoapostas <ExternalLink size={14} />
+                🔗 gov.br/autoexclusaoapostas <ExternalLink size={14} />
               </a>
-              <p className="text-xs mt-3 p-3 rounded-lg" style={{ backgroundColor: AMBER_BG, color: SEAL_DARK }}>
-                <strong>Importante:</strong> Ao registrar a autoexclusão, as casas são obrigadas a devolver qualquer saldo parado na sua conta. Se tem dinheiro preso numa casa legalizada, ele deve voltar.
-              </p>
             </div>
 
-            {/* Bloco 1.5: Gamban (CORRIGIDO) */}
-            <div className="p-6 rounded-xl border-2" style={{ backgroundColor: PAPER, borderColor: "#E4DFD1" }}>
+            <div className="p-6 rounded-xl border-2" style={{ backgroundColor: "#FFF", borderColor: "#E4DFD1" }}>
               <h4 className="text-xl font-bold mb-3 flex items-center gap-2" style={{ color: INK }}>
                 <span className="flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white" style={{ backgroundColor: SEAL }}>📱</span>
-                Bloqueie as bets no seu celular e computador
+                Bloqueie as bets no celular
               </h4>
               <p className="text-sm mb-3" style={{ color: INK_SOFT }}>
-                Além da autoexclusão governamental, considere instalar o <strong>Gamban</strong> — um software reconhecido que bloqueia sites e aplicativos de apostas em todos os seus dispositivos, criando uma barreira técnica contra recaídas.
+                Instale o <strong>Gamban</strong> — bloqueia sites e apps de apostas em todos os dispositivos.
               </p>
-              <a 
-                href="https://gamban.com" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="inline-flex items-center gap-2 text-sm font-semibold hover:underline" 
-                style={{ color: SEAL }}
-              >
-                🔗 Conheça o Gamban: gamban.com <ExternalLink size={14} />
+              <a href="https://gamban.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold hover:underline" style={{ color: SEAL }}>
+                🔗 gamban.com <ExternalLink size={14} />
               </a>
               <p className="text-xs mt-3 p-3 rounded-lg" style={{ backgroundColor: AMBER_BG, color: SEAL_DARK }}>
-                <strong>Nota:</strong> O Gamban oferece 7 dias de teste gratuito. Após esse período, é necessária uma assinatura paga para manter o bloqueio ativo.
+                <strong>Nota:</strong> 7 dias de teste grátis. Após, assinatura paga.
               </p>
             </div>
 
-            {/* Bloco 2: Apoio Emocional */}
             <div className="p-6 rounded-xl border-2" style={{ backgroundColor: GREEN_BG, borderColor: GREEN }}>
               <h4 className="text-xl font-bold mb-3 flex items-center gap-2" style={{ color: INK }}>
                 <span className="flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white" style={{ backgroundColor: GREEN }}>2</span>
                 O peso está grande demais?
               </h4>
-              <p className="text-sm mb-3" style={{ color: INK_SOFT }}>
-                Perder dinheiro pra uma casa de aposta mexe com tudo: autoestima, família, contas, sono. Você não precisa carregar isso sozinho. Isso não é fraqueza. É reconhecer que o vício é uma doença, e doença se trata.
-              </p>
               <ul className="space-y-2 text-sm" style={{ color: INK }}>
-                <li className="flex items-start gap-2"><Phone size={16} className="shrink-0 mt-0.5" style={{ color: GREEN }} /><strong>CVV (Centro de Valorização da Vida):</strong> Ligue 188 · 24h · gratuito e sigiloso.</li>
-                <li className="flex items-start gap-2"><Heart size={16} className="shrink-0 mt-0.5" style={{ color: GREEN }} /><strong>CAPS ou UBS:</strong> Procure a unidade mais próxima · SUS · sem necessidade de comprovação.</li>
+                <li className="flex items-start gap-2"><Phone size={16} className="shrink-0 mt-0.5" style={{ color: GREEN }} /><strong>CVV:</strong> Ligue 188 · 24h · gratuito.</li>
+                <li className="flex items-start gap-2"><Heart size={16} className="shrink-0 mt-0.5" style={{ color: GREEN }} /><strong>CAPS/UBS:</strong> Procure a unidade mais próxima · SUS.</li>
               </ul>
             </div>
 
-            {/* Bloco 3: Honestidade Brutal */}
-            <div className="p-6 rounded-xl border-2" style={{ backgroundColor: PAPER, borderColor: "#E4DFD1" }}>
+            <div className="p-6 rounded-xl border-2" style={{ backgroundColor: "#FFF", borderColor: "#E4DFD1" }}>
               <h4 className="text-xl font-bold mb-3 flex items-center gap-2" style={{ color: INK }}>
                 <span className="flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white" style={{ backgroundColor: SEAL }}>3</span>
-                Honestidade brutal: Nem todo caso dá direito à devolução
+                Honestidade brutal
               </h4>
-              <p className="text-sm mb-3" style={{ color: INK_SOFT }}>Quem promete 100% de sucesso está mentindo. A realidade é:</p>
               <div className="grid md:grid-cols-2 gap-4 text-sm">
                 <div className="p-4 rounded-lg" style={{ backgroundColor: GREEN_BG }}>
-                  <p className="font-bold mb-2" style={{ color: GREEN }}>✅ Você TEM chance se:</p>
+                  <p className="font-bold mb-2" style={{ color: GREEN }}>✅ TEM chance se:</p>
                   <ul className="space-y-1" style={{ color: INK }}>
-                    <li>• Pediu autoexclusão e a casa continuou aceitando depósito</li>
-                    <li>• A casa ignorou seu pedido de bloqueio</li>
-                    <li>• Seu padrão era claramente compulsivo e a plataforma não fez nada</li>
+                    <li>• Pediu autoexclusão e a casa continuou</li>
+                    <li>• Casa ignorou bloqueio</li>
+                    <li>• Padrão compulsivo ignorado</li>
                   </ul>
                 </div>
                 <div className="p-4 rounded-lg" style={{ backgroundColor: "#FEF2F2" }}>
-                  <p className="font-bold mb-2" style={{ color: "#991B1B" }}>❌ Você NÃO TEM chance se:</p>
+                  <p className="font-bold mb-2" style={{ color: "#991B1B" }}>❌ NÃO TEM chance se:</p>
                   <ul className="space-y-1" style={{ color: INK }}>
-                    <li>• Simplesmente perdeu dinheiro apostando normalmente</li>
-                    <li>• Não pediu bloqueio nenhum</li>
-                    <li>• A casa é pirata (sem domínio .bet.br)</li>
+                    <li>• Perdeu apostando normalmente</li>
+                    <li>• Não pediu bloqueio</li>
+                    <li>• Casa pirata (sem .bet.br)</li>
                   </ul>
                 </div>
               </div>
-              <p className="text-sm mt-4 font-semibold" style={{ color: INK }}>
-                O RecuperaJogo é pra quem se encaixa no primeiro grupo. Se é o seu caso, continue. Se não é, feche essa página e foque na autoexclusão e no apoio emocional. Isso é mais importante agora.
-              </p>
             </div>
 
-            {/* Bloco 4: Escada da Solução (MED CORRIGIDO) */}
-            <div className="p-6 rounded-xl border-2" style={{ backgroundColor: PAPER, borderColor: "#E4DFD1" }}>
+            <div className="p-6 rounded-xl border-2" style={{ backgroundColor: "#FFF", borderColor: "#E4DFD1" }}>
               <h4 className="text-xl font-bold mb-3 flex items-center gap-2" style={{ color: INK }}>
                 <span className="flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white" style={{ backgroundColor: SEAL }}>4</span>
                 A escada da solução
               </h4>
-              <p className="text-sm mb-3" style={{ color: INK_SOFT }}>Uma negativa não é o fim. É o começo da segunda etapa:</p>
               <ol className="space-y-2 text-sm list-decimal list-inside" style={{ color: INK }}>
-                <li><strong>MED (Mecanismo Especial de Devolução)</strong> no seu banco · aplicável especificamente em casos de transações não autorizadas ou fraude (até 80 dias após o Pix)</li>
-                <li><strong>BACEN</strong> · registre em bcb.gov.br/meubc</li>
-                <li><strong>Consumidor.gov.br e Procon</strong> · têm prazo de resposta</li>
-                <li><strong>Juizado Especial Cível</strong> · até 20 salários mínimos, sem advogado</li>
+                <li><strong>MED</strong> · transações não autorizadas ou fraude (até 80 dias)</li>
+                <li><strong>BACEN</strong> · bcb.gov.br/meubc</li>
+                <li><strong>Consumidor.gov.br e Procon</strong></li>
+                <li><strong>Juizado Especial Cível</strong> · sem advogado</li>
               </ol>
-              <p className="text-xs mt-4 p-3 rounded-lg" style={{ backgroundColor: AMBER_BG, color: SEAL_DARK }}>
-                <strong>Guarde tudo:</strong> comprovantes, protocolos, BO, negativa por escrito, registro da autoexclusão. Esse conjunto é sua prova.
-              </p>
             </div>
 
-            {/* Bloco 5: CTA Suave e Aviso sobre IA */}
             <div className="p-6 rounded-xl border-2 text-center" style={{ backgroundColor: AMBER_BG, borderColor: AMBER_BORDER }}>
               <FileCheck size={32} className="mx-auto mb-3" style={{ color: SEAL }} />
               <h4 className="text-xl font-bold mb-3" style={{ color: INK }}>Agora que você já sabe como se proteger...</h4>
               <p className="text-sm mb-4 max-w-2xl mx-auto" style={{ color: INK_SOFT }}>
-                Se você se encaixa nos casos que dão direito, o <strong>RecuperaJogo</strong> pode te ajudar a montar o documento jurídico pra buscar o que é seu.
+                Se você se encaixa nos casos que dão direito, o <strong>RecuperaJogo</strong> pode te ajudar.
               </p>
-              <div className="p-4 rounded-lg mb-4 text-left text-sm" style={{ backgroundColor: "#FFF", border: `1px solid ${AMBER_BORDER}` }}>
-                <p style={{ color: INK }}>
-                  <strong>⚠️ Transparência sobre o uso de IA:</strong> O uso de Inteligência Artificial aqui é <strong>mínimo</strong>. Ela serve apenas para formatar a petição com base em <strong>fatos reais</strong> e na estratégia jurídica de quem já venceu causas assim. <strong>Não é uma petição genérica de robô.</strong> É a petição de uma pessoa real, adaptada para você.
-                </p>
-              </div>
-              <p className="text-sm font-semibold mb-4" style={{ color: SEAL }}>Mas antes: cuide de você. Bloqueie. Busque apoio. Só depois pense em processar.</p>
-              <a href="/login" className="inline-flex items-center gap-2 px-8 py-3 rounded-xl text-white text-base font-bold transition-all duration-300 hover:scale-105 hover:shadow-lg" style={{ backgroundColor: SEAL }}>
-                Quero montar minha petição agora <ArrowRight size={18} />
+              <a href="/login" className="inline-flex items-center gap-2 px-8 py-3 rounded-xl text-white text-base font-bold transition-all hover:scale-105 hover:shadow-lg" style={{ backgroundColor: SEAL }}>
+                Quero montar minha petição <ArrowRight size={18} />
               </a>
             </div>
           </div>
@@ -494,7 +654,7 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
             <h3 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: INK, fontFamily: "Georgia, serif" }}>Um investimento. Três petições. Acesso vitalício.</h3>
-            <p className="text-lg" style={{ color: INK_SOFT }}>Pagamento único, sem mensalidades, sem surpresas.</p>
+            <p className="text-lg" style={{ color: INK_SOFT }}>Pagamento único, sem mensalidades.</p>
           </div>
           <div className="relative p-8 rounded-2xl border-2 shadow-xl" style={{ backgroundColor: PAPER, borderColor: AMBER_BORDER }}>
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold text-white" style={{ backgroundColor: SEAL }}>MAIS POPULAR</div>
@@ -511,7 +671,7 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-            <a href="/login" className="block w-full text-center px-8 py-4 rounded-xl text-white text-lg font-bold transition-all duration-300 hover:scale-105 hover:shadow-xl" style={{ background: `linear-gradient(135deg, ${SEAL} 0%, ${SEAL_DARK} 100%)` }}>
+            <a href="/login" className="block w-full text-center px-8 py-4 rounded-xl text-white text-lg font-bold transition-all hover:scale-105 hover:shadow-xl" style={{ background: `linear-gradient(135deg, ${SEAL} 0%, ${SEAL_DARK} 100%)` }}>
               Quero Recuperar Meu Dinheiro Agora <ArrowRight size={20} className="inline ml-2" />
             </a>
             <div className="flex items-center justify-center gap-4 mt-4 text-xs" style={{ color: INK_SOFT }}>
@@ -531,20 +691,15 @@ export default function LandingPage() {
           </div>
           <h3 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: INK, fontFamily: "Georgia, serif" }}>Garantia de Funcionamento de 7 Dias</h3>
           <p className="text-lg mb-6 leading-relaxed" style={{ color: INK_SOFT }}>
-            Se a ferramenta <strong>não funcionar tecnicamente</strong> — ou seja, se você não conseguir gerar, baixar ou visualizar suas petições após o pagamento — devolvemos 100% do seu dinheiro, sem perguntas e sem burocracia.
+            Se a ferramenta <strong>não funcionar tecnicamente</strong>, devolvemos 100% do seu dinheiro.
           </p>
           <div className="p-6 rounded-xl border-2 text-left shadow-sm" style={{ backgroundColor: "#FFF", borderColor: GREEN }}>
             <h4 className="font-bold mb-3" style={{ color: GREEN }}>O que a garantia cobre:</h4>
             <ul className="space-y-2 text-sm" style={{ color: INK_SOFT }}>
-              <li className="flex items-start gap-2"><CheckCircle2 size={16} className="flex-shrink-0 mt-0.5" style={{ color: GREEN }} /><span>Problemas técnicos que impeçam a geração das petições</span></li>
-              <li className="flex items-start gap-2"><CheckCircle2 size={16} className="flex-shrink-0 mt-0.5" style={{ color: GREEN }} /><span>Erros no sistema que impossibilitem o download do PDF</span></li>
-              <li className="flex items-start gap-2"><CheckCircle2 size={16} className="flex-shrink-0 mt-0.5" style={{ color: GREEN }} /><span>Falha no acesso à plataforma após confirmação do pagamento</span></li>
+              <li className="flex items-start gap-2"><CheckCircle2 size={16} className="flex-shrink-0 mt-0.5" style={{ color: GREEN }} /><span>Problemas técnicos na geração das petições</span></li>
+              <li className="flex items-start gap-2"><CheckCircle2 size={16} className="flex-shrink-0 mt-0.5" style={{ color: GREEN }} /><span>Erros no download do PDF</span></li>
+              <li className="flex items-start gap-2"><CheckCircle2 size={16} className="flex-shrink-0 mt-0.5" style={{ color: GREEN }} /><span>Falha no acesso após pagamento</span></li>
             </ul>
-            <div className="mt-4 pt-4 border-t" style={{ borderColor: "#E5E7EB" }}>
-              <p className="text-xs leading-relaxed" style={{ color: INK_SOFT }}>
-                <strong>Observação importante:</strong> Esta garantia cobre o funcionamento técnico da ferramenta. Não cobre o resultado judicial do seu caso, pois decisões judiciais dependem de múltiplos fatores (juiz, provas, jurisprudência local) que estão fora do controle da plataforma.
-              </p>
-            </div>
           </div>
         </div>
       </section>
@@ -554,7 +709,6 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
             <h3 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: INK, fontFamily: "Georgia, serif" }}>Perguntas Frequentes</h3>
-            <p className="text-lg" style={{ color: INK_SOFT }}>Tire suas dúvidas antes de começar.</p>
           </div>
           <div className="space-y-3">
             {faqs.map((item, i) => (
@@ -577,18 +731,13 @@ export default function LandingPage() {
       {/* CTA FINAL */}
       <section className="py-16 md:py-20 px-4 sm:px-6" style={{ background: `linear-gradient(135deg, ${SEAL} 0%, ${SEAL_DARK} 100%)` }}>
         <div className="max-w-3xl mx-auto text-center">
-          <h3 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: "#FFF", fontFamily: "Georgia, serif" }}>Pare de perder dinheiro. Comece a recuperar o que é seu por direito.</h3>
+          <h3 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: "#FFF", fontFamily: "Georgia, serif" }}>Pare de perder dinheiro. Comece a recuperar o que é seu.</h3>
           <p className="text-lg mb-8 leading-relaxed" style={{ color: "rgba(255,255,255,0.9)" }}>
-            Acesso completo por <strong style={{ color: AMBER_BG }}>R$ 137,00</strong> (pagamento único).<br />Sem mensalidades. Sem surpresas.
+            Acesso completo por <strong style={{ color: AMBER_BG }}>R$ 137,00</strong> (pagamento único).
           </p>
-          <a href="/login" className="inline-flex items-center gap-3 px-10 py-5 rounded-xl text-lg font-bold transition-all duration-300 hover:scale-105 hover:shadow-2xl" style={{ backgroundColor: "#FFF", color: SEAL }}>
+          <a href="/login" className="inline-flex items-center gap-3 px-10 py-5 rounded-xl text-lg font-bold transition-all hover:scale-105 hover:shadow-2xl" style={{ backgroundColor: "#FFF", color: SEAL }}>
             Começar Agora <ArrowRight size={20} />
           </a>
-          <div className="flex flex-wrap items-center justify-center gap-6 mt-8 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
-            <div className="flex items-center gap-2"><Lock size={14} /><span>Pagamento seguro</span></div>
-            <div className="flex items-center gap-2"><Clock size={14} /><span>Acesso imediato</span></div>
-            <div className="flex items-center gap-2"><Shield size={14} /><span>Garantia de 7 dias</span></div>
-          </div>
         </div>
       </section>
 
@@ -606,15 +755,14 @@ export default function LandingPage() {
                   <p className="text-[10px] uppercase tracking-wider" style={{ color: INK_SOFT }}>Recuperação Jurídica de Valores</p>
                 </div>
               </div>
-              <p className="text-sm" style={{ color: INK_SOFT }}>Ferramenta de automação de redação jurídica para causas de até 20 salários mínimos.</p>
             </div>
             <div>
               <h5 className="text-sm font-bold mb-3 uppercase tracking-wider" style={{ color: INK }}>Navegação</h5>
               <ul className="space-y-2 text-sm" style={{ color: INK_SOFT }}>
+                <li><a href="#calculadora" className={menuLinkClass}>Calculadora Grátis</a></li>
                 <li><a href="#como-funciona" className={menuLinkClass}>Como Funciona</a></li>
                 <li><a href="#fundamentacao" className={menuLinkClass}>Fundamentação Legal</a></li>
                 <li><a href="#guia" className={menuLinkClass}>Guia Gratuito</a></li>
-                <li><a href="#garantia" className={menuLinkClass}>Garantia</a></li>
                 <li><a href="#faq" className={menuLinkClass}>FAQ</a></li>
               </ul>
             </div>
@@ -623,7 +771,6 @@ export default function LandingPage() {
               <ul className="space-y-2 text-sm" style={{ color: INK_SOFT }}>
                 <li className="flex items-center gap-2"><Mail size={14} /> pedrofsneto33@gmail.com</li>
                 <li className="flex items-center gap-2"><Building2 size={14} /> CNPJ: 55.536.885/0001-30</li>
-                <li className="flex items-center gap-2"><Clock size={14} /> Atendimento em até 24h</li>
               </ul>
             </div>
           </div>
@@ -633,23 +780,20 @@ export default function LandingPage() {
               <h4 className="font-bold text-lg" style={{ color: INK, fontFamily: "Georgia, serif" }}>Aviso Legal Importante</h4>
             </div>
             <div className="space-y-3 text-sm leading-relaxed" style={{ color: INK_SOFT }}>
-              <p><strong>1. Natureza do serviço:</strong> O RecuperaJogo é uma ferramenta de automação de redação jurídica. Não constitui assessoria, consultoria ou representação jurídica. Não há advogado responsável tecnicamente pelos documentos gerados.</p>
-              <p><strong>2. Responsabilidade do usuário:</strong> O usuário é integralmente responsável por revisar, adaptar e validar o conteúdo da petição antes do protocolo.</p>
-              <p><strong>3. Resultados judiciais:</strong> O RecuperaJogo não garante, promete ou assegura qualquer resultado judicial específico.</p>
-              <p><strong>4. Limitação de uso:</strong> A ferramenta destina-se a causas de até 20 salários mínimos (jus postulandi, art. 9º da Lei 9.099/95).</p>
-              <p><strong>5. Atualização normativa:</strong> A legislação do setor de apostas está em constante evolução. Verifique a vigência das normas na data do protocolo.</p>
+              <p><strong>1. Natureza do serviço:</strong> Ferramenta de automação de redação jurídica. Não constitui assessoria jurídica.</p>
+              <p><strong>2. Responsabilidade do usuário:</strong> O usuário é responsável por revisar e validar o conteúdo antes do protocolo.</p>
+              <p><strong>3. Resultados judiciais:</strong> Não garantimos resultado judicial específico.</p>
             </div>
           </div>
           <div className="text-center text-xs pt-6 border-t" style={{ color: INK_SOFT, borderColor: "#E4DFD1" }}>
-            <p className="mb-2">© {new Date().getFullYear()} RecuperaJogo. Todos os direitos reservados.</p>
-            <p>CNPJ: 55.536.885/0001-30 | Contato: pedrofsneto33@gmail.com</p>
+            <p>© {new Date().getFullYear()} RecuperaJogo. Todos os direitos reservados.</p>
           </div>
         </div>
       </footer>
 
       {/* Botão Flutuante do WhatsApp */}
       <a
-        href="https://wa.me/5586988117925?text=Ol%C3%A1!%20Vim%20pelo%20site%20RecuperaJogo%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es."
+        href="https://wa.me/5586988117925?text=Ol%C3%A1!%20Vim%20pelo%20site%20RecuperaJogo."
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full shadow-lg transition-all hover:scale-110 hover:shadow-2xl"
