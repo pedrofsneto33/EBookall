@@ -77,6 +77,9 @@ export default function LandingPage() {
     "Garantia de funcionamento de 7 dias"
   ];
 
+  // Classe utilitária para links do menu com hover funcional
+  const menuLinkClass = "transition-colors duration-200 hover:text-[#1E2A3A]";
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: PAPER, color: INK }}>
 
@@ -93,11 +96,11 @@ export default function LandingPage() {
             </div>
           </div>
           <nav className="hidden lg:flex items-center gap-6 text-sm font-medium" style={{ color: INK_SOFT }}>
-            <a href="#como-funciona" className="hover:text-INK transition-colors">Como Funciona</a>
-            <a href="#fundamentacao" className="hover:text-INK transition-colors">Fundamentação Legal</a>
-            <a href="#guia" className="hover:text-INK transition-colors">Guia Gratuito</a>
-            <a href="#garantia" className="hover:text-INK transition-colors">Garantia</a>
-            <a href="#faq" className="hover:text-INK transition-colors">FAQ</a>
+            <a href="#como-funciona" className={menuLinkClass}>Como Funciona</a>
+            <a href="#fundamentacao" className={menuLinkClass}>Fundamentação Legal</a>
+            <a href="#guia" className={menuLinkClass}>Guia Gratuito</a>
+            <a href="#garantia" className={menuLinkClass}>Garantia</a>
+            <a href="#faq" className={menuLinkClass}>FAQ</a>
           </nav>
           <a href="/login" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-white text-sm font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg" style={{ backgroundColor: SEAL }}>
             Acessar Sistema <ArrowRight size={16} />
@@ -352,7 +355,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ANTES DE PROCESSAR, CUIDE DE VOCÊ */}
+      {/* ANTES DE PROCESSAR, CUIDE DE VOCÊ (GUIA) */}
       <section id="guia" className="py-16 md:py-20 px-4 sm:px-6" style={{ backgroundColor: "#FFF" }}>
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
@@ -362,7 +365,7 @@ export default function LandingPage() {
           </div>
 
           <div className="space-y-6">
-            {/* Bloco 1 */}
+            {/* Bloco 1: Autoexclusão */}
             <div className="p-6 rounded-xl border-2" style={{ backgroundColor: PAPER, borderColor: "#E4DFD1" }}>
               <h4 className="text-xl font-bold mb-3 flex items-center gap-2" style={{ color: INK }}>
                 <span className="flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white" style={{ backgroundColor: SEAL }}>1</span>
@@ -379,7 +382,30 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Bloco 2 */}
+            {/* Bloco 1.5: Gamban (CORRIGIDO) */}
+            <div className="p-6 rounded-xl border-2" style={{ backgroundColor: PAPER, borderColor: "#E4DFD1" }}>
+              <h4 className="text-xl font-bold mb-3 flex items-center gap-2" style={{ color: INK }}>
+                <span className="flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white" style={{ backgroundColor: SEAL }}>📱</span>
+                Bloqueie as bets no seu celular e computador
+              </h4>
+              <p className="text-sm mb-3" style={{ color: INK_SOFT }}>
+                Além da autoexclusão governamental, considere instalar o <strong>Gamban</strong> — um software reconhecido que bloqueia sites e aplicativos de apostas em todos os seus dispositivos, criando uma barreira técnica contra recaídas.
+              </p>
+              <a 
+                href="https://gamban.com" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="inline-flex items-center gap-2 text-sm font-semibold hover:underline" 
+                style={{ color: SEAL }}
+              >
+                🔗 Conheça o Gamban: gamban.com <ExternalLink size={14} />
+              </a>
+              <p className="text-xs mt-3 p-3 rounded-lg" style={{ backgroundColor: AMBER_BG, color: SEAL_DARK }}>
+                <strong>Nota:</strong> O Gamban oferece 7 dias de teste gratuito. Após esse período, é necessária uma assinatura paga para manter o bloqueio ativo.
+              </p>
+            </div>
+
+            {/* Bloco 2: Apoio Emocional */}
             <div className="p-6 rounded-xl border-2" style={{ backgroundColor: GREEN_BG, borderColor: GREEN }}>
               <h4 className="text-xl font-bold mb-3 flex items-center gap-2" style={{ color: INK }}>
                 <span className="flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white" style={{ backgroundColor: GREEN }}>2</span>
@@ -394,7 +420,7 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            {/* Bloco 3 */}
+            {/* Bloco 3: Honestidade Brutal */}
             <div className="p-6 rounded-xl border-2" style={{ backgroundColor: PAPER, borderColor: "#E4DFD1" }}>
               <h4 className="text-xl font-bold mb-3 flex items-center gap-2" style={{ color: INK }}>
                 <span className="flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white" style={{ backgroundColor: SEAL }}>3</span>
@@ -424,7 +450,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Bloco 4 */}
+            {/* Bloco 4: Escada da Solução (MED CORRIGIDO) */}
             <div className="p-6 rounded-xl border-2" style={{ backgroundColor: PAPER, borderColor: "#E4DFD1" }}>
               <h4 className="text-xl font-bold mb-3 flex items-center gap-2" style={{ color: INK }}>
                 <span className="flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white" style={{ backgroundColor: SEAL }}>4</span>
@@ -432,7 +458,7 @@ export default function LandingPage() {
               </h4>
               <p className="text-sm mb-3" style={{ color: INK_SOFT }}>Uma negativa não é o fim. É o começo da segunda etapa:</p>
               <ol className="space-y-2 text-sm list-decimal list-inside" style={{ color: INK }}>
-                <li><strong>MED (Mecanismo Especial de Devolução)</strong> no seu banco · até 80 dias após o Pix</li>
+                <li><strong>MED (Mecanismo Especial de Devolução)</strong> no seu banco · aplicável especificamente em casos de transações não autorizadas ou fraude (até 80 dias após o Pix)</li>
                 <li><strong>BACEN</strong> · registre em bcb.gov.br/meubc</li>
                 <li><strong>Consumidor.gov.br e Procon</strong> · têm prazo de resposta</li>
                 <li><strong>Juizado Especial Cível</strong> · até 20 salários mínimos, sem advogado</li>
@@ -585,11 +611,11 @@ export default function LandingPage() {
             <div>
               <h5 className="text-sm font-bold mb-3 uppercase tracking-wider" style={{ color: INK }}>Navegação</h5>
               <ul className="space-y-2 text-sm" style={{ color: INK_SOFT }}>
-                <li><a href="#como-funciona" className="hover:text-INK">Como Funciona</a></li>
-                <li><a href="#fundamentacao" className="hover:text-INK">Fundamentação Legal</a></li>
-                <li><a href="#guia" className="hover:text-INK">Guia Gratuito</a></li>
-                <li><a href="#garantia" className="hover:text-INK">Garantia</a></li>
-                <li><a href="#faq" className="hover:text-INK">FAQ</a></li>
+                <li><a href="#como-funciona" className={menuLinkClass}>Como Funciona</a></li>
+                <li><a href="#fundamentacao" className={menuLinkClass}>Fundamentação Legal</a></li>
+                <li><a href="#guia" className={menuLinkClass}>Guia Gratuito</a></li>
+                <li><a href="#garantia" className={menuLinkClass}>Garantia</a></li>
+                <li><a href="#faq" className={menuLinkClass}>FAQ</a></li>
               </ul>
             </div>
             <div>
