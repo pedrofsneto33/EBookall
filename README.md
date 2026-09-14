@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RecuperaJogo
 
-## Getting Started
+Ferramenta de automação de petições para Juizado Especial Cível (jus postulandi), focada em casos de **autoexclusão violada** e **ludopatia** no setor de apostas (Lei 14.790/2023 + CDC).
 
-First, run the development server:
+**Produção:** https://recuperajogo.vercel.app
+
+> **Aviso:** isto **não** é assessoria jurídica. O usuário revisa e protocola em nome próprio.
+
+## Stack
+
+- Next.js (App Router) + TypeScript + Tailwind
+- Supabase (Auth + tabelas `subscriptions` / `leads`)
+- Stripe Checkout Session (pagamento único)
+- `@react-pdf/renderer` (PDF da petição)
+- Resend (notificação de leads)
+
+## Configuração
 
 ```bash
+cp .env.example .env.local
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Variáveis obrigatórias
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variável | Uso |
+|----------|-----|
+| `NEXT_PUBLIC_SUPABASE_URL` | Auth + DB |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Cliente browser |
+| `SUPABASE_SERVICE_ROLE_KEY` | Webhook / upsert de subscription |
+| `STRIPE_SECRET_KEY` | Checkout Session |
+| `STRIPE_WEBHOOK_SECRET` | Validação do webhook |
+| `NEXT_PUBLIC_SITE_URL` | URLs de success/cancel |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Schema sugerido (Supabase)
 
-## Learn More
+```sql
+create table if not exists public.subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  status text not null default 'pending',
+  peticoes_usadas int not null default 0,
+  payment_provider_id text,
+  current_period_end timestamptz,
+  created_at timestamptz default now(),
+  unique (user_id)
+);
 
-To learn more about Next.js, take a look at the following resources:
+create table if not exists public.leads (
+  id uuid primary key default gen_random_uuid(),
+  email text not null,
+  nome text,
+  whatsapp text,
+  origem text default 'guia',
+  created_at timestamptz default now()
+);
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+alter table public.subscriptions enable row level security;
+create policy "own sub select" on public.subscriptions
+  for select using (auth.uid() = user_id);
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Webhook Stripe
 
-## Deploy on Vercel
+1. Endpoint: `https://SEU_DOMINIO/api/webhook`
+2. Evento: `checkout.session.completed`
+3. Secret em `STRIPE_WEBHOOK_SECRET`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+O checkout envia `metadata.user_id` e o webhook faz **upsert** (corrige o bug do UPDATE sem linha).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Fluxo
+
+1. Login → garante subscription `pending`
+2. `/pagamento` → `/api/checkout` → Stripe
+3. Webhook → `status = active`
+4. `/obrigado` → `/gerador` (até 3 petições)
+
+## Commits recentes de correção
+
+- Checkout Session autenticado (substitui Payment Link estático)
+- Webhook TypeScript com upsert
+- API `/api/subscription/ensure`
