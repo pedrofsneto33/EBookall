@@ -1,13 +1,21 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "RecuperaJogo — Petição para Juizado Especial",
+  title: "RecuperaJogo — Contra as bets · petição para o Juizado",
   description:
-    "Monte o rascunho da sua petição de restituição contra casas de apostas. Jus postulandi. Software da Primex Sistemas — não é advocacia.",
+    "Eu já ganhei petições contra casas de apostas. Monte o rascunho da sua peça, pague no PIX (CNPJ Primex) e protocole no Juizado Especial. Software, não advocacia.",
   openGraph: {
-    title: "RecuperaJogo",
-    description: "Rascunho de petição para Juizado Especial. Software da Primex Sistemas.",
+    title: "RecuperaJogo — Contra as bets",
+    description:
+      "Gerador de petição nascido de processos reais contra casas de apostas. PIX via CNPJ · WhatsApp.",
     locale: "pt_BR",
     type: "website",
   },
@@ -20,7 +28,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className="antialiased">{children}</body>
+      <body className={`${inter.variable} font-sans antialiased bg-[#05080C] text-white`}>
+        {children}
+      </body>
     </html>
   );
 }
