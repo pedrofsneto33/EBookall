@@ -4,13 +4,22 @@ import Stripe from "stripe";
 
 export const runtime = "nodejs";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "");
+function getStripe() {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) throw new Error("STRIPE_SECRET_KEY não configurada");
+  return new Stripe(key);
+}
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
-  { auth: { autoRefreshToken: false, persistSession: false } }
-);
+function getSupabaseAdmin() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    "placeholder";
+  return createClient(url, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
 
 async function findUserId(session: Stripe.Checkout.Session): Promise<string | null> {
   const fromMeta = session.metadata?.user_id || session.client_reference_id || null;
@@ -22,7 +31,7 @@ async function findUserId(session: Stripe.Checkout.Session): Promise<string | nu
   let page = 1;
   const perPage = 100;
   while (page <= 10) {
-    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
+    const { data, error } = await getSupabaseAdmin().auth.admin.listUsers({ page, perPage });
     if (error || !data?.users?.length) break;
     const found = data.users.find((u) => u.email?.toLowerCase() === customerEmail.toLowerCase());
     if (found) return found.id;
@@ -42,14 +51,14 @@ async function activateSubscription(userId: string, session: Stripe.Checkout.Ses
     peticoes_usadas: 0,
   };
 
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await getSupabaseAdmin()
     .from("subscriptions")
     .upsert(payload, { onConflict: "user_id" })
     .select();
 
   if (error) {
     console.warn("Upsert falhou, tentando update/insert:", error.message);
-    const { data: updated, error: upErr } = await supabaseAdmin
+    const { data: updated, error: upErr } = await getSupabaseAdmin()
       .from("subscriptions")
       .update({
         status: "active",
@@ -60,7 +69,7 @@ async function activateSubscription(userId: string, session: Stripe.Checkout.Ses
       .select();
 
     if (upErr || !updated?.length) {
-      const { error: insErr } = await supabaseAdmin.from("subscriptions").insert(payload);
+      const { error: insErr } = await getSupabaseAdmin().from("subscriptions").insert(payload);
       if (insErr) throw insErr;
     }
   }
@@ -77,7 +86,7 @@ export async function POST(request: NextRequest) {
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET);
+    event = getStripe().webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "assinatura inválida";
     console.error(`Webhook signature: ${message}`);
@@ -90,7 +99,10 @@ export async function POST(request: NextRequest) {
     try {
       const userId = await findUserId(session);
       if (!userId) {
-        console.error("user_id não encontrado. email:", session.customer_details?.email ?? session.customer_email);
+        console.error(
+          "user_id não encontrado. email:",
+          session.customer_details?.email ?? session.customer_email
+        );
         return NextResponse.json({ received: true, warning: "user_not_found" });
       }
       await activateSubscription(userId, session);
