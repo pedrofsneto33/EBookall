@@ -1,13 +1,13 @@
 import { AlertTriangle, ShieldCheck, MessageCircle, MapPin } from "lucide-react";
 
-const INK = "#1E2A3A";
-const INK_SOFT = "#3D4C5E";
-const SEAL = "#8A6D3B";
+const INK = "#0F1C2E";
+const INK_SOFT = "#4A5B6E";
+const SEAL = "#1B6B4A";
 const AMBER_BG = "#FBF1DD";
 const AMBER_BORDER = "#D8B368";
-const GREEN_BG = "#EEF4EF";
+const GREEN_BG = "#E8F5EF";
 const GREEN_BORDER = "#B9CFC0";
-const GREEN = "#3F6B4A";
+const GREEN = "#1B6B4A";
 
 const WHATSAPP_NUMERO = "5586988117925";
 const WHATSAPP_MSG = encodeURIComponent("Oi! Tenho uma dúvida sobre o RecuperaJogo.");
@@ -63,7 +63,7 @@ export function BotaoWhatsApp({ floating = false }: { floating?: boolean }) {
 
 export function LocalizarJuizado() {
   return (
-    <a href="https://www.google.com/search?q=Juizado+Especial+C%C3%ADvel+mais+pr%C3%B3ximo+de+mim" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium hover:bg-black/5 transition-colors" style={{ borderColor: "#E4DFD1", color: INK }}>
+    <a href="https://www.google.com/search?q=Juizado+Especial+C%C3%ADvel+mais+pr%C3%B3ximo+de+mim" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium hover:bg-black/5 transition-colors" style={{ borderColor: "#E6E1D6", color: INK }}>
       <MapPin size={16} style={{ color: SEAL }} /> Buscar Juizado Especial no Google
     </a>
   );

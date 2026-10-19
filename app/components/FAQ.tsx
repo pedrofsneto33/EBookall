@@ -2,11 +2,11 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
-const INK = "#1E2A3A";
-const INK_SOFT = "#3D4C5E";
-const PAPER = "#FBF9F4";
-const LINE = "#E4DFD1";
-const SEAL = "#8A6D3B";
+const INK = "#0F1C2E";
+const INK_SOFT = "#4A5B6E";
+const PAPER = "#FAF8F4";
+const LINE = "#E6E1D6";
+const SEAL = "#1B6B4A";
 
 const PERGUNTAS = [
   {
@@ -53,7 +53,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 export default function FAQ() {
   return (
     <section className="max-w-3xl mx-auto px-4 py-16">
-      <h2 className="text-2xl font-semibold mb-1 text-center" style={{ color: INK, fontFamily: "Georgia, serif" }}>Perguntas Frequentes</h2>
+      <h2 className="text-2xl font-semibold mb-1 text-center" style={{ color: INK }}>Perguntas Frequentes</h2>
       <p className="text-sm text-center mb-8" style={{ color: INK_SOFT }}>Dúvida que não está aqui? Manda uma mensagem no WhatsApp.</p>
       <div className="rounded-xl border px-6" style={{ backgroundColor: PAPER, borderColor: LINE }}>
         {PERGUNTAS.map((item) => (
