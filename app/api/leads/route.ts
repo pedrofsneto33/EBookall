@@ -1,49 +1,22 @@
-import { createClient } from "@supabase/supabase-js";
-import { Resend } from "resend";
 import { NextRequest, NextResponse } from "next/server";
+import { Resend } from "resend";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const email = String(body.email ?? "").trim().toLowerCase();
-    const nome = body.nome ? String(body.nome).trim().slice(0, 120) : null;
-    const whatsapp = body.whatsapp ? String(body.whatsapp).trim().slice(0, 30) : null;
-    const origem = String(body.origem ?? "guia").trim().slice(0, 40);
-    const consentimento = Boolean(body.consentimento);
+    const nome = String(body.nome ?? "").trim();
+    const whatsapp = String(body.whatsapp ?? "").trim();
+    const origem = String(body.origem ?? "site").trim();
 
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!email || !email.includes("@")) {
       return NextResponse.json({ error: "E-mail inválido" }, { status: 400 });
     }
 
-    if (!consentimento) {
-      return NextResponse.json(
-        { error: "É necessário aceitar a política de privacidade" },
-        { status: 400 }
-      );
-    }
-
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!url || !key) {
-      return NextResponse.json({ error: "Supabase não configurado" }, { status: 500 });
-    }
-
-    const supabase = createClient(url, key);
-
-    const { error: dbError } = await supabase.from("leads").insert({
-      email,
-      nome,
-      whatsapp,
-      origem,
-    });
-
-    if (dbError) {
-      console.error("Erro ao salvar no banco:", dbError);
-      return NextResponse.json({ error: "Erro ao salvar" }, { status: 500 });
-    }
-
+    // Sem Supabase: notifica por e-mail (Resend). Lead não bloqueia se o mail falhar.
     const resendApiKey = process.env.RESEND_API_KEY ?? "";
     const notifyTo = process.env.LEADS_NOTIFY_EMAIL || "pedrofsneto33@gmail.com";
+
     if (resendApiKey) {
       try {
         const resend = new Resend(resendApiKey);
@@ -66,8 +39,10 @@ export async function POST(request: NextRequest) {
           `,
         });
       } catch (mailErr) {
-        console.error("Resend falhou (lead já salvo):", mailErr);
+        console.error("Resend falhou:", mailErr);
       }
+    } else {
+      console.log("Lead (sem RESEND):", { email, nome, whatsapp, origem });
     }
 
     return NextResponse.json({ success: true });

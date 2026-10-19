@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, CheckCircle2, AlertCircle, Loader2, Shield } from "lucide-react";
-import { createClient } from "../login/supabase";
 
 const SEAL = "#1B6B4A";
 const PAPER = "#F3F0E9";
@@ -22,16 +21,26 @@ function PagamentoContent() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) {
-        router.replace("/login?next=/pagamento");
-        return;
-      }
-      setUserId(data.user.id);
-      setEmail(data.user.email ?? "");
-      setLoading(false);
-    });
+    fetch("/api/auth/me")
+      .then(async (r) => {
+        if (!r.ok) {
+          router.replace("/login?next=/pagamento");
+          return;
+        }
+        const data = await r.json();
+        if (!data.user) {
+          router.replace("/login?next=/pagamento");
+          return;
+        }
+        if (data.status === "active") {
+          router.replace("/gerador");
+          return;
+        }
+        setUserId(data.user.id);
+        setEmail(data.user.email ?? "");
+        setLoading(false);
+      })
+      .catch(() => router.replace("/login?next=/pagamento"));
   }, [router]);
 
   async function handlePagar() {
@@ -65,40 +74,80 @@ function PagamentoContent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: PAPER }}>
-      <div className="w-full max-w-md bg-white rounded-2xl border shadow-sm p-8 text-center" style={{ borderColor: "#E5E0D4" }}>
-        <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold mb-4" style={{ backgroundColor: "#E8F5EF", color: SEAL }}>
+      <div
+        className="w-full max-w-md bg-white rounded-2xl border shadow-sm p-8 text-center"
+        style={{ borderColor: "#E5E0D4" }}
+      >
+        <div
+          className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold mb-4"
+          style={{ backgroundColor: "#E8F5EF", color: SEAL }}
+        >
           <Shield size={14} /> Garantia de 7 dias
         </div>
-        <h1 className="text-2xl font-bold mb-1" style={{ color: INK }}>RecuperaJogo</h1>
-        <p className="text-sm mb-6" style={{ color: INK_SOFT }}>Acesso completo · pagamento único</p>
 
-        <p className="text-4xl font-black mb-6" style={{ color: INK }}>
-          R$ 137<span className="text-base font-medium" style={{ color: INK_SOFT }}>,00</span>
+        <h1 className="text-2xl font-bold mb-2" style={{ color: INK }}>
+          Acesso completo
+        </h1>
+        <p className="text-sm mb-1" style={{ color: INK_SOFT }}>
+          {email}
+        </p>
+        <p className="text-4xl font-black mb-1" style={{ color: SEAL }}>
+          R$ 137
+        </p>
+        <p className="text-xs mb-6" style={{ color: INK_SOFT }}>
+          pagamento único
         </p>
 
         {canceled && (
-          <div className="mb-4 p-3 rounded-xl border text-sm flex gap-2 items-start text-left" style={{ backgroundColor: "#FEF2F2", borderColor: "#FECACA", color: "#991B1B" }}>
-            <AlertCircle size={18} className="shrink-0 mt-0.5" />
-            <span>Pagamento cancelado. Você pode tentar novamente quando quiser.</span>
+          <div
+            className="mb-4 p-3 rounded-xl text-sm flex gap-2 items-start border"
+            style={{ backgroundColor: "#FEF2F2", borderColor: "#FECACA", color: "#991B1B" }}
+          >
+            <AlertCircle size={16} className="shrink-0 mt-0.5" />
+            <span>Pagamento cancelado. Você pode tentar de novo.</span>
           </div>
         )}
+
         {error && (
-          <div className="mb-4 p-3 rounded-xl border text-sm flex gap-2 items-start text-left" style={{ backgroundColor: "#FEF2F2", borderColor: "#FECACA", color: "#991B1B" }}>
-            <AlertCircle size={18} className="shrink-0 mt-0.5" />
+          <div
+            className="mb-4 p-3 rounded-xl text-sm flex gap-2 items-start border"
+            style={{ backgroundColor: "#FEF2F2", borderColor: "#FECACA", color: "#991B1B" }}
+          >
+            <AlertCircle size={16} className="shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
         )}
 
         <div className="space-y-3 mb-6 text-left text-sm" style={{ color: INK_SOFT }}>
-          <div className="flex items-center gap-2"><CheckCircle2 size={16} style={{ color: SEAL }} /><span>3 petições completas inclusas</span></div>
-          <div className="flex items-center gap-2"><CheckCircle2 size={16} style={{ color: SEAL }} /><span>Calculadora de valores</span></div>
-          <div className="flex items-center gap-2"><CheckCircle2 size={16} style={{ color: SEAL }} /><span>Checklist de provas</span></div>
-          <div className="flex items-center gap-2"><CheckCircle2 size={16} style={{ color: SEAL }} /><span>Garantia de 7 dias</span></div>
-          <div className="flex items-center gap-2"><CheckCircle2 size={16} style={{ color: SEAL }} /><span>Pix ou cartão via Stripe</span></div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 size={16} style={{ color: SEAL }} />
+            <span>3 petições completas inclusas</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 size={16} style={{ color: SEAL }} />
+            <span>Calculadora de valores</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 size={16} style={{ color: SEAL }} />
+            <span>Checklist de provas</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 size={16} style={{ color: SEAL }} />
+            <span>Garantia de 7 dias</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 size={16} style={{ color: SEAL }} />
+            <span>Pix ou cartão via Stripe</span>
+          </div>
         </div>
 
-        <div className="mb-6 p-3 rounded-xl border text-left text-xs" style={{ borderColor: "#E5E0D4", color: INK_SOFT }}>
-          <p className="font-semibold mb-1" style={{ color: INK }}>Primex Sistemas LTDA</p>
+        <div
+          className="mb-6 p-3 rounded-xl border text-left text-xs"
+          style={{ borderColor: "#E5E0D4", color: INK_SOFT }}
+        >
+          <p className="font-semibold mb-1" style={{ color: INK }}>
+            Primex Sistemas LTDA
+          </p>
           <p>CNPJ {CNPJ}</p>
           <p className="mt-1">Software de documento · não é advocacia</p>
         </div>
@@ -111,15 +160,24 @@ function PagamentoContent() {
           style={{ backgroundColor: SEAL, color: "#FFF" }}
         >
           {checkoutLoading ? (
-            <><Loader2 size={18} className="animate-spin" /> Abrindo pagamento...</>
+            <>
+              <Loader2 size={18} className="animate-spin" /> Abrindo pagamento...
+            </>
           ) : (
-            <>Pagar R$ 137 · Pix ou cartão <ArrowRight size={18} /></>
+            <>
+              Pagar R$ 137 · Pix ou cartão <ArrowRight size={18} />
+            </>
           )}
         </button>
         <p className="text-xs mt-4" style={{ color: INK_SOFT }}>
           Pagamento seguro via Stripe. Acesso liberado automaticamente após a confirmação.
         </p>
-        <button type="button" onClick={() => router.push("/")} className="mt-6 text-xs hover:underline" style={{ color: INK_SOFT }}>
+        <button
+          type="button"
+          onClick={() => router.push("/")}
+          className="mt-6 text-xs hover:underline"
+          style={{ color: INK_SOFT }}
+        >
           ← Voltar ao início
         </button>
       </div>

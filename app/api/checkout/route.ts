@@ -1,21 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { createClient } from "@supabase/supabase-js";
+import { getSession } from "../../lib/auth";
 
 function getStripe() {
   const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) {
-    throw new Error("STRIPE_SECRET_KEY não configurada");
-  }
+  if (!key) throw new Error("STRIPE_SECRET_KEY não configurada");
   return new Stripe(key);
-}
-
-function getSupabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  );
 }
 
 export async function POST(request: NextRequest) {
@@ -28,14 +18,15 @@ export async function POST(request: NextRequest) {
     }
 
     const stripe = getStripe();
-    const supabaseAdmin = getSupabaseAdmin();
+    const body = await request.json().catch(() => ({}));
 
-    const body = await request.json();
-    const userId = String(body.user_id ?? "").trim();
-    const email = String(body.email ?? "").trim();
+    // Prefer session cookie; fallback body for compatibility
+    const sessionUser = await getSession();
+    const userId = sessionUser?.id || String(body.user_id ?? "").trim();
+    const email = sessionUser?.email || String(body.email ?? "").trim();
 
     if (!userId) {
-      return NextResponse.json({ error: "user_id obrigatório" }, { status: 400 });
+      return NextResponse.json({ error: "Faça login antes de pagar" }, { status: 401 });
     }
 
     const origin =
@@ -43,30 +34,19 @@ export async function POST(request: NextRequest) {
       process.env.NEXT_PUBLIC_SITE_URL ||
       "https://recuperajogo.vercel.app";
 
-    const { data: existing } = await supabaseAdmin
-      .from("subscriptions")
-      .select("id, status")
-      .eq("user_id", userId)
-      .maybeSingle();
-
-    if (!existing) {
-      const { error: insertError } = await supabaseAdmin.from("subscriptions").insert({
-        user_id: userId,
-        status: "pending",
-        peticoes_usadas: 0,
-      });
-      if (insertError) console.error("Erro ao criar subscription pending:", insertError);
-    }
-
     const priceId = process.env.STRIPE_PRICE_ID;
     const unitAmount = 13700;
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: "payment",
       payment_method_types: ["card", "pix"],
-      customer_email: email || undefined,
+      customer: userId.startsWith("cus_") ? userId : undefined,
+      customer_email: userId.startsWith("cus_") ? undefined : email || undefined,
       client_reference_id: userId,
-      metadata: { user_id: userId, product: "recuperajogo_acesso_completo" },
+      metadata: {
+        user_id: userId,
+        product: "recuperajogo_acesso_completo",
+      },
       line_items: priceId
         ? [{ price: priceId, quantity: 1 }]
         : [
@@ -84,7 +64,7 @@ export async function POST(request: NextRequest) {
             },
           ],
       success_url: `${origin}/obrigado?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/pagamento?user_id=${userId}&canceled=1`,
+      cancel_url: `${origin}/pagamento?canceled=1`,
       locale: "pt-BR",
     };
 

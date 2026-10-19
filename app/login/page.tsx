@@ -3,7 +3,6 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
-import { supabase, isSupabaseConfigured } from "./supabase";
 
 const INK = "#0F1C2E";
 const INK_SOFT = "#4A5B6E";
@@ -11,26 +10,6 @@ const PAPER_LINE = "#E6E1D6";
 const SEAL = "#1B6B4A";
 const AMBER_BG = "#FBF1DD";
 const AMBER_BORDER = "#D8B368";
-
-function mapAuthError(message: string): string {
-  const m = message.toLowerCase();
-  if (m.includes("failed to fetch") || m.includes("networkerror") || m.includes("fetch")) {
-    return "Não foi possível conectar ao servidor de autenticação. Verifique sua internet ou se o Supabase está configurado na Vercel (NEXT_PUBLIC_SUPABASE_URL e ANON_KEY como Plain + Redeploy).";
-  }
-  if (m.includes("invalid login credentials")) {
-    return "E-mail ou senha incorretos.";
-  }
-  if (m.includes("user already registered") || m.includes("already been registered")) {
-    return "Este e-mail já tem conta. Faça login.";
-  }
-  if (m.includes("password") && m.includes("6")) {
-    return "A senha precisa ter pelo menos 6 caracteres.";
-  }
-  if (m.includes("email")) {
-    return message;
-  }
-  return message;
-}
 
 function LoginForm() {
   const router = useRouter();
@@ -49,80 +28,33 @@ function LoginForm() {
     setLoading(true);
     setMessage("");
 
-    if (!isSupabaseConfigured) {
-      setMessage(
-        "Autenticação não configurada: defina NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY na Vercel como Plain (não Sensitive) e faça Redeploy."
-      );
-      setMessageType("error");
-      setLoading(false);
-      return;
-    }
-
     try {
-      if (isLogin) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password: password.trim(),
-        });
+      const endpoint = isLogin ? "/api/auth/login" : "/api/auth/signup";
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+      const data = await res.json();
 
-        if (error) {
-          setMessage("Erro: " + mapAuthError(error.message));
-          setMessageType("error");
-          setLoading(false);
-          return;
-        }
+      if (!res.ok) {
+        setMessage("Erro: " + (data.error || "Falha na autenticação"));
+        setMessageType("error");
+        setLoading(false);
+        return;
+      }
 
-        setMessage("Login realizado! Verificando acesso...");
-        setMessageType("success");
+      setMessage(isLogin ? "Login realizado!" : "Conta criada!");
+      setMessageType("success");
 
-        const { data: subscription, error: subError } = await supabase
-          .from("subscriptions")
-          .select("status")
-          .eq("user_id", data.user!.id)
-          .maybeSingle();
-
-        if (subError || !subscription || subscription.status !== "active") {
-          router.replace(`/pagamento?user_id=${data.user!.id}`);
-        } else {
-          router.replace(redirect);
-        }
+      if (data.status === "active") {
+        router.replace(redirect.startsWith("/") ? redirect : "/gerador");
       } else {
-        if (password.trim().length < 6) {
-          setMessage("Erro: a senha precisa ter pelo menos 6 caracteres.");
-          setMessageType("error");
-          setLoading(false);
-          return;
-        }
-
-        const { data, error } = await supabase.auth.signUp({
-          email: email.trim(),
-          password: password.trim(),
-        });
-
-        if (error) {
-          setMessage("Erro: " + mapAuthError(error.message));
-          setMessageType("error");
-          setLoading(false);
-          return;
-        }
-
-        // Se confirmação de e-mail estiver desligada no Supabase, já vem session
-        if (data.session) {
-          setMessage("Conta criada! Redirecionando...");
-          setMessageType("success");
-          router.replace(`/pagamento?user_id=${data.user!.id}`);
-        } else {
-          setMessage(
-            "Conta criada. Se o projeto exigir confirmação de e-mail, abra o link na caixa de entrada e depois faça login."
-          );
-          setMessageType("success");
-          setIsLogin(true);
-          setLoading(false);
-        }
+        router.replace(`/pagamento?user_id=${data.user.id}`);
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Erro inesperado";
-      setMessage("Erro: " + mapAuthError(msg));
+      const msg = err instanceof Error ? err.message : "Erro de rede";
+      setMessage("Erro: " + msg);
       setMessageType("error");
       setLoading(false);
     }
@@ -147,21 +79,6 @@ function LoginForm() {
           {isLogin ? "Acesse o gerador de petição" : "Cadastro rápido para pagar e gerar"}
         </p>
       </div>
-
-      {!isSupabaseConfigured && (
-        <div
-          className="mb-4 p-3 rounded-xl text-sm border flex gap-2 items-start"
-          style={{ backgroundColor: "#FEF2F2", borderColor: "#FECACA", color: "#991B1B" }}
-        >
-          <AlertCircle size={18} className="shrink-0 mt-0.5" />
-          <span>
-            Supabase não está no bundle do site. Na Vercel, as variáveis{" "}
-            <code className="text-xs">NEXT_PUBLIC_SUPABASE_URL</code> e{" "}
-            <code className="text-xs">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> precisam ser{" "}
-            <strong>Plain</strong> (não Sensitive) e é necessário Redeploy.
-          </span>
-        </div>
-      )}
 
       <form onSubmit={handleAuth} className="space-y-4">
         <div>
