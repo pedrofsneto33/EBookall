@@ -258,13 +258,13 @@ export default function LandingPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-[#05080C] via-[#05080C]/70 to-transparent" />
                   <div className="absolute inset-0 bg-emerald-900/20 mix-blend-overlay" />
                   <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-emerald-400 mb-2">
-                      Prova real · sentença
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-white/45 mb-2">
+                      Sentença · Juizado Especial Cível
                     </p>
-                    <p className="text-xl font-bold leading-snug">
-                      SortenaBet condenada · R$ 3.000
-                      <span className="block text-white/60 font-medium text-base mt-1">
-                        Autoexclusão furada. Juizado Especial · Teresina/PI. CDC art. 14.
+                    <p className="text-lg font-semibold leading-snug text-white">
+                      Dano moral de R$ 3.000 reconhecido
+                      <span className="block text-white/50 font-normal text-sm mt-1.5 leading-relaxed">
+                        Autoexclusão descumprida · CDC art. 14 · Teresina/PI
                       </span>
                     </p>
                   </div>
@@ -358,20 +358,15 @@ export default function LandingPage() {
               }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#05080C] via-transparent to-[#05080C]/40" />
-            <a
-              href="#prova"
-              className="absolute inset-0 flex flex-col items-center justify-center gap-4"
-            >
+            <a href="#prova" className="absolute inset-0 flex flex-col items-center justify-center gap-4">
               <span className="w-16 h-16 rounded-full bg-emerald-500 text-[#05080C] flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.5)] group-hover:scale-110 transition-transform">
                 <Play size={28} fill="currentColor" />
               </span>
-              <span className="text-sm font-semibold text-white/80">
-                Ver a sentença real (dados tarjados)
-              </span>
+              <span className="text-sm font-semibold text-white/80">Ver a sentença (dados omitidos)</span>
             </a>
           </div>
           <p className="text-center text-xs text-white/35 mt-4">
-            Resumo da sentença na seção Prova. Quando houver YouTube, encaixamos o embed aqui.
+            Resumo na seção Prova. Quando houver vídeo no YouTube, o embed entra aqui.
           </p>
         </div>
       </section>
