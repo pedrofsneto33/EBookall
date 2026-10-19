@@ -18,6 +18,8 @@ import {
   Gavel,
 } from "lucide-react";
 import ProvaReal from "./components/ProvaReal";
+import ImpactoSocial from "./components/ImpactoSocial";
+import EmpresaPrimex from "./components/EmpresaPrimex";
 
 const WHATSAPP = "5586988117925";
 const WHATSAPP_MSG = encodeURIComponent(
@@ -60,7 +62,7 @@ const PASSOS = [
 const FAQ = [
   {
     q: "Isso é escritório de advocacia?",
-    a: "Não. É software da Primex Sistemas. Eu já ganhei petições contra bets — e montei a ferramenta para você montar o rascunho, revisar e protocolar em nome próprio no Juizado Especial.",
+    a: "Não. É software da Primex Sistemas LTDA (primexsistemas.com), CNPJ 55.536.885/0001-30. Eu já ganhei petições contra bets — e montei a ferramenta para você montar o rascunho, revisar e protocolar em nome próprio no Juizado Especial.",
   },
   {
     q: "Como pago?",
@@ -165,8 +167,9 @@ export default function LandingPage() {
             <span className="font-semibold text-[15px] tracking-tight">RecuperaJogo</span>
           </a>
           <nav className="hidden md:flex items-center gap-7 text-sm text-white/55">
-            <a href="#historia" className="hover:text-white transition-colors">História</a>
+            <a href="#impacto" className="hover:text-white transition-colors">Impacto</a>
             <a href="#prova" className="hover:text-white transition-colors">Prova</a>
+            <a href="#empresa" className="hover:text-white transition-colors">Empresa</a>
             <a href="#como" className="hover:text-white transition-colors">Como funciona</a>
             <a href="#preco" className="hover:text-white transition-colors">Preço</a>
             <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
@@ -280,9 +283,14 @@ export default function LandingPage() {
 
       <section className="relative z-10 border-y border-white/8 bg-white/[0.02]">
         <div className="max-w-6xl mx-auto px-4 py-5 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-xs sm:text-sm text-white/45">
-          <span>
+          <a
+            href="https://www.primexsistemas.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-emerald-400 transition-colors"
+          >
             Primex Sistemas · CNPJ <strong className="text-white/70">{CNPJ_DISPLAY}</strong>
-          </span>
+          </a>
           <span className="hidden sm:inline text-white/20">|</span>
           <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">
             WhatsApp (86) 98811-7925
@@ -291,6 +299,8 @@ export default function LandingPage() {
           <span>Software · não advocacia</span>
         </div>
       </section>
+
+      <ImpactoSocial />
 
       <section id="historia" className="relative z-10 px-4 py-20 md:py-28">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
@@ -338,6 +348,8 @@ export default function LandingPage() {
       </section>
 
       <ProvaReal />
+
+      <EmpresaPrimex />
 
       <section className="relative z-10 px-4 pb-20 md:pb-28">
         <div className="max-w-4xl mx-auto">
@@ -535,14 +547,23 @@ export default function LandingPage() {
               <span className="font-semibold">RecuperaJogo</span>
             </div>
             <p className="text-xs text-white/40 max-w-sm leading-relaxed">
-              Software da PRIMEX SISTEMAS LTDA · CNPJ {CNPJ_DISPLAY}. Não é sociedade de advogados.
-              Não promete resultado judicial.
+              Software da{" "}
+              <a
+                href="https://www.primexsistemas.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/70 hover:text-emerald-400 underline underline-offset-2"
+              >
+                PRIMEX SISTEMAS LTDA
+              </a>{" "}
+              · CNPJ {CNPJ_DISPLAY}. Não é sociedade de advogados. Não promete resultado judicial.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-6 text-sm text-white/45">
             <a href="/guia" className="hover:text-white transition-colors">Guia</a>
             <a href="/calculadora" className="hover:text-white transition-colors">Calculadora</a>
             <a href="/politica-privacidade" className="hover:text-white transition-colors">Privacidade</a>
+            <a href="https://www.primexsistemas.com" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">Primex</a>
             <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">WhatsApp</a>
             <a href="/login" className="hover:text-white transition-colors">Entrar</a>
           </div>
