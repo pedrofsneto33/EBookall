@@ -1,20 +1,21 @@
 # RecuperaJogo
 
-Ferramenta de automação de petições para Juizado Especial Cível (jus postulandi), focada em casos de **autoexclusão violada** e **ludopatia** no setor de apostas (Lei 14.790/2023 + CDC).
+Gerador de **rascunho de petição** para Juizado Especial Cível (jus postulandi) em casos contra casas de apostas (autoexclusão violada, falha de serviço, CDC).
 
-**Produção:** https://recuperajogo.vercel.app
+**Produção:** https://recuperajogo.vercel.app  
+**Empresa:** Primex Sistemas LTDA · CNPJ 55.536.885/0001-30 · https://www.primexsistemas.com
 
-> **Aviso:** isto **não** é assessoria jurídica. O usuário revisa e protocola em nome próprio.
+> **Não é advocacia.** Não promete resultado judicial. O usuário revisa e protocola em nome próprio.
 
 ## Stack
 
-- Next.js (App Router) + TypeScript + Tailwind
-- Supabase (Auth + tabelas `subscriptions` / `leads`)
-- Stripe Checkout Session (pagamento único)
-- `@react-pdf/renderer` (PDF da petição)
+- Next.js (App Router) + TypeScript + Tailwind CSS v4
+- Supabase (Auth + `subscriptions` + `leads`)
+- Stripe Checkout (Pix + cartão, pagamento único R$ 137)
+- `@react-pdf/renderer` (PDF)
 - Resend (notificação de leads)
 
-## Configuração
+## Setup
 
 ```bash
 cp .env.example .env.local
@@ -22,62 +23,44 @@ npm install
 npm run dev
 ```
 
-### Variáveis obrigatórias
+## Variáveis
 
 | Variável | Uso |
 |----------|-----|
 | `NEXT_PUBLIC_SUPABASE_URL` | Auth + DB |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Cliente browser |
-| `SUPABASE_SERVICE_ROLE_KEY` | Webhook / upsert de subscription |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Cliente |
+| `SUPABASE_SERVICE_ROLE_KEY` | Webhook / ensure subscription |
 | `STRIPE_SECRET_KEY` | Checkout Session |
 | `STRIPE_WEBHOOK_SECRET` | Validação do webhook |
-| `NEXT_PUBLIC_SITE_URL` | URLs de success/cancel |
+| `STRIPE_PRICE_ID` | (opcional) Price fixo |
+| `NEXT_PUBLIC_SITE_URL` | success/cancel + SEO |
+| `RESEND_API_KEY` | E-mail de leads |
+| `RESEND_FROM` | Remetente |
+| `LEADS_NOTIFY_EMAIL` | Destino da notificação |
+| `NEXT_PUBLIC_VIDEO_URL` | (opcional) embed da seção vídeo |
 
-### Schema sugerido (Supabase)
+## Fluxo de pagamento
 
-```sql
-create table if not exists public.subscriptions (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
-  status text not null default 'pending',
-  peticoes_usadas int not null default 0,
-  payment_provider_id text,
-  current_period_end timestamptz,
-  created_at timestamptz default now(),
-  unique (user_id)
-);
+1. Usuário faz login (`/login`)
+2. `/pagamento` → `POST /api/checkout` → Stripe Checkout (Pix ou cartão)
+3. Webhook `checkout.session.completed` → upsert `subscriptions.status = active`
+4. Redirect `/obrigado` → `/gerador` (até 3 petições)
 
-create table if not exists public.leads (
-  id uuid primary key default gen_random_uuid(),
-  email text not null,
-  nome text,
-  whatsapp text,
-  origem text default 'guia',
-  created_at timestamptz default now()
-);
+Endpoint do webhook: `https://SEU_DOMINIO/api/webhook`  
+Evento: `checkout.session.completed`
 
-alter table public.subscriptions enable row level security;
-create policy "own sub select" on public.subscriptions
-  for select using (auth.uid() = user_id);
+## Deploy checklist
+
+- [ ] Env vars na Vercel
+- [ ] Webhook Stripe apontando para produção
+- [ ] Supabase: tabelas + RLS em `subscriptions` e `leads`
+- [ ] Testar checkout + webhook em modo live
+- [ ] (Opcional) Prints/PDF tarjados em `/public/docs` e lista em `ProvaReal.tsx`
+- [ ] (Opcional) `NEXT_PUBLIC_VIDEO_URL` e links de fontes em `ImpactoSocial.tsx`
+
+## Scripts
+
+```bash
+npm run build
+npm run lint
 ```
-
-### Webhook Stripe
-
-1. Endpoint: `https://SEU_DOMINIO/api/webhook`
-2. Evento: `checkout.session.completed`
-3. Secret em `STRIPE_WEBHOOK_SECRET`
-
-O checkout envia `metadata.user_id` e o webhook faz **upsert** (corrige o bug do UPDATE sem linha).
-
-## Fluxo
-
-1. Login → garante subscription `pending`
-2. `/pagamento` → `/api/checkout` → Stripe
-3. Webhook → `status = active`
-4. `/obrigado` → `/gerador` (até 3 petições)
-
-## Commits recentes de correção
-
-- Checkout Session autenticado (substitui Payment Link estático)
-- Webhook TypeScript com upsert
-- API `/api/subscription/ensure`
