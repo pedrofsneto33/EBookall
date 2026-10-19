@@ -7,28 +7,32 @@ export function getStripe() {
     throw new Error("STRIPE_SECRET_KEY inválida (deve começar com sk_test_ ou sk_live_)");
   }
   return new Stripe(key, {
-    timeout: 20000,
-    maxNetworkRetries: 2,
+    timeout: 15000,
+    maxNetworkRetries: 1,
   });
 }
 
 export type AccessStatus = "pending" | "active";
 
-/** Verifica se o e-mail já pagou (checkout completo). Não cria Customer. */
+/** Verifica pagamento. Nunca lança — retorna false se Stripe falhar. */
 export async function hasPaidAccess(email: string): Promise<boolean> {
   try {
     const stripe = getStripe();
-    const sessions = await stripe.checkout.sessions.list({
-      limit: 20,
-      status: "complete",
-    });
     const target = email.toLowerCase().trim();
+
+    // Busca sessions recentes complete
+    const sessions = await stripe.checkout.sessions.list({
+      limit: 30,
+    });
+
     return sessions.data.some((s) => {
+      if (s.status !== "complete" && s.payment_status !== "paid") return false;
       const e =
         s.customer_details?.email?.toLowerCase() ||
         s.customer_email?.toLowerCase() ||
+        s.metadata?.email?.toLowerCase() ||
         "";
-      return e === target && s.payment_status === "paid";
+      return e === target;
     });
   } catch (e) {
     console.error("hasPaidAccess Stripe error:", e);
@@ -36,9 +40,7 @@ export async function hasPaidAccess(email: string): Promise<boolean> {
   }
 }
 
-/** Marca acesso via metadata do Checkout (já pago). Fallback: busca por e-mail. */
 export async function activateBySession(session: Stripe.Checkout.Session) {
-  // Só loga — o status ativo é derivado de sessions complete + e-mail.
   console.log("Pagamento confirmado", {
     id: session.id,
     email: session.customer_details?.email ?? session.customer_email,
@@ -48,10 +50,10 @@ export async function activateBySession(session: Stripe.Checkout.Session) {
 export function mapStripeError(err: unknown): string {
   const msg = err instanceof Error ? err.message : String(err);
   if (msg.includes("Invalid API Key") || msg.includes("Invalid API key")) {
-    return "Chave Stripe inválida. Confira STRIPE_SECRET_KEY na Vercel (sk_live_ ou sk_test_)."
+    return "Chave Stripe inválida. Confira STRIPE_SECRET_KEY na Vercel.";
   }
-  if (msg.includes("connection to Stripe") || msg.includes("network")) {
-    return "Falha de conexão com o Stripe. Tente de novo em instantes ou confira a chave na Vercel."
+  if (msg.includes("connection to Stripe") || msg.toLowerCase().includes("network")) {
+    return "Falha de conexão com o Stripe. Verifique STRIPE_SECRET_KEY ou tente de novo.";
   }
   return msg;
 }

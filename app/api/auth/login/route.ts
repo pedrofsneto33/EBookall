@@ -4,11 +4,9 @@ import {
   setSessionCookie,
   userIdFromEmail,
 } from "../../../lib/auth";
-import { hasPaidAccess } from "../../../lib/stripe-users";
 
 export const runtime = "nodejs";
 
-/** Login = mesma sessão por e-mail (zero Stripe na autenticação). */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -19,24 +17,11 @@ export async function POST(request: NextRequest) {
 
     const user = { id: userIdFromEmail(email), email };
     const token = await createSessionToken(user);
-
-    let status: "pending" | "active" = "pending";
-    try {
-      status = (await hasPaidAccess(email)) ? "active" : "pending";
-    } catch {
-      status = "pending";
-    }
-
-    const res = NextResponse.json({
-      ok: true,
-      user,
-      status,
-    });
+    const res = NextResponse.json({ ok: true, user, status: "pending" });
     setSessionCookie(res, token);
     return res;
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Erro";
-    console.error("login:", message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

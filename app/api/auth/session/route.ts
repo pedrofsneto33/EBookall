@@ -4,16 +4,22 @@ import {
   setSessionCookie,
   userIdFromEmail,
 } from "../../../lib/auth";
-import { hasPaidAccess } from "../../../lib/stripe-users";
 
 export const runtime = "nodejs";
 
 /**
- * Cria sessão só com e-mail (sem Stripe, sem senha, sem e-mail mágico).
- * Acesso ao gerador continua exigindo pagamento confirmado.
+ * Cria sessão só com e-mail.
+ * NÃO chama Stripe aqui (evita timeout/connection error no cadastro).
  */
 export async function POST(request: NextRequest) {
   try {
+    if (!process.env.AUTH_SECRET && !process.env.STRIPE_SECRET_KEY) {
+      return NextResponse.json(
+        { error: "AUTH_SECRET não configurada na Vercel" },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
     const email = String(body.email ?? "").trim().toLowerCase();
     if (!email || !email.includes("@")) {
@@ -23,17 +29,10 @@ export async function POST(request: NextRequest) {
     const user = { id: userIdFromEmail(email), email };
     const token = await createSessionToken(user);
 
-    let status: "pending" | "active" = "pending";
-    try {
-      status = (await hasPaidAccess(email)) ? "active" : "pending";
-    } catch {
-      status = "pending";
-    }
-
     const res = NextResponse.json({
       ok: true,
       user,
-      status,
+      status: "pending",
     });
     setSessionCookie(res, token);
     return res;
