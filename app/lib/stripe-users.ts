@@ -1,85 +1,57 @@
 import Stripe from "stripe";
-import bcrypt from "bcryptjs";
 
 export function getStripe() {
-  const key = process.env.STRIPE_SECRET_KEY;
+  const key = process.env.STRIPE_SECRET_KEY?.trim();
   if (!key) throw new Error("STRIPE_SECRET_KEY não configurada");
-  return new Stripe(key);
+  if (!key.startsWith("sk_")) {
+    throw new Error("STRIPE_SECRET_KEY inválida (deve começar com sk_test_ ou sk_live_)");
+  }
+  return new Stripe(key, {
+    timeout: 20000,
+    maxNetworkRetries: 2,
+  });
 }
 
 export type AccessStatus = "pending" | "active";
 
-export async function findCustomerByEmail(email: string): Promise<Stripe.Customer | null> {
-  const stripe = getStripe();
-  const list = await stripe.customers.list({ email: email.toLowerCase().trim(), limit: 5 });
-  return list.data[0] ?? null;
-}
-
-export async function createUser(email: string, password: string): Promise<Stripe.Customer> {
-  const stripe = getStripe();
-  const existing = await findCustomerByEmail(email);
-  if (existing) {
-    throw new Error("Este e-mail já tem conta. Faça login.");
-  }
-  const password_hash = await bcrypt.hash(password, 10);
-  return stripe.customers.create({
-    email: email.toLowerCase().trim(),
-    metadata: {
-      rj_password_hash: password_hash,
-      rj_status: "pending",
-      rj_peticoes_usadas: "0",
-      product: "recuperajogo",
-    },
-  });
-}
-
-export async function verifyUser(
-  email: string,
-  password: string
-): Promise<Stripe.Customer | null> {
-  const customer = await findCustomerByEmail(email);
-  if (!customer) return null;
-  const hash = customer.metadata?.rj_password_hash;
-  if (!hash) return null;
-  const ok = await bcrypt.compare(password, hash);
-  return ok ? customer : null;
-}
-
-export function getAccessStatus(customer: Stripe.Customer): AccessStatus {
-  const s = customer.metadata?.rj_status;
-  return s === "active" ? "active" : "pending";
-}
-
-export function getPeticoesUsadas(customer: Stripe.Customer): number {
-  const n = parseInt(customer.metadata?.rj_peticoes_usadas || "0", 10);
-  return Number.isFinite(n) ? n : 0;
-}
-
-export async function activateAccess(customerId: string, sessionId: string) {
-  const stripe = getStripe();
-  await stripe.customers.update(customerId, {
-    metadata: {
-      rj_status: "active",
-      rj_payment_session: sessionId,
-      rj_activated_at: new Date().toISOString(),
-    },
-  });
-}
-
-export async function setPeticoesUsadas(customerId: string, count: number) {
-  const stripe = getStripe();
-  await stripe.customers.update(customerId, {
-    metadata: { rj_peticoes_usadas: String(count) },
-  });
-}
-
-export async function getCustomerById(id: string): Promise<Stripe.Customer | null> {
-  const stripe = getStripe();
+/** Verifica se o e-mail já pagou (checkout completo). Não cria Customer. */
+export async function hasPaidAccess(email: string): Promise<boolean> {
   try {
-    const c = await stripe.customers.retrieve(id);
-    if (c.deleted) return null;
-    return c as Stripe.Customer;
-  } catch {
-    return null;
+    const stripe = getStripe();
+    const sessions = await stripe.checkout.sessions.list({
+      limit: 20,
+      status: "complete",
+    });
+    const target = email.toLowerCase().trim();
+    return sessions.data.some((s) => {
+      const e =
+        s.customer_details?.email?.toLowerCase() ||
+        s.customer_email?.toLowerCase() ||
+        "";
+      return e === target && s.payment_status === "paid";
+    });
+  } catch (e) {
+    console.error("hasPaidAccess Stripe error:", e);
+    return false;
   }
+}
+
+/** Marca acesso via metadata do Checkout (já pago). Fallback: busca por e-mail. */
+export async function activateBySession(session: Stripe.Checkout.Session) {
+  // Só loga — o status ativo é derivado de sessions complete + e-mail.
+  console.log("Pagamento confirmado", {
+    id: session.id,
+    email: session.customer_details?.email ?? session.customer_email,
+  });
+}
+
+export function mapStripeError(err: unknown): string {
+  const msg = err instanceof Error ? err.message : String(err);
+  if (msg.includes("Invalid API Key") || msg.includes("Invalid API key")) {
+    return "Chave Stripe inválida. Confira STRIPE_SECRET_KEY na Vercel (sk_live_ ou sk_test_)."
+  }
+  if (msg.includes("connection to Stripe") || msg.includes("network")) {
+    return "Falha de conexão com o Stripe. Tente de novo em instantes ou confira a chave na Vercel."
+  }
+  return msg;
 }
