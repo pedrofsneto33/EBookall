@@ -2,19 +2,33 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "");
+function getStripe() {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) {
+    throw new Error("STRIPE_SECRET_KEY não configurada");
+  }
+  return new Stripe(key);
+}
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
-  { auth: { autoRefreshToken: false, persistSession: false } }
-);
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+}
 
 export async function POST(request: NextRequest) {
   try {
     if (!process.env.STRIPE_SECRET_KEY) {
-      return NextResponse.json({ error: "Stripe não configurado (STRIPE_SECRET_KEY)" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Stripe não configurado (STRIPE_SECRET_KEY)" },
+        { status: 500 }
+      );
     }
+
+    const stripe = getStripe();
+    const supabaseAdmin = getSupabaseAdmin();
 
     const body = await request.json();
     const userId = String(body.user_id ?? "").trim();
@@ -54,17 +68,20 @@ export async function POST(request: NextRequest) {
       metadata: { user_id: userId, product: "recuperajogo_acesso_completo" },
       line_items: priceId
         ? [{ price: priceId, quantity: 1 }]
-        : [{
-            quantity: 1,
-            price_data: {
-              currency: "brl",
-              unit_amount: unitAmount,
-              product_data: {
-                name: "RecuperaJogo — Acesso Completo",
-                description: "3 petições + calculadora + checklist · pagamento único · acesso vitalício",
+        : [
+            {
+              quantity: 1,
+              price_data: {
+                currency: "brl",
+                unit_amount: unitAmount,
+                product_data: {
+                  name: "RecuperaJogo — Acesso Completo",
+                  description:
+                    "3 petições + calculadora + checklist · pagamento único · acesso vitalício",
+                },
               },
             },
-          }],
+          ],
       success_url: `${origin}/obrigado?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/pagamento?user_id=${userId}&canceled=1`,
       locale: "pt-BR",
