@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * NEXT_PUBLIC_* precisa estar como Plain (não Sensitive) na Vercel,
@@ -15,13 +15,12 @@ export const isSupabaseConfigured =
 
 function createBrowserClient(): SupabaseClient {
   if (!isSupabaseConfigured) {
-    // Client “dummy” evita crash no import; as chamadas de auth falham com mensagem clara.
     console.error(
       "[RecuperaJogo] NEXT_PUBLIC_SUPABASE_URL / ANON_KEY ausentes no bundle. " +
         "Na Vercel: coloque essas variáveis como Plain (não Sensitive) e faça Redeploy."
     );
   }
-  return createClient(
+  return createSupabaseClient(
     supabaseUrl || "https://placeholder.supabase.co",
     supabaseAnonKey || "placeholder-anon-key",
     {
@@ -36,7 +35,7 @@ function createBrowserClient(): SupabaseClient {
 
 export const supabase = createBrowserClient();
 
-/** Compatível com imports que usam createClient() como factory. */
-export function createClientBrowser() {
+/** Factory usada por /pagamento e outras páginas. */
+export function createClient() {
   return supabase;
 }
