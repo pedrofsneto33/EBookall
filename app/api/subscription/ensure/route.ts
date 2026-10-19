@@ -1,30 +1,26 @@
 import { NextResponse } from "next/server";
 import { getSession } from "../../../lib/auth";
-import {
-  getCustomerById,
-  getAccessStatus,
-  getPeticoesUsadas,
-} from "../../../lib/stripe-users";
+import { hasPaidAccess } from "../../../lib/stripe-users";
 
 export const runtime = "nodejs";
 
-/** Compat: retorna status do acesso via Stripe Customer metadata. */
 export async function POST() {
   try {
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
-    const customer = await getCustomerById(session.id);
-    if (!customer) {
-      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
+    let status: "pending" | "active" = "pending";
+    try {
+      status = (await hasPaidAccess(session.email)) ? "active" : "pending";
+    } catch {
+      status = "pending";
     }
-    const status = getAccessStatus(customer);
     return NextResponse.json({
       subscription: {
         id: session.id,
         status,
-        peticoes_usadas: getPeticoesUsadas(customer),
+        peticoes_usadas: 0,
       },
       created: false,
     });

@@ -12,19 +12,16 @@ export async function GET() {
     }
 
     let status: "pending" | "active" = "pending";
-    let peticoes_usadas = 0;
     try {
-      const paid = await hasPaidAccess(session.email);
-      status = paid ? "active" : "pending";
-    } catch (e) {
-      console.error("me/hasPaidAccess:", e);
+      status = (await hasPaidAccess(session.email)) ? "active" : "pending";
+    } catch {
+      status = "pending";
     }
 
-    // contagem local no cookie não existe — usa 0; gerador incrementa via API opcional
     return NextResponse.json({
       user: { id: session.id, email: session.email },
       status,
-      peticoes_usadas,
+      peticoes_usadas: 0,
     });
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Erro";

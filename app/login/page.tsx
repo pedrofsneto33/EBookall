@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, Suspense, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
-import { AlertCircle, CheckCircle2, ArrowRight, Loader2, Mail } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { AlertCircle, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
 
 const INK = "#0F1C2E";
 const INK_SOFT = "#4A5B6E";
@@ -12,20 +12,19 @@ const AMBER_BG = "#FBF1DD";
 const AMBER_BORDER = "#D8B368";
 
 function LoginForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") || searchParams.get("next") || "/gerador";
+
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error">("success");
-  const [devLink, setDevLink] = useState("");
 
   useEffect(() => {
     const err = searchParams.get("error");
-    if (err === "link_expirado") {
-      setMessage("Link expirado. Peça um novo abaixo.");
-      setMessageType("error");
-    } else if (err === "link_invalido") {
-      setMessage("Link inválido. Peça um novo abaixo.");
+    if (err) {
+      setMessage("Sessão expirada. Entre de novo com seu e-mail.");
       setMessageType("error");
     }
   }, [searchParams]);
@@ -34,10 +33,9 @@ function LoginForm() {
     e.preventDefault();
     setLoading(true);
     setMessage("");
-    setDevLink("");
 
     try {
-      const res = await fetch("/api/auth/request-link", {
+      const res = await fetch("/api/auth/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),
@@ -45,16 +43,20 @@ function LoginForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setMessage("Erro: " + (data.error || "Falha ao enviar"));
+        setMessage("Erro: " + (data.error || "Falha ao entrar"));
         setMessageType("error");
         setLoading(false);
         return;
       }
 
-      setMessage(data.message || "Link enviado! Confira seu e-mail.");
+      setMessage("Pronto! Redirecionando...");
       setMessageType("success");
-      if (data.devLink) setDevLink(data.devLink);
-      setLoading(false);
+
+      if (data.status === "active") {
+        router.replace(redirect.startsWith("/") ? redirect : "/gerador");
+      } else {
+        router.replace("/pagamento");
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Erro de rede";
       setMessage("Erro: " + msg);
@@ -76,10 +78,10 @@ function LoginForm() {
           RJ
         </div>
         <h1 className="text-xl font-bold" style={{ color: INK }}>
-          Entrar no RecuperaJogo
+          Entrar / Criar conta
         </h1>
         <p className="text-sm mt-1" style={{ color: INK_SOFT }}>
-          Enviamos um link mágico no seu e-mail — sem senha
+          Só o e-mail — sem senha e sem depender do Stripe no cadastro
         </p>
       </div>
 
@@ -115,17 +117,10 @@ function LoginForm() {
               <CheckCircle2 size={18} className="shrink-0 mt-0.5" />
             )}
             <span>{message}</span>
+            {loading && messageType === "success" && (
+              <Loader2 size={16} className="animate-spin ml-1 shrink-0" />
+            )}
           </div>
-        )}
-
-        {devLink && (
-          <a
-            href={devLink}
-            className="block text-sm font-semibold underline text-center"
-            style={{ color: SEAL }}
-          >
-            Abrir link de acesso (dev)
-          </a>
         )}
 
         <button
@@ -136,18 +131,18 @@ function LoginForm() {
         >
           {loading ? (
             <>
-              <Loader2 size={18} className="animate-spin" /> Enviando...
+              <Loader2 size={18} className="animate-spin" /> Entrando...
             </>
           ) : (
             <>
-              <Mail size={18} /> Receber link de acesso <ArrowRight size={18} />
+              Continuar <ArrowRight size={18} />
             </>
           )}
         </button>
       </form>
 
       <p className="text-xs text-center mt-6" style={{ color: INK_SOFT }}>
-        Após o link, você paga R$ 137 (Pix/cartão) e o gerador libera na hora.
+        Depois você paga R$ 137 (Pix/cartão) e o gerador libera automaticamente.
       </p>
 
       <div className="text-center mt-4">
