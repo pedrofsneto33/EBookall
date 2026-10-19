@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1100" viewBox="0 0 800 1100">
+  <rect width="800" height="1100" fill="#f7f4ef"/>
+  <rect x="40" y="40" width="720" height="1020" fill="#fffef9" stroke="#d4cfc4" stroke-width="1"/>
+  <text x="400" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="11" fill="#444" letter-spacing="1.5">PODER JUDICIÁRIO DO ESTADO DO PIAUÍ</text>
+  <text x="400" y="110" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#222" font-weight="600">Juizado Especial Cível · Comarca de Teresina</text>
+  <line x1="80" y1="130" x2="720" y2="130" stroke="#c8c2b6" stroke-width="0.8"/>
+  <text x="80" y="160" font-family="Arial, sans-serif" font-size="11" fill="#555">PROCESSO Nº:</text>
+  <rect x="175" y="147" width="280" height="18" rx="2" fill="#1a1a1a"/>
+  <text x="80" y="185" font-family="Arial, sans-serif" font-size="11" fill="#555">CLASSE: Procedimento do Juizado Especial Cível</text>
+  <text x="80" y="208" font-family="Arial, sans-serif" font-size="11" fill="#555">ASSUNTO: Repetição do indébito</text>
+  <text x="80" y="231" font-family="Arial, sans-serif" font-size="11" fill="#555">RÉ: SortenaBet Gaming Brasil S.A.</text>
+  <text x="80" y="254" font-family="Arial, sans-serif" font-size="11" fill="#555">AUTOR:</text>
+  <rect x="130" y="241" width="200" height="18" rx="2" fill="#1a1a1a"/>
+  <text x="400" y="295" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="700" fill="#111" letter-spacing="3">SENTENÇA</text>
+  <text x="80" y="335" font-family="Georgia, serif" font-size="12" font-weight="700" fill="#222">I – RELATÓRIO</text>
+  <text x="80" y="365" font-family="Georgia, serif" font-size="12" fill="#333">Dispensado o relatório circunstanciado, nos termos do art. 38</text>
+  <text x="80" y="385" font-family="Georgia, serif" font-size="12" fill="#333">da Lei nº 9.099/95, faço breve síntese dos fatos relevantes.</text>
+  <text x="80" y="420" font-family="Georgia, serif" font-size="12" fill="#333">Trata-se de ação em face de SortenaBet Gaming Brasil S.A.,</text>
+  <text x="80" y="440" font-family="Georgia, serif" font-size="12" fill="#333">na qual o autor alega que, após realizar autoexclusão</text>
+  <text x="80" y="460" font-family="Georgia, serif" font-size="12" fill="#333">centralizada, a requerida permitiu novo acesso, depósito e</text>
+  <text x="80" y="480" font-family="Georgia, serif" font-size="12" fill="#333">apostas no montante de R$ 380,00, postulando restituição</text>
+  <text x="80" y="500" font-family="Georgia, serif" font-size="12" fill="#333">e indenização por danos morais.</text>
+  <text x="80" y="540" font-family="Georgia, serif" font-size="12" font-weight="700" fill="#222">II – FUNDAMENTAÇÃO</text>
+  <text x="80" y="570" font-family="Georgia, serif" font-size="12" fill="#333">1. Da relação de consumo e da falha na prestação do serviço</text>
+  <text x="80" y="600" font-family="Georgia, serif" font-size="12" fill="#333">A relação jurídica é de consumo, incidindo as normas do CDC.</text>
+  <text x="80" y="620" font-family="Georgia, serif" font-size="12" fill="#333">Nos termos do art. 14 do CDC, o fornecedor responde,</text>
+  <text x="80" y="640" font-family="Georgia, serif" font-size="12" fill="#333">independentemente de culpa, pelos danos causados por</text>
+  <text x="80" y="660" font-family="Georgia, serif" font-size="12" fill="#333">defeitos relativos à prestação dos serviços.</text>
+  <text x="80" y="695" font-family="Georgia, serif" font-size="12" fill="#333">Restou demonstrado que o autor havia realizado autoexclusão</text>
+  <text x="80" y="715" font-family="Georgia, serif" font-size="12" fill="#333">centralizada e, apesar da restrição, a requerida permitiu</text>
+  <text x="80" y="735" font-family="Georgia, serif" font-size="12" fill="#333">acesso, depósito e apostas. A própria requerida reconheceu</text>
+  <text x="80" y="755" font-family="Georgia, serif" font-size="12" fill="#333">inconsistência operacional na integração de seus sistemas.</text>
+  <rect x="80" y="790" width="640" height="70" fill="#f0ebe3" stroke="#d4cfc4"/>
+  <text x="100" y="820" font-family="Georgia, serif" font-size="12" font-style="italic" fill="#444">“A falha atingiu diretamente o próprio mecanismo de proteção</text>
+  <text x="100" y="840" font-family="Georgia, serif" font-size="12" font-style="italic" fill="#444">que o consumidor havia utilizado…”</text>
+  <text x="80" y="900" font-family="Arial, sans-serif" font-size="10" fill="#888">Documento com dados sensíveis omitidos · uso ilustrativo no site</text>
+  <text x="80" y="980" font-family="Georgia, serif" font-size="11" fill="#666">Teresina/PI · assinado eletronicamente</text>
+  <text x="80" y="1005" font-family="Georgia, serif" font-size="11" fill="#666">Juiz(a) de Direito · 4º Juizado Especial Cível</text>
+</svg>

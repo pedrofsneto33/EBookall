@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600">
+  <rect width="900" height="600" rx="12" fill="#1a1d24"/>
+  <rect width="900" height="40" rx="12" fill="#2a2e38"/>
+  <rect y="28" width="900" height="12" fill="#2a2e38"/>
+  <circle cx="22" cy="20" r="6" fill="#ff5f57"/>
+  <circle cx="42" cy="20" r="6" fill="#febc2e"/>
+  <circle cx="62" cy="20" r="6" fill="#28c840"/>
+  <rect x="120" y="10" width="560" height="20" rx="4" fill="#12151b"/>
+  <text x="140" y="24" font-family="Arial, sans-serif" font-size="11" fill="#8a8f9a">app.casa-de-apostas.com / carteira</text>
+  <rect x="40" y="60" width="820" height="500" rx="8" fill="#0f1218"/>
+  <text x="70" y="110" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#e8eaed">Histórico de depósitos</text>
+  <text x="70" y="140" font-family="Arial, sans-serif" font-size="13" fill="#f85149">⚠ Conta com autoexclusão ativa — depósito indevido</text>
+  <rect x="70" y="170" width="760" height="1" fill="#2a2e38"/>
+  <text x="90" y="210" font-family="Arial, sans-serif" font-size="11" fill="#8b949e">DATA</text>
+  <text x="280" y="210" font-family="Arial, sans-serif" font-size="11" fill="#8b949e">TIPO</text>
+  <text x="480" y="210" font-family="Arial, sans-serif" font-size="11" fill="#8b949e">VALOR</text>
+  <text x="680" y="210" font-family="Arial, sans-serif" font-size="11" fill="#8b949e">STATUS</text>
+  <rect x="70" y="230" width="760" height="70" rx="6" fill="#161b22" stroke="#f85149" stroke-opacity="0.4"/>
+  <text x="90" y="270" font-family="monospace" font-size="14" fill="#c9d1d9">██/██/████</text>
+  <text x="280" y="270" font-family="Arial, sans-serif" font-size="14" fill="#e8eaed">Depósito PIX</text>
+  <text x="480" y="270" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#f85149">R$ 380,00</text>
+  <text x="680" y="270" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#3fb950">Confirmado</text>
+  <rect x="70" y="320" width="760" height="120" rx="8" fill="#2d1515" stroke="#f85149" stroke-opacity="0.3"/>
+  <text x="90" y="360" font-family="Arial, sans-serif" font-size="13" fill="#f85149" font-weight="600">Falha de sistema reconhecida pela operadora</text>
+  <text x="90" y="390" font-family="Arial, sans-serif" font-size="13" fill="#c9d1d9">Autoexclusão centralizada estava ativa.</text>
+  <text x="90" y="415" font-family="Arial, sans-serif" font-size="13" fill="#c9d1d9">Acesso e depósito não deveriam ter sido permitidos.</text>
+  <text x="70" y="490" font-family="Arial, sans-serif" font-size="11" fill="#6e7681">Print ilustrativo com dados omitidos · base da prova no processo</text>
+</svg>
