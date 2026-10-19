@@ -1,12 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "RecuperaJogo — Contra as bets · petição para o Juizado",
@@ -28,9 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${inter.variable} font-sans antialiased bg-[#05080C] text-white`}>
-        {children}
-      </body>
+      <body className="antialiased bg-[#05080C] text-white">{children}</body>
     </html>
   );
 }
