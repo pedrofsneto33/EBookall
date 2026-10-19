@@ -1,41 +1,26 @@
-import { createClient as createSupabaseClient, type SupabaseClient } from "@supabase/supabase-js";
-
 /**
- * NEXT_PUBLIC_* precisa estar como Plain (não Sensitive) na Vercel,
- * senão o bundle do browser fica sem URL e o cadastro dá "Failed to fetch".
+ * LEGADO — auth migrou para Stripe Customer + JWT (app/lib/auth.ts).
+ * Mantido só para não quebrar imports antigos em builds cacheados.
  */
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim() || "";
+export const isSupabaseConfigured = false;
 
-export const isSupabaseConfigured =
-  Boolean(supabaseUrl) &&
-  Boolean(supabaseAnonKey) &&
-  !supabaseUrl.includes("placeholder") &&
-  supabaseAnonKey !== "placeholder-anon-key";
-
-function createBrowserClient(): SupabaseClient {
-  if (!isSupabaseConfigured) {
-    console.error(
-      "[RecuperaJogo] NEXT_PUBLIC_SUPABASE_URL / ANON_KEY ausentes no bundle. " +
-        "Na Vercel: coloque essas variáveis como Plain (não Sensitive) e faça Redeploy."
-    );
-  }
-  return createSupabaseClient(
-    supabaseUrl || "https://placeholder.supabase.co",
-    supabaseAnonKey || "placeholder-anon-key",
-    {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-      },
-    }
+export function createClient() {
+  throw new Error(
+    "Supabase desativado. Use /api/auth/login e /api/auth/me (Stripe + JWT)."
   );
 }
 
-export const supabase = createBrowserClient();
-
-/** Factory usada por /pagamento e outras páginas. */
-export function createClient() {
-  return supabase;
-}
+export const supabase = {
+  auth: {
+    getSession: async () => ({ data: { session: null }, error: new Error("Supabase desativado") }),
+    getUser: async () => ({ data: { user: null }, error: new Error("Supabase desativado") }),
+    signOut: async () => ({ error: null }),
+    signInWithPassword: async () => ({ data: { user: null, session: null }, error: new Error("Use /api/auth/login") }),
+    signUp: async () => ({ data: { user: null, session: null }, error: new Error("Use /api/auth/signup") }),
+  },
+  from: () => ({
+    select: () => ({ eq: () => ({ single: async () => ({ data: null, error: new Error("Supabase desativado") }), maybeSingle: async () => ({ data: null, error: null }) }) }),
+    update: () => ({ eq: () => ({ then: (cb: any) => Promise.resolve({ error: null }).then(cb) }) }),
+    insert: async () => ({ error: new Error("Supabase desativado") }),
+  }),
+} as any;
