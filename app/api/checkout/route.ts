@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: "payment",
+      payment_method_types: ["card", "pix"],
       customer_email: email || undefined,
       client_reference_id: userId,
       metadata: { user_id: userId, product: "recuperajogo_acesso_completo" },
