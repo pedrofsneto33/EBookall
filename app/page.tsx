@@ -4,312 +4,297 @@ import React, { useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
-  CheckCircle2,
+  Check,
   ChevronDown,
   MessageCircle,
   Shield,
-  Ban,
-  Banknote,
-  Scale,
-  Flame,
-  Gavel,
-  Smartphone,
-  FileText,
-  Zap,
 } from "lucide-react";
-import ProvaReal from "./components/ProvaReal";
-import ImpactoSocial from "./components/ImpactoSocial";
-import EmpresaPrimex from "./components/EmpresaPrimex";
-import Reveal from "./components/Reveal";
-import IscaCalculadora from "./components/IscaCalculadora";
 
-const WHATSAPP = "5586988117925";
-const WA_MSG = encodeURIComponent("Oi! Preciso de suporte no RecuperaJogo.");
-const WA_LINK = `https://wa.me/${WHATSAPP}?text=${WA_MSG}`;
+const WA = "https://wa.me/5586988117925?text=" + encodeURIComponent("Oi! Preciso de suporte no RecuperaJogo.");
 const CNPJ = "55.536.885/0001-30";
 const PRECO = "137";
-const CTA_PRIMARY = "/login";
-
-const CASOS = [
-  { icon: Ban, title: "Autoexclusão furada", text: "Você pediu para parar. A casa ainda aceitou depósito.", color: "from-red-500/20 to-transparent" },
-  { icon: Banknote, title: "Saque travado", text: "Saldo seu. Transferência negada ou enrolada.", color: "from-amber-500/20 to-transparent" },
-  { icon: Flame, title: "Jogo que não para", text: "App e sessão sem fim. A peça fala de fato e de CDC.", color: "from-orange-500/20 to-transparent" },
-  { icon: Scale, title: "Laudo / ludopatia", text: "Com laudo, o art. 26 da SPA entra. Sem laudo, o gerador não inventa diagnóstico.", color: "from-emerald-500/20 to-transparent" },
-];
-
-const PASSOS = [
-  { n: "01", t: "Entre com o e-mail", d: "Conta em segundos. Sem senha complicada.", icon: Smartphone },
-  { n: "02", t: "Pague R$ 137 no PIX Primex", d: `CNPJ ${CNPJ}. Ou cartão. Acesso liberado após confirmação.`, icon: Zap },
-  { n: "03", t: "Gere a petição", d: "Até 3 rascunhos. Você revisa e protocola no Juizado.", icon: FileText },
-];
+const LOGIN = "/login";
 
 const FAQ = [
-  { q: "Isso é escritório de advocacia?", a: "Não. É software da Primex Sistemas LTDA (primexsistemas.com). Eu montei a ferramenta depois de processar uma casa de apostas no Juizado. Você revisa e protocola em nome próprio." },
-  { q: "Preciso de advogado?", a: "Em causas até 20 salários mínimos no Juizado Especial Cível, a lei permite protocolar sozinho (jus postulandi). Caso complexo ou valor maior: advogado ou Defensoria." },
-  { q: "Como pago?", a: `R$ ${PRECO} no PIX direto da Primex (CNPJ ${CNPJ}). Você copia a chave, paga e manda o comprovante no WhatsApp — liberamos o gerador em seguida. Também tem opção de cartão.` },
-  { q: "Tem reembolso?", a: "Sim. 7 dias. Não gostou do rascunho? Devolvemos. Fale no WhatsApp de suporte." },
-  { q: "Meus dados ficam salvos?", a: "Usamos o mínimo para conta e acesso. Você pode pedir exclusão pelo WhatsApp. Veja a Política de Privacidade." },
-  { q: "E se a casa me ignorar?", a: "A petição é o caminho formal no Juizado. Citação e prazos seguem o processo. O software não garante acordo nem sentença favorável." },
-  { q: "Funciona sem laudo?", a: "Sim, em cenários de autoexclusão violada e falha de serviço (CDC). Laudo reforça quando existir, mas não é obrigatório em todo perfil." },
+  { q: "Isso é advocacia?", a: "Não. É software da Primex Sistemas LTDA. Você revisa o rascunho e protocola em nome próprio no Juizado Especial." },
+  { q: "Preciso de advogado?", a: "Em causas até 20 salários mínimos no Juizado, a lei permite protocolar sozinho (jus postulandi). Caso maior ou complexo: advogado ou Defensoria." },
+  { q: "Como pago?", a: `R$ ${PRECO} no PIX da Primex (CNPJ ${CNPJ}). Copia a chave, paga e manda o comprovante no WhatsApp. Também aceita cartão.` },
+  { q: "Tem reembolso?", a: "Sim, 7 dias. Não gostou do rascunho? Devolvemos pelo WhatsApp." },
+  { q: "Funciona sem laudo?", a: "Sim, em autoexclusão violada e falha de serviço (CDC). Laudo reforça quando existir, mas não é obrigatório em todo caso." },
 ];
 
-function FaqItem({ q, a }: { q: string; a: string }) {
+function FaqRow({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border border-white/10 rounded-2xl overflow-hidden bg-white/[0.03]">
-      <button type="button" onClick={() => setOpen(!open)} className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left">
-        <span className="text-sm md:text-base font-semibold text-white">{q}</span>
-        <ChevronDown size={20} className={`shrink-0 text-emerald-400 transition-transform ${open ? "rotate-180" : ""}`} />
+    <div className="border-b border-white/10">
+      <button type="button" onClick={() => setOpen(!open)} className="w-full flex items-center justify-between gap-4 py-5 text-left">
+        <span className="text-[15px] font-medium text-white">{q}</span>
+        <ChevronDown size={18} className={`text-white/40 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && <div className="px-5 pb-4 text-sm text-white/55 leading-relaxed border-t border-white/5 pt-3">{a}</div>}
+      {open && <p className="pb-5 text-[14px] leading-relaxed text-white/50 -mt-1 max-w-2xl">{a}</p>}
     </div>
   );
 }
 
 export default function HomePage() {
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#030712] text-white">
-      <div className="pointer-events-none fixed inset-0 z-0">
-        <div className="ambient-orb top-[-10%] left-[-5%] w-[420px] h-[420px] bg-emerald-500/20" />
-        <div className="ambient-orb top-[20%] right-[-10%] w-[380px] h-[380px] bg-red-600/15" style={{ animationDelay: "-3s" }} />
-        <div className="ambient-orb bottom-[10%] left-[30%] w-[300px] h-[300px] bg-emerald-600/10" style={{ animationDelay: "-5s" }} />
-        <div className="absolute inset-0 noise-overlay" />
-      </div>
-
-      <header className="relative z-20 border-b border-white/8 backdrop-blur-md bg-[#030712]/70 sticky top-0">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-lg bg-emerald-500 flex items-center justify-center text-xs font-black text-[#030712]">RJ</div>
-            <span className="font-bold tracking-tight">RecuperaJogo</span>
+    <div className="min-h-screen bg-[#0a0a0a] text-white antialiased">
+      <header className="fixed top-0 inset-x-0 z-50 border-b border-white/5 bg-[#0a0a0a]/85 backdrop-blur-xl">
+        <div className="mx-auto max-w-6xl px-5 h-14 flex items-center justify-between">
+          <Link href="/" className="font-semibold tracking-tight text-[15px]">
+            Recupera<span className="text-emerald-400">Jogo</span>
           </Link>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-white/55">
-            <a href="#como" className="hover:text-white transition-colors">Como funciona</a>
-            <a href="#prova" className="hover:text-white transition-colors">Prova real</a>
-            <a href="#preco" className="hover:text-white transition-colors">Preço</a>
-            <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
-          </nav>
-          <div className="flex items-center gap-3">
-            <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="hidden sm:inline-flex text-xs text-white/45 hover:text-emerald-400">Suporte</a>
-            <Link href={CTA_PRIMARY} className="btn-cta inline-flex items-center gap-1.5 text-sm font-bold px-4 py-2 rounded-xl bg-emerald-500 text-[#030712]">
-              Começar <ArrowRight size={16} />
+          <div className="flex items-center gap-4">
+            <a href={WA} target="_blank" rel="noopener noreferrer" className="hidden sm:block text-xs text-white/40 hover:text-white transition">
+              Suporte
+            </a>
+            <Link href={LOGIN} className="text-xs font-semibold bg-white text-black px-3.5 py-2 rounded-full hover:bg-emerald-400 transition">
+              Entrar
             </Link>
           </div>
         </div>
       </header>
 
-      <section className="relative z-10 pt-12 pb-20 md:pt-20 md:pb-28 px-4">
-        <div className="absolute inset-0 hero-grid opacity-60" />
-        <div className="max-w-6xl mx-auto relative">
-          <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-12 items-center">
-            <div>
-              <div className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-300 mb-6">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
-                Campanha contra as bets · não é advocacia
-              </div>
-              <h1 className="animate-fade-up delay-100 text-4xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.05] mb-5">
-                A casa te empurrou a jogar.
-                <br />
-                <span className="text-gradient-emerald">Agora documente e processa.</span>
-              </h1>
-              <p className="animate-fade-up delay-200 text-base md:text-lg text-white/60 max-w-xl leading-relaxed mb-8">
-                Gerador de rascunho de petição para o Juizado Especial Cível. Método testado em processo real.
-                Você revisa, protocola em nome próprio. R$ {PRECO} · PIX CNPJ Primex.
-              </p>
-              <div className="animate-fade-up delay-300 flex flex-col sm:flex-row gap-3 mb-8">
-                <Link href={CTA_PRIMARY} className="btn-cta animate-pulse-glow inline-flex items-center justify-center gap-2 text-base font-bold px-7 py-4 rounded-2xl bg-emerald-500 text-[#030712]">
-                  Quero minha petição <ArrowRight size={20} />
-                </Link>
-                <a href="#prova" className="inline-flex items-center justify-center gap-2 text-base font-semibold px-7 py-4 rounded-2xl border border-white/15 text-white/80 hover:bg-white/5 transition">
-                  Ver sentença real
-                </a>
-              </div>
-              <div className="animate-fade-up delay-400 flex flex-wrap gap-4 text-xs text-white/45">
-                <span className="inline-flex items-center gap-1.5"><Shield size={14} className="text-emerald-400" /> Garantia 7 dias</span>
-                <span className="inline-flex items-center gap-1.5"><CheckCircle2 size={14} className="text-emerald-400" /> PIX CNPJ {CNPJ}</span>
-                <span className="inline-flex items-center gap-1.5"><Gavel size={14} className="text-emerald-400" /> Jus postulandi</span>
-              </div>
-            </div>
+      <section className="relative pt-28 pb-16 md:pt-36 md:pb-24 overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1600&q=80"
+            alt=""
+            className="w-full h-full object-cover opacity-25"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/70 via-[#0a0a0a]/85 to-[#0a0a0a]" />
+        </div>
 
-            <div className="animate-fade-up delay-300 relative">
-              <div className="img-frame rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/20 blur-3xl rounded-full" />
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-red-500/15 blur-3xl rounded-full" />
-                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-400/80 mb-4">Prova real</p>
-                <p className="text-2xl md:text-3xl font-black leading-tight mb-3">
-                  R$ 3.000
-                  <span className="block text-lg font-semibold text-white/50 mt-1">danos morais · sentença pública</span>
-                </p>
-                <p className="text-sm text-white/50 leading-relaxed mb-5">
-                  4º JEC Teresina/PI · Sortenabet · autoexclusão ignorada · CDC art. 14
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-xl bg-black/40 border border-white/10 p-3">
-                    <p className="text-xs text-white/40">Processo</p>
-                    <p className="text-sm font-semibold text-white/90 truncate">0804781-17...</p>
-                  </div>
-                  <div className="rounded-xl bg-black/40 border border-white/10 p-3">
-                    <p className="text-xs text-white/40">Resultado</p>
-                    <p className="text-sm font-semibold text-emerald-300">Procedente</p>
-                  </div>
-                </div>
-                <p className="text-[10px] text-white/30 mt-4">Não garante o mesmo resultado no seu caso.</p>
-              </div>
-            </div>
+        <div className="relative mx-auto max-w-6xl px-5">
+          <p className="text-emerald-400 text-xs font-semibold tracking-[0.2em] uppercase mb-5">
+            Primex Sistemas · contra as bets
+          </p>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.25rem] font-bold tracking-tight leading-[1.05] max-w-3xl">
+            A bet te prendeu.
+            <br />
+            <span className="text-white/40">O Juizado é o caminho.</span>
+          </h1>
+          <p className="mt-6 text-base md:text-lg text-white/55 max-w-xl leading-relaxed">
+            Gerador de petição para Juizado Especial Cível. Baseado em caso real com sentença.
+            Você preenche, revisa e protocola em nome próprio — R$ {PRECO}.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row gap-3">
+            <Link
+              href={LOGIN}
+              className="inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-[15px] px-6 py-3.5 rounded-full transition"
+            >
+              Gerar minha petição <ArrowRight size={18} />
+            </Link>
+            <a
+              href="#prova"
+              className="inline-flex items-center justify-center gap-2 border border-white/15 hover:border-white/30 text-white/80 font-medium text-[15px] px-6 py-3.5 rounded-full transition"
+            >
+              Ver a sentença
+            </a>
+          </div>
+          <div className="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-xs text-white/35">
+            <span className="inline-flex items-center gap-1.5"><Shield size={13} className="text-emerald-500" /> Garantia 7 dias</span>
+            <span>PIX CNPJ {CNPJ}</span>
+            <span>Não é advocacia</span>
           </div>
         </div>
       </section>
 
-      <section className="relative z-10 px-4 -mt-6 mb-8">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3">
+      <section className="border-y border-white/8 bg-white/[0.02]">
+        <div className="mx-auto max-w-6xl px-5 py-10 grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
-            { n: "R$ 137", l: "pagamento único" },
-            { n: "3", l: "petições inclusas" },
-            { n: "7 dias", l: "garantia" },
-            { n: "JEC", l: "jus postulandi" },
+            { v: "R$ 3.000", l: "danos morais na sentença" },
+            { v: "JEC", l: "Juizado Especial Cível" },
+            { v: `R$ ${PRECO}`, l: "acesso completo" },
+            { v: "3", l: "petições inclusas" },
           ].map((s) => (
-            <div key={s.l} className="stat-card rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-5 text-center">
-              <p className="text-xl md:text-2xl font-black text-emerald-300">{s.n}</p>
-              <p className="text-xs text-white/45 mt-1">{s.l}</p>
+            <div key={s.l}>
+              <p className="text-2xl md:text-3xl font-bold tracking-tight">{s.v}</p>
+              <p className="text-xs text-white/40 mt-1">{s.l}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <ImpactoSocial />
-
-      <section id="para-quem" className="relative z-10 px-4 py-20 md:py-24">
-        <div className="max-w-6xl mx-auto">
-          <Reveal>
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-emerald-400 mb-3">Para quem é</p>
-            <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-10 max-w-2xl">Se a bet te enrolou, o caminho é o Juizado.</h2>
-          </Reveal>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {CASOS.map((c, i) => (
-              <Reveal key={c.title} delay={Math.min(i + 1, 4) as 1 | 2 | 3 | 4}>
-                <div className={`card-lift rounded-2xl border border-white/10 bg-gradient-to-br ${c.color} p-6 h-full`}>
-                  <div className="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center mb-4">
-                    <c.icon size={22} className="text-emerald-300" />
-                  </div>
-                  <h3 className="text-lg font-bold mb-2">{c.title}</h3>
-                  <p className="text-sm text-white/55 leading-relaxed">{c.text}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="como" className="relative z-10 px-4 py-20 border-y border-white/10 bg-white/[0.02]">
-        <div className="max-w-6xl mx-auto">
-          <Reveal>
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-emerald-400 mb-3">Como funciona</p>
-            <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-12">Três passos. Sem juridiquês.</h2>
-          </Reveal>
-          <div className="grid md:grid-cols-3 gap-6">
-            {PASSOS.map((p, i) => (
-              <Reveal key={p.n} delay={Math.min(i + 1, 3) as 1 | 2 | 3}>
-                <div className="card-lift rounded-2xl border border-white/10 bg-[#0c1220] p-6 h-full relative">
-                  <span className="text-5xl font-black text-white/5 absolute top-4 right-5">{p.n}</span>
-                  <div className="w-12 h-12 rounded-xl bg-emerald-500/15 flex items-center justify-center mb-4">
-                    <p.icon size={24} className="text-emerald-400" />
-                  </div>
-                  <h3 className="text-lg font-bold mb-2">{p.t}</h3>
-                  <p className="text-sm text-white/50 leading-relaxed">{p.d}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <ProvaReal />
-
-      <section className="relative z-10 px-4 py-16">
-        <div className="max-w-3xl mx-auto">
-          <Reveal>
-            <IscaCalculadora />
-          </Reveal>
-        </div>
-      </section>
-
-      <section id="preco" className="relative z-10 px-4 py-20 md:py-28">
-        <div className="max-w-lg mx-auto">
-          <Reveal>
-            <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-emerald-500/10 to-[#0c1220] p-8 md:p-10 text-center shadow-[0_0_60px_rgba(16,185,129,0.12)]">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-400 mb-3">Acesso completo</p>
-              <p className="text-5xl md:text-6xl font-black text-white mb-1">R$ {PRECO}</p>
-              <p className="text-sm text-white/45 mb-6">pagamento único · PIX CNPJ Primex ou cartão</p>
-              <ul className="text-left space-y-3 mb-8 text-sm text-white/70">
-                {["Até 3 petições em PDF", "Argumentos CDC + regulação SPA", "Checklist de provas", "Garantia de 7 dias", `PIX chave CNPJ ${CNPJ}`].map((i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-400 shrink-0 mt-0.5" />
-                    <span>{i}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link href={CTA_PRIMARY} className="btn-cta animate-pulse-glow w-full inline-flex items-center justify-center gap-2 text-base font-bold px-6 py-4 rounded-2xl bg-emerald-500 text-[#030712]">
-                Começar agora <ArrowRight size={20} />
-              </Link>
-              <p className="text-[11px] text-white/35 mt-4">Primex Sistemas LTDA · não é advocacia · não promete resultado</p>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      <section id="faq" className="relative z-10 px-4 py-20 border-t border-white/10">
-        <div className="max-w-2xl mx-auto">
-          <Reveal>
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-emerald-400 mb-3 text-center">FAQ</p>
-            <h2 className="text-3xl font-black tracking-tight mb-8 text-center">Perguntas diretas</h2>
-          </Reveal>
-          <div className="space-y-2">
-            {FAQ.map((item) => (
-              <FaqItem key={item.q} q={item.q} a={item.a} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <EmpresaPrimex />
-
-      <section className="relative z-10 px-4 py-16">
-        <div className="max-w-3xl mx-auto text-center">
-          <Reveal>
-            <h2 className="text-2xl md:text-4xl font-black tracking-tight mb-4">Pronto para montar a peça?</h2>
-            <p className="text-white/50 mb-8">E-mail → PIX Primex → gerador. Sem enrolação.</p>
-            <Link href={CTA_PRIMARY} className="btn-cta inline-flex items-center gap-2 text-base font-bold px-8 py-4 rounded-2xl bg-emerald-500 text-[#030712]">
-              Ir para o login <ArrowRight size={20} />
-            </Link>
-          </Reveal>
-        </div>
-      </section>
-
-      <footer className="relative z-10 border-t border-white/10 px-4 py-10">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-6 text-sm text-white/40">
+      <section className="mx-auto max-w-6xl px-5 py-20 md:py-28">
+        <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
           <div>
-            <p className="font-bold text-white/70 mb-1">RecuperaJogo</p>
-            <p>Primex Sistemas LTDA · CNPJ {CNPJ}</p>
-            <p className="mt-1 text-xs">Software de documento. Não é sociedade de advogados. Não promete resultado judicial.</p>
+            <p className="text-xs font-semibold tracking-[0.18em] uppercase text-white/30 mb-4">O problema</p>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight mb-5">
+              Autoexclusão ignorada.
+              <br />
+              Depósito aceito mesmo assim.
+            </h2>
+            <p className="text-white/50 leading-relaxed mb-6">
+              Você pediu para parar. A plataforma continuou aberta. O CDC trata isso como falha na
+              prestação do serviço — e o Juizado Especial existe para quem quer protocolar sem
+              advogado, até o limite legal.
+            </p>
+            <ul className="space-y-3">
+              {["Autoexclusão furada", "Saque travado ou enrolado", "App que não deixa parar"].map((t) => (
+                <li key={t} className="flex items-center gap-2.5 text-sm text-white/70">
+                  <span className="w-5 h-5 rounded-full bg-emerald-500/15 flex items-center justify-center">
+                    <Check size={12} className="text-emerald-400" />
+                  </span>
+                  {t}
+                </li>
+              ))}
+            </ul>
           </div>
-          <div className="flex flex-wrap gap-4 text-xs">
-            <Link href="/politica-privacidade" className="hover:text-emerald-400">Privacidade</Link>
-            <Link href="/guia" className="hover:text-emerald-400">Guia</Link>
-            <a href="https://www.primexsistemas.com" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">Primex</a>
-            <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 inline-flex items-center gap-1">
-              <MessageCircle size={12} /> WhatsApp
-            </a>
+          <div className="relative aspect-[4/5] md:aspect-[3/4] rounded-2xl overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=900&q=80"
+              alt="Pessoa com celular"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+            <p className="absolute bottom-5 left-5 right-5 text-sm text-white/80 font-medium">
+              O celular vira a mesa de jogo. A peça documenta o que a casa omitiu.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="prova" className="bg-[#111] border-y border-white/8">
+        <div className="mx-auto max-w-6xl px-5 py-20 md:py-28">
+          <p className="text-xs font-semibold tracking-[0.18em] uppercase text-emerald-400/80 mb-4">Prova real</p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">Sentença no Juizado</h2>
+          <p className="text-white/45 max-w-xl mb-10 text-[15px] leading-relaxed">
+            Processo público no 4º JEC de Teresina/PI. Dados sensíveis omitidos. Não garante o mesmo resultado no seu caso.
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="md:col-span-2 rounded-2xl bg-[#0a0a0a] border border-white/10 p-6 md:p-8">
+              <p className="text-xs text-white/35 mb-4">0804781-17.2026.8.18.0140 · Sortenabet Gaming Brasil S.A.</p>
+              <p className="text-lg md:text-xl font-medium leading-relaxed text-white/90 mb-6">
+                Autoexclusão centralizada em dezembro/2025. Em janeiro/2026 a casa ainda aceitou depósito e apostas.
+                Sentença: danos morais procedentes — <span className="text-emerald-400 font-semibold">R$ 3.000,00</span>.
+              </p>
+              <p className="text-sm text-white/40">Fundamento: CDC art. 14 · falha na prestação do serviço.</p>
+            </div>
+            <div className="rounded-2xl overflow-hidden relative min-h-[220px]">
+              <img
+                src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=700&q=80"
+                alt="Documento jurídico"
+                className="absolute inset-0 w-full h-full object-cover opacity-60"
+              />
+              <div className="absolute inset-0 bg-black/50" />
+              <div className="absolute inset-0 flex flex-col justify-end p-5">
+                <p className="text-3xl font-bold text-emerald-400">R$ 3 mil</p>
+                <p className="text-sm text-white/60">danos morais · procedente</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-5 py-20 md:py-28">
+        <p className="text-xs font-semibold tracking-[0.18em] uppercase text-white/30 mb-4">Como funciona</p>
+        <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-12 max-w-lg">Três passos. Sem juridiquês.</h2>
+        <div className="grid md:grid-cols-3 gap-8 md:gap-6">
+          {[
+            { n: "1", t: "Entre com o e-mail", d: "Conta em segundos. Sem senha para lembrar." },
+            { n: "2", t: "Pague R$ 137", d: `PIX no CNPJ ${CNPJ} ou cartão. Manda o comprovante no WhatsApp.` },
+            { n: "3", t: "Gere a petição", d: "Até 3 rascunhos em PDF. Você revisa e protocola no Juizado." },
+          ].map((p) => (
+            <div key={p.n} className="relative">
+              <span className="text-5xl font-bold text-white/10 absolute -top-2 left-0">{p.n}</span>
+              <div className="pt-10">
+                <h3 className="text-lg font-semibold mb-2">{p.t}</h3>
+                <p className="text-sm text-white/45 leading-relaxed">{p.d}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-y border-white/8 bg-[#111]">
+        <div className="mx-auto max-w-6xl px-5 py-20 md:py-28">
+          <div className="max-w-md mx-auto text-center">
+            <p className="text-xs font-semibold tracking-[0.18em] uppercase text-emerald-400/80 mb-4">Acesso</p>
+            <p className="text-5xl md:text-6xl font-bold tracking-tight mb-2">R$ {PRECO}</p>
+            <p className="text-sm text-white/40 mb-8">pagamento único · PIX Primex ou cartão</p>
+            <ul className="text-left space-y-3 mb-8 text-sm text-white/65">
+              {[
+                "Até 3 petições em PDF",
+                "Argumentos CDC + regulação",
+                "Checklist de provas",
+                "Garantia de 7 dias",
+                `PIX chave CNPJ ${CNPJ}`,
+              ].map((i) => (
+                <li key={i} className="flex items-start gap-2.5">
+                  <Check size={16} className="text-emerald-400 shrink-0 mt-0.5" />
+                  {i}
+                </li>
+              ))}
+            </ul>
+            <Link
+              href={LOGIN}
+              className="w-full inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-[15px] px-6 py-3.5 rounded-full transition"
+            >
+              Começar agora <ArrowRight size={18} />
+            </Link>
+            <p className="text-[11px] text-white/30 mt-5">Primex Sistemas LTDA · não promete resultado judicial</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-2xl px-5 py-20 md:py-28">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-8">Perguntas frequentes</h2>
+        <div>
+          {FAQ.map((item) => (
+            <FaqRow key={item.q} q={item.q} a={item.a} />
+          ))}
+        </div>
+      </section>
+
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1600&q=80"
+            alt=""
+            className="w-full h-full object-cover opacity-20"
+          />
+          <div className="absolute inset-0 bg-[#0a0a0a]/80" />
+        </div>
+        <div className="relative mx-auto max-w-3xl px-5 py-24 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+            Pronto para montar a peça?
+          </h2>
+          <p className="text-white/50 mb-8 text-[15px]">E-mail → PIX Primex → gerador. Direto.</p>
+          <Link
+            href={LOGIN}
+            className="inline-flex items-center justify-center gap-2 bg-white hover:bg-emerald-400 text-black font-semibold text-[15px] px-7 py-3.5 rounded-full transition"
+          >
+            Ir para o login <ArrowRight size={18} />
+          </Link>
+        </div>
+      </section>
+
+      <footer className="border-t border-white/8 px-5 py-10">
+        <div className="mx-auto max-w-6xl flex flex-col md:flex-row justify-between gap-6 text-xs text-white/35">
+          <div>
+            <p className="text-white/60 font-medium mb-1">RecuperaJogo · Primex Sistemas LTDA</p>
+            <p>CNPJ {CNPJ}</p>
+            <p className="mt-2 max-w-sm">Software de documento. Não é sociedade de advogados. Não promete resultado judicial.</p>
+          </div>
+          <div className="flex flex-wrap gap-5">
+            <Link href="/politica-privacidade" className="hover:text-white transition">Privacidade</Link>
+            <Link href="/guia" className="hover:text-white transition">Guia</Link>
+            <a href="https://www.primexsistemas.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">Primex</a>
+            <a href={WA} target="_blank" rel="noopener noreferrer" className="hover:text-white transition">WhatsApp</a>
           </div>
         </div>
       </footer>
 
       <a
-        href={WA_LINK}
+        href={WA}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-[#25D366] text-[#030712] flex items-center justify-center shadow-lg hover:scale-105 transition"
-        aria-label="WhatsApp suporte"
+        className="fixed bottom-5 right-5 z-50 w-12 h-12 rounded-full bg-[#25D366] flex items-center justify-center shadow-lg hover:scale-105 transition"
+        aria-label="WhatsApp"
       >
-        <MessageCircle size={26} />
+        <MessageCircle size={22} className="text-[#0a0a0a]" />
       </a>
     </div>
   );
