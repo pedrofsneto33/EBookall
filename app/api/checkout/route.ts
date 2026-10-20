@@ -9,11 +9,12 @@ function getStripe() {
   return new Stripe(key);
 }
 
+/** Checkout só cartão — PIX é pelo CNPJ Primex na página /pagamento. */
 export async function POST(request: NextRequest) {
   try {
     if (!process.env.STRIPE_SECRET_KEY?.trim()) {
       return NextResponse.json(
-        { error: "Stripe não configurado (STRIPE_SECRET_KEY)" },
+        { error: "Stripe não configurado" },
         { status: 500 }
       );
     }
@@ -39,7 +40,8 @@ export async function POST(request: NextRequest) {
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: "payment",
-      payment_method_types: ["card", "pix"],
+      // Só cartão — PIX é CNPJ Primex na página de pagamento
+      payment_method_types: ["card"],
       customer_email: email,
       client_reference_id: userId || email,
       metadata: {
@@ -57,8 +59,7 @@ export async function POST(request: NextRequest) {
                 unit_amount: unitAmount,
                 product_data: {
                   name: "RecuperaJogo — Acesso Completo",
-                  description:
-                    "3 petições + calculadora + checklist · pagamento único",
+                  description: "3 petições + calculadora + checklist",
                 },
               },
             },
