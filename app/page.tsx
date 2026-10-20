@@ -20,22 +20,62 @@ const CNPJ = "55.536.885/0001-30";
 const PRECO = "137";
 const LOGIN = "/login";
 
-const SITUACOES = [
+type CaseId = "exclusao" | "ludopatia" | "publicidade" | "saque";
+
+const CASES: {
+  id: CaseId;
+  title: string;
+  short: string;
+  detail: string;
+  proofs: string[];
+}[] = [
   {
+    id: "exclusao",
     title: "Exclusão centralizada furada",
-    text: "Você se autoexcluiu no sistema oficial e a casa ainda aceitou depósito ou aposta. É falha na prestação do serviço (CDC).",
+    short: "Você se bloqueou e a casa ainda aceitou jogo",
+    detail:
+      "Autoexclusão no sistema oficial (ou pedido formal de bloqueio) e, mesmo assim, depósito ou aposta aceitos. O eixo é falha na prestação do serviço (CDC art. 14): a casa tinha o dever de impedir o acesso e não impediu.",
+    proofs: [
+      "Comprovante da autoexclusão / protocolo",
+      "Extratos de depósito depois da data do bloqueio",
+      "Prints do app ainda liberado",
+    ],
   },
   {
+    id: "ludopatia",
     title: "Ludopatia e dever de cuidado",
-    text: "Sinais de dependência, pedidos de limite ou bloqueio ignorados. A casa tinha dever de proteção e não cumpriu.",
+    short: "Sinais de dependência ignorados pela casa",
+    detail:
+      "Pedidos de limite, pausa ou bloqueio; padrões de gasto excessivo; comunicação de que precisava parar. A casa tinha dever de cuidado e seguiu empurrando o jogo. Laudo ajuda, mas não é obrigatório em todo caso — a prova documental pesa.",
+    proofs: [
+      "Mensagens pedindo limite ou bloqueio",
+      "Histórico de depósitos repetidos",
+      "Laudo ou encaminhamento (se tiver)",
+    ],
   },
   {
-    title: "Publicidade depois do pedido para parar",
-    text: "Você pediu para não receber mais oferta e continuou sendo bombardeado com bônus, push e SMS.",
+    id: "publicidade",
+    title: "Publicidade depois de pedir para parar",
+    short: "Bônus, push e SMS mesmo após o pedido",
+    detail:
+      "Você pediu para não receber mais oferta e a casa continuou com push, e-mail, SMS ou bônus. Isso reforça o descumprimento do dever de respeito à vontade de encerrar e pode integrar o pedido de danos e obrigação de fazer.",
+    proofs: [
+      "Pedido de opt-out / não quero mais contato",
+      "Prints de push, SMS ou e-mail posteriores",
+      "Datas alinhadas (pedido × nova oferta)",
+    ],
   },
   {
+    id: "saque",
     title: "Saque travado ou resposta evasiva",
-    text: "Dinheiro no saldo, saque recusado, atrasado ou com exigência abusiva. Documente e formalize.",
+    short: "Saldo existe, sair com o dinheiro não",
+    detail:
+      "Saque recusado, atrasado sem justificativa legítima ou com exigências abusivas. Documente o saldo, os pedidos de saque e as respostas da casa. Em bets com réu no Brasil, isso entra na peça com clareza.",
+    proofs: [
+      "Print do saldo e dos pedidos de saque",
+      "Protocolos de suporte",
+      "Respostas da casa (ou ausência delas)",
+    ],
   },
 ];
 
@@ -88,6 +128,124 @@ function FaqRow({ q, a }: { q: string; a: string }) {
   );
 }
 
+function CaseSelector() {
+  const [active, setActive] = useState<CaseId>("exclusao");
+  const current = CASES.find((c) => c.id === active)!;
+
+  return (
+    <div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-6">
+        {CASES.map((c) => {
+          const on = c.id === active;
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => setActive(c.id)}
+              className={`text-left rounded-xl border px-3.5 py-3 transition-all ${
+                on
+                  ? "border-emerald-500/50 bg-emerald-500/10"
+                  : "border-white/[0.08] bg-white/[0.02] hover:border-white/20"
+              }`}
+            >
+              <p className={`text-[13px] font-semibold leading-snug ${on ? "text-white" : "text-white/70"}`}>
+                {c.title}
+              </p>
+              <p className="text-[11px] text-white/40 mt-1 leading-snug hidden sm:block">{c.short}</p>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 md:p-8 transition-all">
+        <h3 className="text-lg font-semibold mb-3">{current.title}</h3>
+        <p className="text-[14px] text-white/55 leading-relaxed mb-6 max-w-2xl">
+          {current.detail}
+        </p>
+        <p className="text-[11px] font-semibold tracking-wide uppercase text-white/35 mb-3">
+          O que costuma provar
+        </p>
+        <ul className="space-y-2 mb-8">
+          {current.proofs.map((p) => (
+            <li key={p} className="flex items-start gap-2.5 text-[13px] text-white/60">
+              <Check size={14} className="text-emerald-400 shrink-0 mt-0.5" strokeWidth={2.5} />
+              {p}
+            </li>
+          ))}
+        </ul>
+        <Link
+          href={LOGIN}
+          className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-[14px] px-5 py-3 rounded-full transition-colors"
+        >
+          Montar petição neste tipo de caso <ArrowRight size={16} strokeWidth={2.5} />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function LicenseCheck() {
+  const [answer, setAnswer] = useState<"yes" | "no" | null>(null);
+
+  return (
+    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 md:p-8">
+      <p className="text-[15px] font-semibold mb-2">A casa tinha (ou tem) licença / CNPJ no Brasil?</p>
+      <p className="text-[13px] text-white/45 mb-5 leading-relaxed">
+        Resposta honesta define se o gerador faz sentido pro seu caso.
+      </p>
+      <div className="flex flex-wrap gap-2 mb-5">
+        <button
+          type="button"
+          onClick={() => setAnswer("yes")}
+          className={`px-4 py-2.5 rounded-full text-[13px] font-semibold border transition-all ${
+            answer === "yes"
+              ? "border-emerald-500/50 bg-emerald-500/15 text-emerald-300"
+              : "border-white/15 text-white/60 hover:border-white/30"
+          }`}
+        >
+          Sim — bet licenciada / réu no Brasil
+        </button>
+        <button
+          type="button"
+          onClick={() => setAnswer("no")}
+          className={`px-4 py-2.5 rounded-full text-[13px] font-semibold border transition-all ${
+            answer === "no"
+              ? "border-white/25 bg-white/10 text-white"
+              : "border-white/15 text-white/60 hover:border-white/30"
+          }`}
+        >
+          Não — tarja / site ilegal
+        </button>
+      </div>
+
+      {answer === "yes" && (
+        <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/[0.06] p-4">
+          <p className="text-[14px] text-white/80 leading-relaxed mb-3">
+            Faz sentido usar o gerador: há réu identificável e foro no Brasil.
+            Escolha o tipo de caso abaixo e monte o rascunho.
+          </p>
+          <Link
+            href={LOGIN}
+            className="inline-flex items-center gap-2 text-[13px] font-semibold text-emerald-400 hover:text-emerald-300"
+          >
+            Ir para o gerador <ArrowRight size={14} />
+          </Link>
+        </div>
+      )}
+      {answer === "no" && (
+        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <p className="text-[14px] text-white/55 leading-relaxed">
+            Com sinceridade: plataforma ilegal sem CNPJ utilizável quase inviabiliza
+            citação e cobrança. O RecuperaJogo não vende a ideia de recuperar
+            dinheiro fácil de tarja chinesa ou site offshore. Se no futuro a casa
+            for identificável no Brasil, aí o cenário muda.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white antialiased">
@@ -115,7 +273,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      <section className="pt-28 pb-16 md:pt-36 md:pb-24">
+      <section className="pt-28 pb-16 md:pt-36 md:pb-20">
         <div className="mx-auto max-w-5xl px-5">
           <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-emerald-400/90 mb-5">
             Primex Sistemas · gerador de petição
@@ -139,7 +297,7 @@ export default function HomePage() {
               Gerar minha petição <ArrowRight size={18} strokeWidth={2.5} />
             </Link>
             <a
-              href="#para-quem"
+              href="#seu-caso"
               className="inline-flex items-center justify-center gap-2 border border-white/15 hover:bg-white/5 text-white/80 font-medium text-[15px] px-7 py-3.5 rounded-full transition-colors"
             >
               Ver se cabe no meu caso
@@ -171,37 +329,28 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="para-quem" className="mx-auto max-w-5xl px-5 py-20 md:py-28">
+      <section id="seu-caso" className="mx-auto max-w-5xl px-5 pt-20 md:pt-28 pb-10">
         <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-white/35 mb-4">
-          Situações que o gerador cobre
+          Primeiro filtro
         </p>
-        <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 max-w-2xl">
+        <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-8 max-w-2xl">
+          Seu caso é de bet licenciada?
+        </h2>
+        <LicenseCheck />
+      </section>
+
+      <section className="mx-auto max-w-5xl px-5 py-16 md:py-20">
+        <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-white/35 mb-4">
+          Escolha o enquadramento
+        </p>
+        <h2 className="text-3xl font-bold tracking-tight mb-3 max-w-2xl">
           Não é só um processo de R$ 3 mil.
         </h2>
-        <p className="text-[15px] text-white/50 max-w-2xl mb-12 leading-relaxed">
-          A sentença de danos morais por autoexclusão violada é um exemplo real.
-          O produto serve para montar peças a partir dos <em>seus</em> fatos —
-          ludopatia, exclusão centralizada, publicidade e problemas de saque em
-          casas com réu identificável no Brasil.
+        <p className="text-[15px] text-white/50 max-w-2xl mb-10 leading-relaxed">
+          Toque no tipo de situação. O painel mostra o raciocínio e o que costuma
+          provar — depois você gera o rascunho com os seus fatos.
         </p>
-        <div className="grid sm:grid-cols-2 gap-4">
-          {SITUACOES.map((s) => (
-            <div
-              key={s.title}
-              className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6"
-            >
-              <div className="flex items-start gap-3">
-                <span className="mt-0.5 w-6 h-6 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
-                  <Check size={14} className="text-emerald-400" strokeWidth={2.5} />
-                </span>
-                <div>
-                  <h3 className="text-[15px] font-semibold mb-1.5">{s.title}</h3>
-                  <p className="text-[13px] text-white/45 leading-relaxed">{s.text}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <CaseSelector />
       </section>
 
       <section className="border-y border-white/[0.06] bg-[#0f0f0f]">
@@ -213,36 +362,33 @@ export default function HomePage() {
                 <h3 className="text-[15px] font-semibold">Bets licenciadas</h3>
               </div>
               <p className="text-[14px] text-white/55 leading-relaxed mb-4">
-                Casas que operaram (ou operam) com autorização no Brasil: CNPJ,
-                foro e citação possíveis. É o foco do gerador — autoexclusão,
-                CDC, publicidade e saque.
+                Casas com autorização no Brasil: CNPJ, foro e citação possíveis.
+                Foco do gerador — exclusão, CDC, publicidade e saque.
               </p>
               <p className="text-[13px] text-emerald-400/90 font-medium">
-                Aqui faz sentido montar a peça e protocolar no Juizado.
+                Aqui faz sentido montar a peça.
               </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 md:p-7">
               <div className="flex items-center gap-2 mb-4">
                 <Ban size={18} className="text-white/40" />
                 <h3 className="text-[15px] font-semibold text-white/70">
-                  Tarjas / sites ilegais (ex.: &quot;chinesas&quot;)
+                  Tarjas / sites ilegais
                 </h3>
               </div>
               <p className="text-[14px] text-white/45 leading-relaxed mb-4">
-                Plataforma sem licença, domínio offshore, sem CNPJ utilizável:
-                cobranca e citação quase inviáveis na prática. Não vendemos a
-                ideia de que dá para &quot;recuperar fácil&quot; nesses casos.
+                Sem licença, domínio offshore, sem CNPJ: cobrança e citação quase
+                inviáveis. Não vendemos recuperação fácil de tarja chinesa.
               </p>
               <p className="text-[13px] text-white/40 font-medium">
-                Seja honesto consigo: o produto não resolve tarja ilegal.
+                O produto não resolve plataforma ilegal.
               </p>
             </div>
           </div>
           <p className="mt-6 text-[12px] text-white/30 leading-relaxed max-w-3xl">
-            A MP 1.394/2026 proibiu a exploração de bets e jogos online no país.
-            O que ocorreu <strong className="text-white/45 font-medium">antes</strong> —
-            falhas de exclusão, publicidade indevida, saques — pode ainda ser
-            objeto de pedido no Juizado, contra réu identificável.
+            A MP 1.394/2026 proibiu a exploração de bets e jogos online. O que
+            ocorreu <strong className="text-white/45 font-medium">antes</strong> pode
+            ainda ser pedido no Juizado, contra réu identificável.
           </p>
         </div>
       </section>
@@ -256,20 +402,20 @@ export default function HomePage() {
         </h2>
         <p className="text-[14px] text-white/45 max-w-2xl mb-8 leading-relaxed">
           4º JEC de Teresina/PI. Processo público. Dados sensíveis omitidos.
-          Serve de referência de argumento (CDC art. 14) — não garante o mesmo
-          valor nem o mesmo resultado no seu caso.
+          Referência de argumento (CDC art. 14) — não garante o mesmo valor nem
+          resultado no seu caso.
         </p>
         <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 md:p-8 max-w-3xl">
           <p className="text-[11px] text-white/30 mb-4 font-mono">
             0804781-17.2026.8.18.0140 · Sortenabet Gaming Brasil S.A.
           </p>
-          <p className="text-[15px] md:text-base leading-relaxed text-white/80 mb-4">
+          <p className="text-[15px] leading-relaxed text-white/80 mb-4">
             Autoexclusão centralizada em dezembro/2025. Em janeiro/2026 a casa
-            ainda aceitou depósito e apostas. Pedido de danos morais procedente
-            — <span className="text-emerald-400 font-semibold">R$ 3.000,00</span>.
+            ainda aceitou depósito e apostas. Danos morais procedentes —{" "}
+            <span className="text-emerald-400 font-semibold">R$ 3.000,00</span>.
           </p>
           <p className="text-[13px] text-white/35">
-            Fundamento: falha na prestação do serviço · CDC art. 14
+            Falha na prestação do serviço · CDC art. 14
           </p>
         </div>
       </section>
@@ -341,11 +487,7 @@ export default function HomePage() {
               `PIX chave CNPJ ${CNPJ}`,
             ].map((i) => (
               <li key={i} className="flex items-start gap-2.5">
-                <Check
-                  size={15}
-                  className="text-emerald-400 shrink-0 mt-0.5"
-                  strokeWidth={2.5}
-                />
+                <Check size={15} className="text-emerald-400 shrink-0 mt-0.5" strokeWidth={2.5} />
                 {i}
               </li>
             ))}
@@ -374,10 +516,10 @@ export default function HomePage() {
       <section className="border-t border-white/[0.06] bg-[#0f0f0f]">
         <div className="mx-auto max-w-2xl px-5 py-20 text-center">
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">
-            Seu caso é de bet licenciada?
+            Pronto para montar a peça?
           </h2>
           <p className="text-white/45 mb-8 text-[15px]">
-            E-mail → PIX Primex → gerador. Direto.
+            E-mail → PIX Primex → gerador.
           </p>
           <Link
             href={LOGIN}
@@ -416,12 +558,7 @@ export default function HomePage() {
             >
               Primex
             </a>
-            <a
-              href={WA}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white transition"
-            >
+            <a href={WA} target="_blank" rel="noopener noreferrer" className="hover:text-white transition">
               WhatsApp
             </a>
           </div>
