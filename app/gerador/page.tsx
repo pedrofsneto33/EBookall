@@ -27,16 +27,23 @@ const PeticaoPDF = ({ dados }: { dados: any }) => (
       <Text style={pdfStyles.noIndent}>{dados.qualificacaoReu}</Text>
       <Text style={pdfStyles.sectionTitle}>I — DOS FATOS</Text>
       <Text style={pdfStyles.paragraph}>{dados.fatos}</Text>
+      <Text style={pdfStyles.sectionTitle}>II — DO DIREITO</Text>
       {dados.argumentos.map((arg: any, i: number) => (
         <View key={i}>
-          <Text style={pdfStyles.sectionTitle}>{arg.titulo}</Text>
+          <Text style={{ ...pdfStyles.sectionTitle, fontSize: 11, marginTop: 10 }}>{i + 1}. {arg.titulo}</Text>
           <Text style={pdfStyles.paragraph}>{arg.texto}</Text>
         </View>
       ))}
-      <Text style={pdfStyles.sectionTitle}>DOS PEDIDOS</Text>
+      <Text style={pdfStyles.sectionTitle}>III — DOS PEDIDOS</Text>
       <Text style={pdfStyles.paragraph}>{dados.pedidos}</Text>
       <Text style={pdfStyles.noIndent}>Dá-se à causa o valor de {dados.valorCausa}.</Text>
-      <Text style={pdfStyles.footer}>Nestes termos, pede deferimento.\n\n{dados.cidadeData}\n\n{dados.autorNome}</Text>
+      <Text style={pdfStyles.footer}>Nestes termos, pede deferimento.</Text>
+      <Text style={{ textAlign: "center", marginTop: 24 }}>{dados.cidadeData}</Text>
+      <Text style={{ textAlign: "center", marginTop: 36, fontWeight: "bold" }}>{dados.autorNome}</Text>
+      <Text style={{ textAlign: "center", marginTop: 4, fontSize: 10 }}>Parte autora — em causa própria (jus postulandi)</Text>
+      <Text style={{ textAlign: "center", marginTop: 16, fontSize: 9 }}>
+        Peça elaborada e protocolada pela própria parte, nos termos do art. 9º da Lei nº 9.099/1995. Não há advogado constituído nos autos.
+      </Text>
     </Page>
   </Document>
 );
@@ -128,7 +135,6 @@ export default function GeradorPage() {
 
     setGenerating(true);
     try {
-      // Reserva a cota no servidor ANTES de montar o PDF
       const res = await fetch("/api/auth/peticoes", {
         method: "POST",
         credentials: "include",
@@ -160,10 +166,10 @@ export default function GeradorPage() {
         `c) inversão do ônus da prova (CDC art. 6º, VIII);\nd) citação da Ré.`;
 
       const dados = {
-        enderecamento: `EXCELENTÍSSIMO(A) JUIZ(A) DE DIREITO DO JEC DA COMARCA DE ${autor.comarca || "[COMARCA]"} – ${autor.uf || "[UF]"}`,
-        qualificacao: `${autor.nome}, CPF ${autor.cpf || "[CPF]"}, residente em ${autor.endereco || "[ENDEREÇO]"}, propõe`,
+        enderecamento: `EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DO JUIZADO ESPECIAL CÍVEL DA COMARCA DE ${(autor.comarca || "[COMARCA]").toUpperCase()} – ${(autor.uf || "[UF]").toUpperCase()}`,
+        qualificacao: `${autor.nome}, CPF nº ${autor.cpf || "[CPF]"}, residente e domiciliado(a) em ${autor.endereco || "[ENDEREÇO]"}, vem, por si mesmo(a), em causa própria, com fundamento no art. 9º da Lei nº 9.099/1995 (jus postulandi) e na Lei nº 8.078/1990 (Código de Defesa do Consumidor), propor a presente`,
         tituloAcao: `AÇÃO DE INDENIZAÇÃO POR DANOS MATERIAIS${danoMoral ? " E MORAIS" : ""}`,
-        qualificacaoReu: `em face de ${reu.nome}, CNPJ ${reu.cnpj || "[CNPJ]"}.`,
+        qualificacaoReu: `em face de ${reu.nome}, inscrita no CNPJ sob o nº ${reu.cnpj || "[CNPJ]"}, pelos fatos e fundamentos a seguir expostos.`,
         fatos: relato,
         argumentos,
         pedidos,
@@ -173,9 +179,9 @@ export default function GeradorPage() {
       };
       setDadosPDF(dados);
 
-      let p = `${dados.enderecamento}\n\n${dados.qualificacao}\n\n${dados.tituloAcao}\n\n${dados.qualificacaoReu}\n\nI — DOS FATOS\n\n${dados.fatos}\n\n`;
+      let p = `${dados.enderecamento}\n\n${dados.qualificacao}\n\n${dados.tituloAcao}\n\n${dados.qualificacaoReu}\n\nI — DOS FATOS\n\n${dados.fatos}\n\nII — DO DIREITO\n\n`;
       argumentos.forEach((a, i) => { p += `${i + 1}. ${a.titulo}\n${a.texto}\n\n`; });
-      p += `DOS PEDIDOS\n\n${dados.pedidos}\n\nValor da causa: ${dados.valorCausa}.\n\nNestes termos, pede deferimento.\n\n${dados.cidadeData}\n\n${dados.autorNome}`;
+      p += `III — DOS PEDIDOS\n\n${dados.pedidos}\n\nDá-se à causa o valor de ${dados.valorCausa}.\n\nNestes termos, pede deferimento.\n\n${dados.cidadeData}\n\n${dados.autorNome}\nParte autora — em causa própria (jus postulandi)\n\nPeça elaborada e protocolada pela própria parte, nos termos do art. 9º da Lei nº 9.099/1995. Não há advogado constituído nos autos.`;
       setTexto(p);
       setTab("resultado");
     } catch (e) {
