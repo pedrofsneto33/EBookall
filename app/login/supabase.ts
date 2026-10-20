@@ -1,9 +1,7 @@
 /**
- * Bridge de compatibilidade: o gerador ainda importa `supabase`,
- * mas por baixo usa /api/auth/* (Stripe Customer + JWT).
- * Não depende mais do projeto Supabase pausado.
+ * Bridge: gerador antigo ainda importa supabase.
+ * Por baixo usa /api/auth/me. Sem pagamento ativo = status pending.
  */
-
 "use client";
 
 type SubRow = { status: string; peticoes_usadas: number };
@@ -14,7 +12,7 @@ async function fetchMe(): Promise<{
   peticoes_usadas: number;
 } | null> {
   try {
-    const res = await fetch("/api/auth/me");
+    const res = await fetch("/api/auth/me", { credentials: "include" });
     if (!res.ok) return null;
     return await res.json();
   } catch {
@@ -49,19 +47,19 @@ export const supabase = {
       return { data: { user: { id: me.user.id, email: me.user.email } }, error: null };
     },
     async signOut() {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
       return { error: null };
     },
     async signInWithPassword() {
       return {
         data: { user: null, session: null },
-        error: { message: "Use a página /login" },
+        error: { message: "Use /login" },
       };
     },
     async signUp() {
       return {
         data: { user: null, session: null },
-        error: { message: "Use a página /login" },
+        error: { message: "Use /login" },
       };
     },
   },
@@ -70,16 +68,17 @@ export const supabase = {
       return {
         select: () => ({
           eq: () => ({
-            single: async () => ({ data: null, error: { message: "tabela não suportada" } }),
+            single: async () => ({ data: null, error: { message: "n/a" } }),
             maybeSingle: async () => ({ data: null, error: null }),
           }),
         }),
         update: () => ({
           eq: () => ({
-            then: (cb: (v: { error: null }) => void) => Promise.resolve({ error: null }).then(cb),
+            then: (cb: (v: { error: null }) => void) =>
+              Promise.resolve({ error: null }).then(cb),
           }),
         }),
-        insert: async () => ({ error: { message: "tabela não suportada" } }),
+        insert: async () => ({ error: null }),
       };
     }
 
@@ -93,6 +92,7 @@ export const supabase = {
                 if (!me?.user) {
                   return { data: null, error: { message: "não autenticado" } };
                 }
+                // Sempre devolve a linha; o gerador decide se status === active
                 const data: SubRow = {
                   status: me.status === "active" ? "active" : "pending",
                   peticoes_usadas: me.peticoes_usadas ?? 0,
@@ -114,11 +114,12 @@ export const supabase = {
           },
         };
       },
-      update(payload: { peticoes_usadas?: number; status?: string }) {
+      update(payload: { peticoes_usadas?: number }) {
         return {
           eq(_field: string, _userId: string) {
             const p = fetch("/api/auth/peticoes", {
               method: "POST",
+              credentials: "include",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ count: payload.peticoes_usadas ?? 0 }),
             }).then(() => ({ error: null as null }));
