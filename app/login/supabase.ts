@@ -1,6 +1,7 @@
 /**
- * Bridge: gerador antigo ainda importa supabase.
- * Por baixo usa /api/auth/me. Sem pagamento ativo = status pending.
+ * Bridge do gerador → /api/auth/me
+ * IMPORTANTE: se status !== active, getSession devolve null
+ * para o gerador redirecionar (não libera conteúdo).
  */
 "use client";
 
@@ -26,7 +27,8 @@ export const supabase = {
   auth: {
     async getSession() {
       const me = await fetchMe();
-      if (!me?.user) {
+      // Sem usuário OU sem pagamento → sem sessão no gerador
+      if (!me?.user || me.status !== "active") {
         return { data: { session: null }, error: null };
       }
       return {
@@ -41,7 +43,7 @@ export const supabase = {
     },
     async getUser() {
       const me = await fetchMe();
-      if (!me?.user) {
+      if (!me?.user || me.status !== "active") {
         return { data: { user: null }, error: null };
       }
       return { data: { user: { id: me.user.id, email: me.user.email } }, error: null };
@@ -89,22 +91,23 @@ export const supabase = {
             return {
               async single() {
                 const me = await fetchMe();
-                if (!me?.user) {
-                  return { data: null, error: { message: "não autenticado" } };
+                if (!me?.user || me.status !== "active") {
+                  return { data: null, error: { message: "sem acesso" } };
                 }
-                // Sempre devolve a linha; o gerador decide se status === active
                 const data: SubRow = {
-                  status: me.status === "active" ? "active" : "pending",
+                  status: "active",
                   peticoes_usadas: me.peticoes_usadas ?? 0,
                 };
                 return { data, error: null };
               },
               async maybeSingle() {
                 const me = await fetchMe();
-                if (!me?.user) return { data: null, error: null };
+                if (!me?.user || me.status !== "active") {
+                  return { data: null, error: null };
+                }
                 return {
                   data: {
-                    status: me.status === "active" ? "active" : "pending",
+                    status: "active",
                     peticoes_usadas: me.peticoes_usadas ?? 0,
                   } as SubRow,
                   error: null,

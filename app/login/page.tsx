@@ -14,7 +14,8 @@ const AMBER_BORDER = "#D8B368";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || searchParams.get("next") || "/gerador";
+  // Nunca manda direto pro gerador após login — só /pagamento (ou gerador se já pagou)
+  const redirectAfterPay = searchParams.get("redirect") || searchParams.get("next") || "/gerador";
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,6 +39,7 @@ function LoginForm() {
       const res = await fetch("/api/auth/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email: email.trim() }),
       });
       const data = await res.json();
@@ -52,9 +54,15 @@ function LoginForm() {
       setMessage("Pronto! Redirecionando...");
       setMessageType("success");
 
-      if (data.status === "active") {
-        router.replace(redirect.startsWith("/") ? redirect : "/gerador");
+      // Confere pagamento de verdade no servidor
+      const meRes = await fetch("/api/auth/me", { credentials: "include" });
+      const me = meRes.ok ? await meRes.json() : null;
+
+      if (me?.status === "active") {
+        const dest = redirectAfterPay.startsWith("/") ? redirectAfterPay : "/gerador";
+        router.replace(dest);
       } else {
+        // Sempre pagamento se não pagou
         router.replace("/pagamento");
       }
     } catch (err) {
@@ -81,7 +89,7 @@ function LoginForm() {
           Entrar / Criar conta
         </h1>
         <p className="text-sm mt-1" style={{ color: INK_SOFT }}>
-          Só o e-mail — sem senha e sem depender do Stripe no cadastro
+          Informe o e-mail. Depois você paga R$ 137 para liberar o gerador.
         </p>
       </div>
 
@@ -135,14 +143,14 @@ function LoginForm() {
             </>
           ) : (
             <>
-              Continuar <ArrowRight size={18} />
+              Continuar para o pagamento <ArrowRight size={18} />
             </>
           )}
         </button>
       </form>
 
       <p className="text-xs text-center mt-6" style={{ color: INK_SOFT }}>
-        Depois você paga R$ 137 (Pix/cartão) e o gerador libera automaticamente.
+        O gerador só abre depois do pagamento de R$ 137 (Pix ou cartão).
       </p>
 
       <div className="text-center mt-4">
