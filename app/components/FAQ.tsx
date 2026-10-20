@@ -1,65 +1,77 @@
 "use client";
+
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
-const INK = "#0F1C2E";
-const INK_SOFT = "#4A5B6E";
-const PAPER = "#FAF8F4";
-const LINE = "#E6E1D6";
-const SEAL = "#1B6B4A";
+const CNPJ = "55.536.885/0001-30";
+const PRECO = "137";
 
-const PERGUNTAS = [
+const ITEMS = [
   {
-    q: "Preciso de advogado pra usar isso?",
-    a: "Não. O RecuperaJogo gera um rascunho de petição para você mesmo protocolar, usando o jus postulandi — o direito de processar sozinho em causas até 20 salários-mínimos no Juizado Especial Cível (art. 9º, Lei 9.099/95). Você pode revisar e ajustar o texto antes de usar.",
+    q: "Isso é escritório de advocacia?",
+    a: "Não. É software da Primex Sistemas LTDA (primexsistemas.com). Eu montei a ferramenta depois de processar uma casa de apostas no Juizado. Você revisa e protocola em nome próprio.",
   },
   {
-    q: "E se minha causa passar de 20 salários-mínimos?",
-    a: "Acima desse limite, o jus postulandi não se aplica e você precisará de um advogado ou da Defensoria Pública. Recomendamos usar nossa calculadora para estimar o valor total antes de seguir.",
+    q: "Preciso de advogado?",
+    a: "Em causas até 20 salários mínimos no Juizado Especial Cível, a lei permite protocolar sozinho (jus postulandi). Caso complexo ou valor maior: advogado ou Defensoria.",
   },
   {
-    q: "Funciona pra qualquer casa de apostas?",
-    a: "Sim. O gerador funciona para qualquer casa de apostas que opere no Brasil. Os argumentos são adaptados conforme as informações e provas que você preenche sobre o seu caso específico.",
+    q: "Como pago?",
+    a: `R$ ${PRECO} no PIX direto da Primex (CNPJ ${CNPJ}). Você copia a chave, paga e manda o comprovante no WhatsApp — liberamos o gerador em seguida. Também tem opção de cartão.`,
   },
   {
-    q: "Preciso ir pessoalmente ao fórum?",
-    a: "Depende do seu tribunal. Muitos estados já aceitam protocolo 100% digital pelo PJe, e-Proc ou até por e-mail. Verifique as regras do Juizado Especial da sua comarca.",
+    q: "Tem reembolso?",
+    a: "Sim. 7 dias. Não gostou do rascunho? Devolvemos. Fale no WhatsApp de suporte.",
   },
   {
-    q: "Se eu não gostar, tem reembolso?",
-    a: "Sim. Oferecemos garantia incondicional de 7 dias. Se você não ficar satisfeito com o rascunho gerado, devolvemos o valor integral. É só entrar em contato pelo WhatsApp.",
+    q: "Meus dados ficam salvos?",
+    a: "Usamos o mínimo necessário para conta e acesso. Você pode pedir exclusão pelo WhatsApp. Veja a Política de Privacidade.",
   },
   {
-    q: "Meus dados estão seguros?",
-    a: "Sim. Seguimos rigorosamente a LGPD (Lei 13.709/2018). Detalhes completos sobre como tratamos seus dados, incluindo informações sensíveis no fluxo de ludopatia, estão na nossa Política de Privacidade.",
+    q: "E se a casa me ignorar?",
+    a: "A petição é o caminho formal no Juizado. Citação e prazos seguem o processo. O software não garante acordo nem sentença favorável.",
+  },
+  {
+    q: "Funciona sem laudo?",
+    a: "Sim, em cenários de autoexclusão violada e falha de serviço (CDC). Laudo de ludopatia reforça o caso quando existir, mas não é obrigatório em todo perfil.",
   },
 ];
 
-function FaqItem({ q, a }: { q: string; a: string }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="border-b" style={{ borderColor: LINE }}>
-      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between text-left py-4 gap-4">
-        <span className="font-medium text-sm sm:text-base" style={{ color: INK }}>{q}</span>
-        <ChevronDown size={18} style={{ color: SEAL, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} className="shrink-0" />
-      </button>
-      {open && (
-        <p className="text-sm leading-relaxed pb-4 pr-8" style={{ color: INK_SOFT }}>{a}</p>
-      )}
-    </div>
-  );
-}
-
 export default function FAQ() {
+  const [open, setOpen] = useState(0);
+
   return (
-    <section className="max-w-3xl mx-auto px-4 py-16">
-      <h2 className="text-2xl font-semibold mb-1 text-center" style={{ color: INK }}>Perguntas Frequentes</h2>
-      <p className="text-sm text-center mb-8" style={{ color: INK_SOFT }}>Dúvida que não está aqui? Manda uma mensagem no WhatsApp.</p>
-      <div className="rounded-xl border px-6" style={{ backgroundColor: PAPER, borderColor: LINE }}>
-        {PERGUNTAS.map((item) => (
-          <FaqItem key={item.q} {...item} />
-        ))}
-      </div>
-    </section>
+    <div className="space-y-2">
+      {ITEMS.map((item, i) => {
+        const isOpen = open === i;
+        return (
+          <div
+            key={item.q}
+            className="rounded-xl border overflow-hidden"
+            style={{ borderColor: "#1E2A3A", backgroundColor: "#111827" }}
+          >
+            <button
+              type="button"
+              onClick={() => setOpen(isOpen ? -1 : i)}
+              className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left"
+            >
+              <span className="text-sm font-semibold text-white">{item.q}</span>
+              <ChevronDown
+                size={18}
+                className={`shrink-0 transition-transform ${
+                  isOpen ? "rotate-180" : ""
+                }`}
+                style={{ color: "#6EE7B7" }}
+              />
+            </button>
+            {isOpen && (
+              <div className="px-4 pb-4 text-sm leading-relaxed" style={{ color: "#9AA8BC" }}>
+                {item.a}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 }
