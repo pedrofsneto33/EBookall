@@ -46,6 +46,7 @@ const SOFT = "#4A5B6E";
 const PAPER = "#FAF8F4";
 const LINE = "#E6E1D6";
 const SEAL = "#1B6B4A";
+const MAX_PETICOES = 3;
 
 type Perfil = "autoexclusao" | "ludopatia" | "publicidade" | "saque";
 
@@ -68,6 +69,9 @@ function Field({ label, value, onChange, full }: { label: string; value: string;
 export default function GeradorPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [peticoesUsadas, setPeticoesUsadas] = useState(0);
+  const [limitReached, setLimitReached] = useState(false);
   const [tab, setTab] = useState("perfil");
   const [ack, setAck] = useState(false);
   const [perfil, setPerfil] = useState<Perfil>("autoexclusao");
@@ -83,6 +87,7 @@ export default function GeradorPage() {
   const [relato, setRelato] = useState("");
   const [texto, setTexto] = useState("");
   const [dadosPDF, setDadosPDF] = useState<any>(null);
+  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -91,6 +96,10 @@ export default function GeradorPage() {
         if (r.ok) {
           const d = await r.json();
           if (d?.status === "pending") { router.replace("/pagamento"); return; }
+          if (d?.email || d?.user?.email) setUserEmail(d.email || d.user?.email);
+          const used = Number(d?.peticoes_usadas) || 0;
+          setPeticoesUsadas(used);
+          setLimitReached(used >= MAX_PETICOES);
         }
       } catch {}
       setLoading(false);
@@ -106,43 +115,75 @@ export default function GeradorPage() {
 
   const fmt = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   const disponiveis = filtrarPorPerfil(ARGUMENTOS, perfil);
+  const restantes = Math.max(0, MAX_PETICOES - peticoesUsadas);
 
-  function gerar() {
+  async function gerar() {
+    if (limitReached || peticoesUsadas >= MAX_PETICOES) {
+      alert("Você já usou as 3 petições do seu acesso. Não é possível gerar mais.");
+      return;
+    }
     if (argsSel.length === 0) return alert("Selecione argumentos.");
     if (relato.trim().length < 40) return alert("Relato obrigatório com os fatos desta pessoa (mín. 40 caracteres). Não copie sentença de terceiro.");
     if (!autor.nome || !reu.nome) return alert("Preencha autor e casa ré.");
 
-    const ctx = { dataFato: dataFato || undefined, dataAutoexclusao: dataAuto || dataFato || undefined, reuNome: reu.nome, valor: calc.base };
-    const argumentos = ARGUMENTOS.filter((a) => argsSel.includes(a.id)).map((a) => ({
-      titulo: a.label.toUpperCase(),
-      texto: a.texto(ctx),
-    }));
+    setGenerating(true);
+    try {
+      // Reserva a cota no servidor ANTES de montar o PDF
+      const res = await fetch("/api/auth/peticoes", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "increment" }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setLimitReached(true);
+        setPeticoesUsadas(Number(data.peticoes_usadas) || MAX_PETICOES);
+        alert(data.error || "Limite de 3 petições atingido.");
+        setGenerating(false);
+        return;
+      }
+      const used = Number(data.peticoes_usadas) || peticoesUsadas + 1;
+      setPeticoesUsadas(used);
+      setLimitReached(used >= MAX_PETICOES || !!data.limitReached);
 
-    const pedidos =
-      `Requer-se:\n` +
-      (calc.base > 0 ? `a) restituição de ${fmt(calc.base)}${dobro ? ` em dobro (${fmt(calc.comDobro)})` : ""};\n` : "") +
-      (danoMoral ? `b) danos morais a arbitrar (parâmetro ${fmt(parseFloat(valorDM) || 0)});\n` : "") +
-      `c) inversão do ônus da prova (CDC art. 6º, VIII);\nd) citação da Ré.`;
+      const ctx = { dataFato: dataFato || undefined, dataAutoexclusao: dataAuto || dataFato || undefined, reuNome: reu.nome, valor: calc.base };
+      const argumentos = ARGUMENTOS.filter((a) => argsSel.includes(a.id)).map((a) => ({
+        titulo: a.label.toUpperCase(),
+        texto: a.texto(ctx),
+      }));
 
-    const dados = {
-      enderecamento: `EXCELENTÍSSIMO(A) JUIZ(A) DE DIREITO DO JEC DA COMARCA DE ${autor.comarca || "[COMARCA]"} – ${autor.uf || "[UF]"}`,
-      qualificacao: `${autor.nome}, CPF ${autor.cpf || "[CPF]"}, residente em ${autor.endereco || "[ENDEREÇO]"}, propõe`,
-      tituloAcao: `AÇÃO DE INDENIZAÇÃO POR DANOS MATERIAIS${danoMoral ? " E MORAIS" : ""}`,
-      qualificacaoReu: `em face de ${reu.nome}, CNPJ ${reu.cnpj || "[CNPJ]"}.`,
-      fatos: relato,
-      argumentos,
-      pedidos,
-      valorCausa: calc.total > 0 ? fmt(calc.total) : "[preencher]",
-      autorNome: autor.nome,
-      cidadeData: `${autor.comarca || "[CIDADE]"}, ${new Date().toLocaleDateString("pt-BR")}.`,
-    };
-    setDadosPDF(dados);
+      const pedidos =
+        `Requer-se:\n` +
+        (calc.base > 0 ? `a) restituição de ${fmt(calc.base)}${dobro ? ` em dobro (${fmt(calc.comDobro)})` : ""};\n` : "") +
+        (danoMoral ? `b) danos morais a arbitrar (parâmetro ${fmt(parseFloat(valorDM) || 0)});\n` : "") +
+        `c) inversão do ônus da prova (CDC art. 6º, VIII);\nd) citação da Ré.`;
 
-    let p = `${dados.enderecamento}\n\n${dados.qualificacao}\n\n${dados.tituloAcao}\n\n${dados.qualificacaoReu}\n\nI — DOS FATOS\n\n${dados.fatos}\n\n`;
-    argumentos.forEach((a, i) => { p += `${i + 1}. ${a.titulo}\n${a.texto}\n\n`; });
-    p += `DOS PEDIDOS\n\n${dados.pedidos}\n\nValor da causa: ${dados.valorCausa}.\n\nNestes termos, pede deferimento.\n\n${dados.cidadeData}\n\n${dados.autorNome}`;
-    setTexto(p);
-    setTab("resultado");
+      const dados = {
+        enderecamento: `EXCELENTÍSSIMO(A) JUIZ(A) DE DIREITO DO JEC DA COMARCA DE ${autor.comarca || "[COMARCA]"} – ${autor.uf || "[UF]"}`,
+        qualificacao: `${autor.nome}, CPF ${autor.cpf || "[CPF]"}, residente em ${autor.endereco || "[ENDEREÇO]"}, propõe`,
+        tituloAcao: `AÇÃO DE INDENIZAÇÃO POR DANOS MATERIAIS${danoMoral ? " E MORAIS" : ""}`,
+        qualificacaoReu: `em face de ${reu.nome}, CNPJ ${reu.cnpj || "[CNPJ]"}.`,
+        fatos: relato,
+        argumentos,
+        pedidos,
+        valorCausa: calc.total > 0 ? fmt(calc.total) : "[preencher]",
+        autorNome: autor.nome,
+        cidadeData: `${autor.comarca || "[CIDADE]"}, ${new Date().toLocaleDateString("pt-BR")}.`,
+      };
+      setDadosPDF(dados);
+
+      let p = `${dados.enderecamento}\n\n${dados.qualificacao}\n\n${dados.tituloAcao}\n\n${dados.qualificacaoReu}\n\nI — DOS FATOS\n\n${dados.fatos}\n\n`;
+      argumentos.forEach((a, i) => { p += `${i + 1}. ${a.titulo}\n${a.texto}\n\n`; });
+      p += `DOS PEDIDOS\n\n${dados.pedidos}\n\nValor da causa: ${dados.valorCausa}.\n\nNestes termos, pede deferimento.\n\n${dados.cidadeData}\n\n${dados.autorNome}`;
+      setTexto(p);
+      setTab("resultado");
+    } catch (e) {
+      console.error(e);
+      alert("Erro ao gerar. Tente de novo.");
+    } finally {
+      setGenerating(false);
+    }
   }
 
   async function baixar() {
@@ -166,15 +207,43 @@ export default function GeradorPage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#F3F0E9" }}>
-      <header className="border-b px-4 py-3 flex justify-between" style={{ backgroundColor: PAPER, borderColor: LINE }}>
-        <p className="text-sm font-bold" style={{ color: INK }}>Gerador · peça da causa da pessoa</p>
-        <button type="button" onClick={() => router.push("/")} className="text-xs" style={{ color: SOFT }}>Início</button>
+      <header className="border-b px-4 py-3 flex justify-between items-center" style={{ backgroundColor: PAPER, borderColor: LINE }}>
+        <div>
+          <p className="text-sm font-bold" style={{ color: INK }}>Gerador · peça da causa da pessoa</p>
+          {userEmail && <p className="text-[10px]" style={{ color: SOFT }}>{userEmail}</p>}
+        </div>
+        <div className="flex items-center gap-3">
+          <span
+            className="text-xs font-semibold px-3 py-1.5 rounded-full border"
+            style={{
+              borderColor: limitReached ? "#FECACA" : LINE,
+              backgroundColor: limitReached ? "#FEF2F2" : "#FFF",
+              color: limitReached ? "#991B1B" : SOFT,
+            }}
+          >
+            {peticoesUsadas}/{MAX_PETICOES} petições
+          </span>
+          <button type="button" onClick={() => router.push("/")} className="text-xs" style={{ color: SOFT }}>Início</button>
+        </div>
       </header>
 
       <div className="max-w-3xl mx-auto px-4 py-8">
+        {limitReached && (
+          <div className="flex gap-2 items-start border rounded-lg px-4 py-3 mb-6" style={{ backgroundColor: "#FEF2F2", borderColor: "#FECACA" }}>
+            <AlertTriangle size={18} className="shrink-0 mt-0.5 text-red-600" />
+            <p className="text-sm text-red-800">
+              <strong>Limite atingido.</strong> Você já gerou as {MAX_PETICOES} petições inclusas no acesso.
+              Baixe as que já tem; para novas peças é preciso novo acesso.
+            </p>
+          </div>
+        )}
+
         <div className="flex gap-2 items-start border rounded-lg px-4 py-3 mb-6" style={{ backgroundColor: "#FBF1DD", borderColor: "#D8B368" }}>
           <AlertTriangle size={18} className="shrink-0 mt-0.5" style={{ color: SEAL }} />
-          <p className="text-sm" style={{ color: "#5C4A22" }}><strong>Não é advocacia.</strong> Rascunho para jus postulandi. Relato obrigatório dos fatos desta pessoa — não copie sentença de terceiro.</p>
+          <p className="text-sm" style={{ color: "#5C4A22" }}>
+            <strong>Não é advocacia.</strong> Rascunho para jus postulandi. Até {MAX_PETICOES} petições no acesso.
+            Restam <strong>{restantes}</strong>.
+          </p>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-6">
@@ -229,7 +298,7 @@ export default function GeradorPage() {
         {tab === "argumentos" && (
           <div className="rounded-xl border p-6 space-y-2" style={{ backgroundColor: PAPER, borderColor: LINE }}>
             <h2 className="font-semibold mb-2" style={{ color: INK }}>Argumentos deste tipo</h2>
-            <p className="text-xs mb-3" style={{ color: SOFT }}>O texto inclui o nome da ré, datas e valor informados.</p>
+            <p className="text-xs mb-3" style={{ color: SOFT }}>O texto inclui o nome da ré, datas e valor informados. Cada geração consome 1 das {MAX_PETICOES} petições.</p>
             {disponiveis.map((a: Argumento) => (
               <label key={a.id} className="flex gap-3 text-sm p-3 rounded-lg border cursor-pointer" style={{ borderColor: argsSel.includes(a.id) ? SEAL : LINE, backgroundColor: argsSel.includes(a.id) ? "#E8F5EF" : "#FFF" }}>
                 <input type="checkbox" checked={argsSel.includes(a.id)} onChange={() => setArgsSel((p) => p.includes(a.id) ? p.filter((x) => x !== a.id) : [...p, a.id])} style={{ accentColor: SEAL }} />
@@ -237,17 +306,32 @@ export default function GeradorPage() {
               </label>
             ))}
             <label className="flex gap-2 text-sm mt-3" style={{ color: INK }}><input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} /> Li o aviso e vou revisar antes de protocolar</label>
-            <button type="button" disabled={!ack} onClick={gerar} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold disabled:opacity-50" style={{ backgroundColor: SEAL }}>Gerar petição desta causa <Scale size={16} /></button>
+            <button
+              type="button"
+              disabled={!ack || limitReached || generating}
+              onClick={gerar}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold disabled:opacity-50"
+              style={{ backgroundColor: SEAL }}
+            >
+              {generating ? "Gerando…" : limitReached ? "Limite de 3 atingido" : `Gerar petição (${restantes} restantes)`}
+              <Scale size={16} />
+            </button>
           </div>
         )}
 
         {tab === "resultado" && texto && (
           <div className="rounded-xl border p-6 space-y-3" style={{ backgroundColor: PAPER, borderColor: LINE }}>
             <h2 className="font-semibold" style={{ color: INK }}>Rascunho — revise</h2>
+            <p className="text-xs" style={{ color: SOFT }}>Usadas: {peticoesUsadas}/{MAX_PETICOES}. Baixe o PDF agora; a cota já foi consumida.</p>
             <pre className="text-xs whitespace-pre-wrap p-4 rounded-lg border max-h-[420px] overflow-auto" style={{ backgroundColor: "#FFF", borderColor: LINE, color: INK }}>{texto}</pre>
             <div className="flex gap-3">
               <button type="button" onClick={baixar} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold" style={{ backgroundColor: SEAL }}><Download size={16} /> PDF</button>
               <button type="button" onClick={() => navigator.clipboard.writeText(texto)} className="px-5 py-2.5 rounded-xl text-sm font-semibold border" style={{ borderColor: LINE, color: INK }}>Copiar</button>
+              {!limitReached && (
+                <button type="button" onClick={() => { setTab("perfil"); setTexto(""); setDadosPDF(null); setArgsSel([]); }} className="px-5 py-2.5 rounded-xl text-sm font-semibold border" style={{ borderColor: LINE, color: INK }}>
+                  Nova ({restantes} restantes)
+                </button>
+              )}
             </div>
           </div>
         )}

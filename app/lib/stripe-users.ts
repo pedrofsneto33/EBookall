@@ -1,5 +1,7 @@
 import Stripe from "stripe";
 
+export const MAX_PETICOES = 3;
+
 export function getStripe() {
   const key = process.env.STRIPE_SECRET_KEY?.trim();
   if (!key) throw new Error("STRIPE_SECRET_KEY não configurada");
@@ -19,6 +21,12 @@ function paidEmailsEnv(): Set<string> {
       .map((e) => e.trim().toLowerCase())
       .filter(Boolean)
   );
+}
+
+async function findCustomer(email: string): Promise<Stripe.Customer | null> {
+  const stripe = getStripe();
+  const customers = await stripe.customers.list({ email: email.toLowerCase().trim(), limit: 5 });
+  return customers.data[0] || null;
 }
 
 /** Acesso pago: lista manual, Customer Stripe com rj_status, ou checkout pago. */
@@ -48,8 +56,62 @@ export async function hasPaidAccess(email: string): Promise<boolean> {
     });
   } catch (e) {
     console.error("hasPaidAccess:", e);
-    // Fallback: só lista manual se Stripe falhar
     return paidEmailsEnv().has(target);
+  }
+}
+
+/** Quantas petições o e-mail já gerou (metadata Stripe). */
+export async function getPeticoesUsadas(email: string): Promise<number> {
+  try {
+    const c = await findCustomer(email);
+    if (!c) return 0;
+    const n = parseInt(c.metadata?.rj_peticoes || "0", 10);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  } catch (e) {
+    console.error("getPeticoesUsadas:", e);
+    return 0;
+  }
+}
+
+/**
+ * Incrementa contador no Customer Stripe.
+ * Retorna { ok, peticoes_usadas, limitReached }.
+ * Se já estiver no limite, não incrementa.
+ */
+export async function incrementPeticoes(
+  email: string
+): Promise<{ ok: boolean; peticoes_usadas: number; limitReached: boolean; error?: string }> {
+  const target = email.toLowerCase().trim();
+  try {
+    const stripe = getStripe();
+    let c = await findCustomer(target);
+    if (!c) {
+      c = await stripe.customers.create({
+        email: target,
+        metadata: { product: "recuperajogo", rj_peticoes: "0" },
+      });
+    }
+    const current = parseInt(c.metadata?.rj_peticoes || "0", 10) || 0;
+    if (current >= MAX_PETICOES) {
+      return { ok: false, peticoes_usadas: current, limitReached: true, error: "Limite de 3 petições atingido." };
+    }
+    const next = current + 1;
+    await stripe.customers.update(c.id, {
+      metadata: {
+        ...c.metadata,
+        rj_peticoes: String(next),
+        rj_peticao_at: new Date().toISOString(),
+      },
+    });
+    return { ok: true, peticoes_usadas: next, limitReached: next >= MAX_PETICOES };
+  } catch (e) {
+    console.error("incrementPeticoes:", e);
+    return {
+      ok: false,
+      peticoes_usadas: 0,
+      limitReached: false,
+      error: e instanceof Error ? e.message : "Erro ao registrar petição",
+    };
   }
 }
 
@@ -61,6 +123,7 @@ export async function grantAccessByEmail(email: string, reason = "manual"): Prom
   if (existing.data[0]) {
     await stripe.customers.update(existing.data[0].id, {
       metadata: {
+        ...existing.data[0].metadata,
         rj_status: "active",
         rj_granted_at: new Date().toISOString(),
         rj_grant_reason: reason,
@@ -75,6 +138,7 @@ export async function grantAccessByEmail(email: string, reason = "manual"): Prom
       rj_granted_at: new Date().toISOString(),
       rj_grant_reason: reason,
       product: "recuperajogo",
+      rj_peticoes: "0",
     },
   });
 }
