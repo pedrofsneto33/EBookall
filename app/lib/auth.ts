@@ -12,7 +12,7 @@ export type SessionUser = {
 };
 
 function getSecret() {
-  const s = process.env.AUTH_SECRET || process.env.STRIPE_SECRET_KEY;
+  const s = process.env.AUTH_SECRET;
   if (!s) throw new Error("AUTH_SECRET não configurada na Vercel");
   return new TextEncoder().encode(s.slice(0, 64));
 }

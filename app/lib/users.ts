@@ -3,7 +3,7 @@ import { MAX_PETICOES } from "./config";
 
 /**
  * Regras de acesso e limite de petições agora vivem na tabela `users`
- * (SQLite/libsql) em vez do metadata do Customer Stripe.
+ * (SQLite/libsql).
  */
 
 /** Limite de petições incluídas no acesso (fonte de verdade: `config.ts`). */
@@ -155,36 +155,4 @@ export async function grantAccessByEmail(email: string, reason = "manual"): Prom
             updated_at = datetime('now')`,
     args: [target, reason, new Date().toISOString()],
   });
-}
-
-/**
- * Ativa o acesso a partir de uma sessão de checkout paga.
- * Idempotente: a mesma session_id não reprocessa.
- */
-export async function activateBySession(
-  email: string,
-  sessionId: string
-): Promise<void> {
-  const target = normalizeEmail(email);
-  if (!target) throw new Error("Sessão sem e-mail para ativação");
-
-  const db = await ensureDb();
-  const existing = await findUser(target);
-  if (existing?.stripe_session_id === sessionId) {
-    console.log("Pagamento já ativado", { id: sessionId, email: target });
-    return;
-  }
-
-  await db.execute({
-    sql: `INSERT INTO users (email, status, peticoes_usadas, stripe_session_id, granted_at, updated_at)
-          VALUES (?, 'active', 0, ?, ?, datetime('now'))
-          ON CONFLICT(email) DO UPDATE SET
-            status = 'active',
-            stripe_session_id = excluded.stripe_session_id,
-            granted_at = excluded.granted_at,
-            updated_at = datetime('now')`,
-    args: [target, sessionId, new Date().toISOString()],
-  });
-
-  console.log("Pagamento confirmado", { id: sessionId, email: target });
 }

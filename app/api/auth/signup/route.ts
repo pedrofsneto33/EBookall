@@ -7,7 +7,7 @@ import {
 
 export const runtime = "nodejs";
 
-/** Criar conta = sessão imediata por e-mail (zero Stripe). */
+/** Criar conta = sessão imediata por e-mail. */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

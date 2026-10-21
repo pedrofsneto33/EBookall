@@ -40,7 +40,6 @@ export async function GET() {
 
 /**
  * Cria sessão só com e-mail.
- * NÃO chama Stripe aqui (evita timeout/connection error no cadastro).
  */
 export async function POST(request: NextRequest) {
   try {
@@ -60,7 +59,7 @@ export async function POST(request: NextRequest) {
     const user = { id: userIdFromEmail(email), email };
     const token = await createSessionToken(user);
 
-    // Status real vem do SQLite (users), não do Stripe.
+    // Status real vem do SQLite (users).
     let status: "pending" | "active" = "pending";
     let usadas = 0;
     try {

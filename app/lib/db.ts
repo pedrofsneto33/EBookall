@@ -3,7 +3,7 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 
 /**
- * Banco local (libsql/SQLite) que substitui o metadata do Customer Stripe.
+ * Banco local (libsql/SQLite) com o status de acesso e o limite de petições.
  *
  * - Local (dev):  DATABASE_URL=file:./data/app.db
  * - Turso (prod): DATABASE_URL=libsql://xxx.turso.io  +  DATABASE_AUTH_TOKEN

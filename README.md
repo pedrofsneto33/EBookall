@@ -11,7 +11,8 @@ Gerador de **rascunho de petição** para Juizado Especial Cível (jus postuland
 
 - Next.js (App Router) + TypeScript + Tailwind CSS v4
 - Supabase (Auth + `subscriptions` + `leads`)
-- Stripe Checkout (Pix + cartão, pagamento único R$ 137)
+- Pix CNPJ (Pix estático) — pagamento único R$ 137, liberação manual de acesso
+- SQLite (libSQL) — status de acesso, limite de petições e usuários
 - `@react-pdf/renderer` (PDF)
 - Resend (notificação de leads)
 
@@ -30,10 +31,10 @@ npm run dev
 | `NEXT_PUBLIC_SUPABASE_URL` | Auth + DB |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Cliente |
 | `SUPABASE_SERVICE_ROLE_KEY` | Webhook / ensure subscription |
-| `STRIPE_SECRET_KEY` | Checkout Session |
-| `STRIPE_WEBHOOK_SECRET` | Validação do webhook |
-| `STRIPE_PRICE_ID` | (opcional) Price fixo |
-| `NEXT_PUBLIC_SITE_URL` | success/cancel + SEO |
+| `ADMIN_SECRET` | Liberação manual de acesso (`/api/admin/grant`) |
+| `DATABASE_URL` | SQLite/libSQL — usuários, status e limite de petições |
+| `DATABASE_AUTH_TOKEN` | Token do Turso (produção) |
+| `NEXT_PUBLIC_SITE_URL` | Links de acesso + SEO |
 | `RESEND_API_KEY` | E-mail de leads |
 | `RESEND_FROM` | Remetente |
 | `LEADS_NOTIFY_EMAIL` | Destino da notificação |
@@ -42,17 +43,16 @@ npm run dev
 ## Fluxo de pagamento
 
 1. Usuário faz login (`/login`)
-2. `/pagamento` → `POST /api/checkout` → Stripe Checkout (Pix ou cartão)
-3. Webhook `checkout.session.completed` → upsert `subscriptions.status = active`
-4. Redirect `/obrigado` → `/gerador` (até 3 petições)
+2. `/pagamento` → Pix CNPJ (chave/QR estático) e envio do comprovante por WhatsApp
+3. Admin confirma o Pix e libera o acesso (`/admin` → `POST /api/admin/grant`) → `users.status = active` no SQLite
+4. Cliente entra e usa `/gerador` (até 3 petições)
 
-Endpoint do webhook: `https://SEU_DOMINIO/api/webhook`  
-Evento: `checkout.session.completed`
+Endpoint de liberação: `POST /api/admin/grant` (requer `ADMIN_SECRET`)
 
 ## Deploy checklist
 
 - [ ] Env vars na Vercel
-- [ ] Webhook Stripe apontando para produção
+- [ ] `ADMIN_SECRET` definida para a liberação manual de acesso
 - [ ] Supabase: tabelas + RLS em `subscriptions` e `leads`
 - [ ] Testar checkout + webhook em modo live
 - [ ] (Opcional) Prints/PDF tarjados em `/public/docs` e lista em `ProvaReal.tsx`
