@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { rateLimit } from "../../lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   try {
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+
+    if (!rateLimit(`lead:${ip}`, 8, 10 * 60 * 1000)) {
+      return NextResponse.json(
+        { error: "Muitas tentativas. Aguarde" },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const email = String(body.email ?? "").trim().toLowerCase();
     const nome = String(body.nome ?? "").trim();

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getSession } from "../../lib/auth";
 import { mapStripeError } from "../../lib/stripe-users";
+import { rateLimit } from "../../lib/rate-limit";
+import { PRECO_CENTAVOS } from "../../lib/config";
 
 function getStripe() {
   const key = process.env.STRIPE_SECRET_KEY?.trim();
@@ -37,7 +39,7 @@ export async function POST() {
       process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://recuperajogo.vercel.app";
 
     const priceId = process.env.STRIPE_PRICE_ID;
-    const unitAmount = 13700;
+    const unitAmount = PRECO_CENTAVOS;
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: "payment",
@@ -69,6 +71,13 @@ export async function POST() {
       cancel_url: `${origin}/pagamento?canceled=1`,
       locale: "pt-BR",
     };
+
+    if (!rateLimit(`checkout:${userId}`, 10, 10 * 60 * 1000)) {
+      return NextResponse.json(
+        { error: "Muitas tentativas. Aguarde" },
+        { status: 429 }
+      );
+    }
 
     const session = await stripe.checkout.sessions.create(sessionParams);
     return NextResponse.json({ url: session.url, sessionId: session.id });

@@ -1,6 +1,7 @@
 import Stripe from "stripe";
+import { MAX_PETICOES } from "./config";
 
-export const MAX_PETICOES = 3;
+export { MAX_PETICOES };
 
 export function getStripe() {
   const key = process.env.STRIPE_SECRET_KEY?.trim();
