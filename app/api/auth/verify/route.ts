@@ -4,7 +4,7 @@ import {
   createSessionToken,
   setSessionCookie,
 } from "../../../lib/auth";
-import { hasPaidAccess } from "../../../lib/stripe-users";
+import { hasPaidAccess } from "../../../lib/users";
 
 export const runtime = "nodejs";
 

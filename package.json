@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@libsql/client": "^0.18.0",
     "@react-pdf/renderer": "^4.5.1",
     "@stripe/stripe-js": "^9.12.1",
     "bcryptjs": "^2.4.3",

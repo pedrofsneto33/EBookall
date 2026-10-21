@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "../../../lib/auth";
-import { getPeticoesUsadas, hasPaidAccess } from "../../../lib/stripe-users";
+import { getPeticoesUsadas, hasPaidAccess, MAX_PETICOES } from "../../../lib/users";
 
 export const runtime = "nodejs";
 
@@ -25,7 +25,7 @@ export async function GET() {
       email: session.email,
       status,
       peticoes_usadas,
-      peticoes_max: 3,
+      peticoes_max: MAX_PETICOES,
     });
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Erro";

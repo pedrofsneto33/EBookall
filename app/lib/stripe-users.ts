@@ -1,7 +1,12 @@
 import Stripe from "stripe";
-import { MAX_PETICOES } from "./config";
+import { activateBySession as activateUserBySession } from "./users";
 
-export { MAX_PETICOES };
+/**
+ * Módulo do Stripe: client, mapeamento de erros e ativação de sessão.
+ *
+ * O armazenamento de usuários/pagamentos (status, contador de petições)
+ * vive em SQLite/libSQL — ver `app/lib/users.ts` e `app/lib/db.ts`.
+ */
 
 export function getStripe() {
   const key = process.env.STRIPE_SECRET_KEY?.trim();
@@ -12,161 +17,9 @@ export function getStripe() {
   return new Stripe(key, { timeout: 15000, maxNetworkRetries: 1 });
 }
 
-export type AccessStatus = "pending" | "active";
-
-function paidEmailsEnv(): Set<string> {
-  const raw = process.env.PAID_EMAILS || "";
-  return new Set(
-    raw
-      .split(/[,;\s]+/)
-      .map((e) => e.trim().toLowerCase())
-      .filter(Boolean)
-  );
-}
-
-async function findCustomer(email: string): Promise<Stripe.Customer | null> {
-  const stripe = getStripe();
-  const customers = await stripe.customers.list({ email: email.toLowerCase().trim(), limit: 5 });
-  return customers.data[0] || null;
-}
-
-/** Acesso pago: lista manual, Customer Stripe com rj_status, ou checkout pago. */
-export async function hasPaidAccess(email: string): Promise<boolean> {
-  const target = email.toLowerCase().trim();
-  if (!target) return false;
-
-  if (paidEmailsEnv().has(target)) return true;
-
-  try {
-    const stripe = getStripe();
-
-    const customers = await stripe.customers.list({ email: target, limit: 5 });
-    for (const c of customers.data) {
-      if (c.metadata?.rj_status === "active") return true;
-    }
-
-    const sessions = await stripe.checkout.sessions.list({ limit: 40 });
-    return sessions.data.some((s) => {
-      if (s.status !== "complete" && s.payment_status !== "paid") return false;
-      const e =
-        s.customer_details?.email?.toLowerCase() ||
-        s.customer_email?.toLowerCase() ||
-        s.metadata?.email?.toLowerCase() ||
-        "";
-      return e === target;
-    });
-  } catch (e) {
-    console.error("hasPaidAccess:", e);
-    return paidEmailsEnv().has(target);
-  }
-}
-
-/** Quantas petições o e-mail já gerou (metadata Stripe). */
-export async function getPeticoesUsadas(email: string): Promise<number> {
-  try {
-    const c = await findCustomer(email);
-    if (!c) return 0;
-    const n = parseInt(c.metadata?.rj_peticoes || "0", 10);
-    return Number.isFinite(n) && n > 0 ? n : 0;
-  } catch (e) {
-    console.error("getPeticoesUsadas:", e);
-    return 0;
-  }
-}
-
 /**
- * Incrementa contador no Customer Stripe.
- * Retorna { ok, peticoes_usadas, limitReached }.
- * Se já estiver no limite, não incrementa.
- */
-export async function incrementPeticoes(
-  email: string
-): Promise<{ ok: boolean; peticoes_usadas: number; limitReached: boolean; error?: string }> {
-  const target = email.toLowerCase().trim();
-  try {
-    const stripe = getStripe();
-    let c = await findCustomer(target);
-    if (!c) {
-      c = await stripe.customers.create({
-        email: target,
-        metadata: { product: "recuperajogo", rj_peticoes: "0" },
-      });
-    }
-    const current = parseInt(c.metadata?.rj_peticoes || "0", 10) || 0;
-    if (current >= MAX_PETICOES) {
-      return { ok: false, peticoes_usadas: current, limitReached: true, error: "Limite de 3 petições atingido." };
-    }
-    const next = current + 1;
-    await stripe.customers.update(c.id, {
-      metadata: {
-        ...c.metadata,
-        rj_peticoes: String(next),
-        rj_peticao_at: new Date().toISOString(),
-      },
-    });
-    return { ok: true, peticoes_usadas: next, limitReached: next >= MAX_PETICOES };
-  } catch (e) {
-    console.error("incrementPeticoes:", e);
-    return {
-      ok: false,
-      peticoes_usadas: 0,
-      limitReached: false,
-      error: e instanceof Error ? e.message : "Erro ao registrar petição",
-    };
-  }
-}
-
-/** Libera acesso após PIX CNPJ (chamado pelo admin ou webhook). */
-export async function grantAccessByEmail(email: string, reason = "manual"): Promise<void> {
-  const target = email.toLowerCase().trim();
-  const stripe = getStripe();
-  const existing = await stripe.customers.list({ email: target, limit: 1 });
-  if (existing.data[0]) {
-    await stripe.customers.update(existing.data[0].id, {
-      metadata: {
-        ...existing.data[0].metadata,
-        rj_status: "active",
-        rj_granted_at: new Date().toISOString(),
-        rj_grant_reason: reason,
-      },
-    });
-    return;
-  }
-  await stripe.customers.create({
-    email: target,
-    metadata: {
-      rj_status: "active",
-      rj_granted_at: new Date().toISOString(),
-      rj_grant_reason: reason,
-      product: "recuperajogo",
-      rj_peticoes: "0",
-    },
-  });
-}
-
-/** Resolve o Customer do Stripe (por session.customer ou por e-mail). */
-async function resolveCustomer(
-  session: Stripe.Checkout.Session
-): Promise<Stripe.Customer | null> {
-  const stripe = getStripe();
-
-  const rawCustomer = session.customer;
-  const customerId =
-    typeof rawCustomer === "string" ? rawCustomer : rawCustomer?.id;
-  if (customerId) {
-    const c = await stripe.customers.retrieve(customerId);
-    if (!("deleted" in c && c.deleted)) return c;
-  }
-
-  const email =
-    session.customer_details?.email || session.customer_email || session.metadata?.email;
-  if (!email) return null;
-  return findCustomer(email);
-}
-
-/**
- * Libera acesso após pagamento Stripe.
- * Idempotente: o session.id fica marcado em customer.metadata.rj_activated_session.
+ * Libera acesso após pagamento Stripe (escrita no SQLite).
+ * Idempotente: a mesma session_id não reprocessa.
  * Lança erro em falha (o webhook decide responder 500 para o Stripe reenviar).
  */
 export async function activateBySession(session: Stripe.Checkout.Session) {
@@ -175,36 +28,11 @@ export async function activateBySession(session: Stripe.Checkout.Session) {
     session.customer_email ||
     session.metadata?.email;
 
-  // 1) Checagem de idempotência ANTES de qualquer efeito.
-  const existing = await resolveCustomer(session);
-  if (existing && existing.metadata?.rj_activated_session === session.id) {
-    console.log("Pagamento Stripe já ativado", { id: session.id, email });
-    return;
-  }
-
   if (!email) {
     throw new Error(`Sessão ${session.id} sem e-mail para ativação`);
   }
 
-  // 2) Concede acesso (sem try/catch local: o erro sobe para o webhook).
-  await grantAccessByEmail(email, `stripe_session:${session.id}`);
-
-  // 3) Marca a sessão como processada para impedir reprocessamento.
-  //    Re-resolve o Customer DEPOIS do grant para usar o metadata atual
-  //    (o snapshot pré-grant não tem rj_status e o spread sobrescreveria).
-  const activated = await resolveCustomer(session);
-  if (!activated) {
-    throw new Error(`Customer não encontrado para a sessão ${session.id}`);
-  }
-  const stripe = getStripe();
-  await stripe.customers.update(activated.id, {
-    metadata: {
-      ...activated.metadata,
-      rj_activated_session: session.id,
-    },
-  });
-
-  console.log("Pagamento Stripe confirmado", { id: session.id, email });
+  await activateUserBySession(email, session.id);
 }
 
 export function mapStripeError(err: unknown): string {

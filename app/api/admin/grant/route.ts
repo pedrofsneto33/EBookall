@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
-import { grantAccessByEmail } from "../../../lib/stripe-users";
+import { grantAccessByEmail } from "../../../lib/users";
 
 export const runtime = "nodejs";
 

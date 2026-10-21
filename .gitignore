@@ -40,11 +40,18 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Diagnósticos locais
+# Diagnï¿½sticos locais
 criticos.txt
 diagnostico.txt
 *.patch
 .env.local
 .env.local
+
+# Banco local (SQLite/libSQL) â€” nunca versionar
+/data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
 
 .tmp-*

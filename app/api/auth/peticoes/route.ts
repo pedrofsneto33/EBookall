@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { getSession } from "../../../lib/auth";
-import { incrementPeticoes, MAX_PETICOES } from "../../../lib/stripe-users";
+import { incrementPeticoes, MAX_PETICOES } from "../../../lib/users";
 import { rateLimit } from "../../../lib/rate-limit";
 
 export const runtime = "nodejs";
 
 /**
- * POST: registra +1 petição no metadata Stripe do Customer.
+ * POST: registra +1 petição na tabela `users` (SQLite/libSQL).
  * Bloqueia se já usou 3.
  */
 export async function POST() {
