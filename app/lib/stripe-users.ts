@@ -143,18 +143,66 @@ export async function grantAccessByEmail(email: string, reason = "manual"): Prom
   });
 }
 
+/** Resolve o Customer do Stripe (por session.customer ou por e-mail). */
+async function resolveCustomer(
+  session: Stripe.Checkout.Session
+): Promise<Stripe.Customer | null> {
+  const stripe = getStripe();
+
+  const rawCustomer = session.customer;
+  const customerId =
+    typeof rawCustomer === "string" ? rawCustomer : rawCustomer?.id;
+  if (customerId) {
+    const c = await stripe.customers.retrieve(customerId);
+    if (!("deleted" in c && c.deleted)) return c;
+  }
+
+  const email =
+    session.customer_details?.email || session.customer_email || session.metadata?.email;
+  if (!email) return null;
+  return findCustomer(email);
+}
+
+/**
+ * Libera acesso após pagamento Stripe.
+ * Idempotente: o session.id fica marcado em customer.metadata.rj_activated_session.
+ * Lança erro em falha (o webhook decide responder 500 para o Stripe reenviar).
+ */
 export async function activateBySession(session: Stripe.Checkout.Session) {
   const email =
     session.customer_details?.email ||
     session.customer_email ||
     session.metadata?.email;
-  if (email) {
-    try {
-      await grantAccessByEmail(email, `stripe_session:${session.id}`);
-    } catch (e) {
-      console.error("activateBySession grant:", e);
-    }
+
+  // 1) Checagem de idempotência ANTES de qualquer efeito.
+  const existing = await resolveCustomer(session);
+  if (existing && existing.metadata?.rj_activated_session === session.id) {
+    console.log("Pagamento Stripe já ativado", { id: session.id, email });
+    return;
   }
+
+  if (!email) {
+    throw new Error(`Sessão ${session.id} sem e-mail para ativação`);
+  }
+
+  // 2) Concede acesso (sem try/catch local: o erro sobe para o webhook).
+  await grantAccessByEmail(email, `stripe_session:${session.id}`);
+
+  // 3) Marca a sessão como processada para impedir reprocessamento.
+  //    Re-resolve o Customer DEPOIS do grant para usar o metadata atual
+  //    (o snapshot pré-grant não tem rj_status e o spread sobrescreveria).
+  const activated = await resolveCustomer(session);
+  if (!activated) {
+    throw new Error(`Customer não encontrado para a sessão ${session.id}`);
+  }
+  const stripe = getStripe();
+  await stripe.customers.update(activated.id, {
+    metadata: {
+      ...activated.metadata,
+      rj_activated_session: session.id,
+    },
+  });
+
   console.log("Pagamento Stripe confirmado", { id: session.id, email });
 }
 
