@@ -44,3 +44,7 @@ next-env.d.ts
 criticos.txt
 diagnostico.txt
 *.patch
+.env.local
+.env.local
+
+.tmp-*
