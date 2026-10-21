@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getSession } from "../../lib/auth";
 import { mapStripeError } from "../../lib/stripe-users";
@@ -10,7 +10,7 @@ function getStripe() {
 }
 
 /** Checkout só cartão — PIX é pelo CNPJ Primex na página /pagamento. */
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     if (!process.env.STRIPE_SECRET_KEY?.trim()) {
       return NextResponse.json(
@@ -20,20 +20,21 @@ export async function POST(request: NextRequest) {
     }
 
     const stripe = getStripe();
-    const body = await request.json().catch(() => ({}));
     const sessionUser = await getSession();
-    const email =
-      sessionUser?.email || String(body.email ?? "").trim().toLowerCase();
-    const userId = sessionUser?.id || String(body.user_id ?? "").trim();
 
-    if (!email) {
-      return NextResponse.json({ error: "Faça login antes de pagar" }, { status: 401 });
+    // Identidade vem SOMENTE da sessão JWT (nunca do body da requisição).
+    if (!sessionUser) {
+      return NextResponse.json(
+        { error: "Faça login antes de pagar" },
+        { status: 401 }
+      );
     }
+    const email = sessionUser.email.trim().toLowerCase();
+    const userId = sessionUser.id;
 
+    // Origin fixo: nunca usar o header Origin (open redirect).
     const origin =
-      request.headers.get("origin") ||
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      "https://recuperajogo.vercel.app";
+      process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://recuperajogo.vercel.app";
 
     const priceId = process.env.STRIPE_PRICE_ID;
     const unitAmount = 13700;
@@ -43,9 +44,9 @@ export async function POST(request: NextRequest) {
       // Só cartão — PIX é CNPJ Primex na página de pagamento
       payment_method_types: ["card"],
       customer_email: email,
-      client_reference_id: userId || email,
+      client_reference_id: userId,
       metadata: {
-        user_id: userId || email,
+        user_id: userId,
         email,
         product: "recuperajogo_acesso_completo",
       },
