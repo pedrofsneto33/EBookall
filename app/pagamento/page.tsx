@@ -3,13 +3,11 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  ArrowRight,
   CheckCircle2,
   AlertCircle,
   Loader2,
   Shield,
-  Copy,
-  QrCode,
+  MessageCircle,
 } from "lucide-react";
 
 const SEAL = "#1B6B4A";
@@ -27,15 +25,9 @@ function PagamentoContent() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [copied, setCopied] = useState(false);
-  const [pixLoading, setPixLoading] = useState(false);
-  const [pix, setPix] = useState<{
-    paymentId: string;
-    qrCodeBase64: string;
-    copiaECola: string;
-    expirationDate: string;
-  } | null>(null);
-  const [verificando, setVerificando] = useState(false);
+  const [copiado, setCopiado] = useState(false);
+  const [copiarErro, setCopiarErro] = useState("");
+  const [qrErro, setQrErro] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/me", { credentials: "include" })
@@ -59,91 +51,24 @@ function PagamentoContent() {
       .catch(() => router.replace("/login?next=/pagamento"));
   }, [router]);
 
-  // Polling do status do Pix a cada 5s enquanto houver Pix gerado.
-  useEffect(() => {
-    if (!pix?.paymentId) return;
-    const t = setInterval(() => {
-      void verificarPagamento();
-    }, 5000);
-    return () => clearInterval(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pix?.paymentId]);
-
-  async function gerarPix() {
-    setPixLoading(true);
-    setError("");
+  async function copiarCnpj() {
+    setCopiarErro("");
     try {
-      const res = await fetch("/api/pix/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
-      if (res.status === 401) {
-        router.replace("/login?next=/pagamento");
-        return;
-      }
-      const data = await res.json();
-      if (res.status === 429) {
-        setError(data.error || "Muitas tentativas. Aguarde alguns minutos.");
-        return;
-      }
-      if (!res.ok) {
-        throw new Error(data.error || "Não foi possível gerar o Pix");
-      }
-      setPix({
-        paymentId: data.paymentId,
-        qrCodeBase64: data.qrCodeBase64,
-        copiaECola: data.copiaECola,
-        expirationDate: data.expirationDate,
-      });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Erro ao gerar o Pix");
-    } finally {
-      setPixLoading(false);
-    }
-  }
-
-  async function copiarPix() {
-    if (!pix) return;
-    try {
-      await navigator.clipboard.writeText(pix.copiaECola);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
+      await navigator.clipboard.writeText("55536885000130");
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 2500);
     } catch {
-      setError("Não foi possível copiar. Selecione e copie manualmente.");
+      setCopiarErro("Copie manualmente: 55.536.885/0001-30");
     }
   }
 
-  async function verificarPagamento() {
-    if (!pix) return;
-    setVerificando(true);
-    try {
-      const res = await fetch(`/api/pix/status?paymentId=${encodeURIComponent(pix.paymentId)}`, {
-        credentials: "include",
-        cache: "no-store",
-      });
-      if (res.status === 401) {
-        router.replace("/login?next=/pagamento");
-        return;
-      }
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Erro ao consultar pagamento");
-      }
-      const status = data.status;
-      if (status === "RECEIVED" || status === "CONFIRMED") {
-        router.push("/obrigado");
-        return;
-      }
-      if (status === "OVERDUE" || status === "REFUNDED") {
-        setError("Pix expirou ou foi estornado. Gere um novo.");
-        setPix(null);
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Erro ao consultar pagamento");
-    } finally {
-      setVerificando(false);
-    }
+  function abrirWhatsApp() {
+    window.open(
+      `https://wa.me/5586988117925?text=${encodeURIComponent(
+        "Oi! Paguei o Pix de R$ 137 e vou mandar o comprovante."
+      )}`,
+      "_blank"
+    );
   }
 
   if (loading) {
@@ -194,93 +119,79 @@ function PagamentoContent() {
           </div>
         )}
 
-        {/* PIX via Asaas */}
-        {!pix ? (
-          <button
-            type="button"
-            onClick={gerarPix}
-            disabled={pixLoading}
-            className="w-full inline-flex items-center justify-center gap-2 text-[15px] font-semibold px-6 py-3.5 rounded-xl disabled:opacity-70"
-            style={{ backgroundColor: SEAL, color: INK }}
-          >
-            {pixLoading ? (
-              <>
-                <Loader2 size={18} className="animate-spin" /> Gerando Pix...
-              </>
-            ) : (
-              <>
-                <QrCode size={18} /> Pagar com Pix (R$ 137) <ArrowRight size={18} />
-              </>
-            )}
-          </button>
-        ) : (
-          <div
-            className="mb-5 p-5 rounded-2xl border text-left"
-            style={{ borderColor: "#1B6B4A", backgroundColor: "#0C1F17" }}
-          >
-            <p className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: "#6EE7B7" }}>
-              Pix gerado — pague e o acesso é liberado sozinho
+        {/* PIX estatico no CNPJ */}
+        <div
+          className="mb-5 p-5 rounded-2xl border text-left"
+          style={{ borderColor: "#1B6B4A", backgroundColor: "#0C1F17" }}
+        >
+          <p className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: "#6EE7B7" }}>
+            Pague R$ 137,00 via Pix
+          </p>
+
+          {qrErro ? (
+            <p className="text-sm text-center py-6 leading-relaxed" style={{ color: INK }}>
+              Use a chave Pix (CNPJ) abaixo para pagar.
             </p>
+          ) : (
             <div className="flex justify-center mb-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={
-                  pix.qrCodeBase64.startsWith("data:")
-                    ? pix.qrCodeBase64
-                    : `data:image/png;base64,${pix.qrCodeBase64}`
-                }
-                alt="QR Code do Pix"
+                src="/pix-qr.png"
+                alt="QR Code Pix CNPJ Primex"
                 width={220}
                 height={220}
                 className="rounded-xl bg-white p-2"
+                onError={() => setQrErro(true)}
               />
             </div>
-            <p className="text-xs mb-1" style={{ color: INK_SOFT }}>
-              Pix copia e cola
-            </p>
-            <div className="flex items-start gap-2">
-              <textarea
-                readOnly
-                value={pix.copiaECola}
-                rows={3}
-                className="w-full px-3 py-2 rounded-xl border font-mono text-xs resize-none"
-                style={{ borderColor: "#1B6B4A", backgroundColor: "#0B1220", color: INK }}
-              />
-              <button
-                type="button"
-                onClick={copiarPix}
-                className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold px-3 py-2.5 rounded-xl border"
-                style={{ borderColor: "#1B6B4A", color: "#6EE7B7", backgroundColor: "#0B1220" }}
-              >
-                <Copy size={14} /> {copied ? "Copiado!" : "Copiar"}
-              </button>
-            </div>
-            <p className="text-xs mt-3" style={{ color: INK_SOFT }}>
-              Expira em: {new Date(pix.expirationDate).toLocaleString("pt-BR")}
-            </p>
+          )}
+
+          <p className="text-xs mb-1" style={{ color: INK_SOFT }}>
+            Chave Pix (CNPJ):
+          </p>
+          <div className="flex items-center gap-2">
+            <code
+              className="flex-1 px-3 py-2.5 rounded-xl border font-mono text-sm"
+              style={{ borderColor: "#1B6B4A", backgroundColor: "#0B1220", color: INK }}
+            >
+              55.536.885/0001-30
+            </code>
             <button
               type="button"
-              onClick={verificarPagamento}
-              disabled={verificando}
-              className="mt-4 w-full inline-flex items-center justify-center gap-2 text-[15px] font-semibold px-6 py-3.5 rounded-xl disabled:opacity-70"
-              style={{ backgroundColor: SEAL, color: INK }}
+              onClick={copiarCnpj}
+              className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold px-3 py-2.5 rounded-xl border"
+              style={{ borderColor: "#1B6B4A", color: "#6EE7B7", backgroundColor: "#0B1220" }}
             >
-              {verificando ? (
-                <>
-                  <Loader2 size={18} className="animate-spin" /> Verificando...
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 size={18} /> Já paguei — verificar agora
-                </>
-              )}
+              {copiado ? "Copiado!" : "Copiar CNPJ"}
             </button>
           </div>
-        )}
+          {copiarErro && (
+            <p className="text-xs mt-2" style={{ color: "#FECACA" }}>
+              {copiarErro}
+            </p>
+          )}
 
-        <p className="text-xs mt-4 leading-relaxed" style={{ color: INK_SOFT }}>
-          Pagamento via Pix. O acesso é liberado automaticamente em até 30 segundos após a confirmação.
-        </p>
+          <ol className="mt-4 space-y-1 text-sm text-left" style={{ color: INK_SOFT }}>
+            <li>1. Abra o app do seu banco.</li>
+            <li>2. Escolha Pix &#8594; Pagar com CNPJ.</li>
+            <li>3. Cole a chave acima e digite R$ 137,00.</li>
+            <li>4. Envie o comprovante no WhatsApp abaixo.</li>
+          </ol>
+
+          <button
+            type="button"
+            onClick={abrirWhatsApp}
+            className="mt-4 w-full inline-flex items-center justify-center gap-2 text-[15px] font-semibold px-6 py-3.5 rounded-xl"
+            style={{ backgroundColor: "#25D366", color: "#06311A" }}
+          >
+            <MessageCircle size={18} /> Enviar comprovante no WhatsApp
+          </button>
+
+          <p className="text-xs mt-3 leading-relaxed" style={{ color: INK_SOFT }}>
+            Seu acesso é liberado manualmente em até 10 minutos após o envio do comprovante.
+            Você recebe um e-mail quando estiver liberado.
+          </p>
+        </div>
 
         <a
           href={`https://wa.me/${WHATSAPP}?text=Oi!%20Tenho%20d%C3%BAvida%20sobre%20o%20pagamento%20via%20Pix`}
