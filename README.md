@@ -10,7 +10,7 @@ Gerador de **rascunho de petição** para Juizado Especial Cível (jus postuland
 ## Stack
 
 - Next.js (App Router) + TypeScript + Tailwind CSS v4
-- Supabase (Auth + `subscriptions` + `leads`)
+- JWT próprio (cookie `rj_session`) — sessão e autenticação
 - Pix CNPJ (Pix estático) — pagamento único R$ 137, liberação manual de acesso
 - SQLite (libSQL) — status de acesso, limite de petições e usuários
 - `@react-pdf/renderer` (PDF)
@@ -28,9 +28,7 @@ npm run dev
 
 | Variável | Uso |
 |----------|-----|
-| `NEXT_PUBLIC_SUPABASE_URL` | Auth + DB |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Cliente |
-| `SUPABASE_SERVICE_ROLE_KEY` | Webhook / ensure subscription |
+| `AUTH_SECRET` | Assinatura do JWT de sessão |
 | `ADMIN_SECRET` | Liberação manual de acesso (`/api/admin/grant`) |
 | `DATABASE_URL` | SQLite/libSQL — usuários, status e limite de petições |
 | `DATABASE_AUTH_TOKEN` | Token do Turso (produção) |
@@ -52,9 +50,10 @@ Endpoint de liberação: `POST /api/admin/grant` (requer `ADMIN_SECRET`)
 ## Deploy checklist
 
 - [ ] Env vars na Vercel
+- [ ] `AUTH_SECRET` definida (assinatura do JWT de sessão)
 - [ ] `ADMIN_SECRET` definida para a liberação manual de acesso
-- [ ] Supabase: tabelas + RLS em `subscriptions` e `leads`
-- [ ] Testar checkout + webhook em modo live
+- [ ] SQLite/libSQL: `DATABASE_URL` (e `DATABASE_AUTH_TOKEN` no Turso)
+- [ ] Testar o fluxo Pix CNPJ + liberação manual (`/admin` → `/obrigado` → `/gerador`)
 - [ ] (Opcional) Prints/PDF tarjados em `/public/docs` e lista em `ProvaReal.tsx`
 - [ ] (Opcional) `NEXT_PUBLIC_VIDEO_URL` e links de fontes em `ImpactoSocial.tsx`
 
