@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Sora } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
-const sora = Sora({ subsets: ["latin"], variable: "--font-sora", weight: ["300", "400", "500", "600", "700", "800"] });
+const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", weight: ["300", "400", "500", "600", "700"] });
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://recuperajogo.vercel.app";
 
@@ -62,7 +62,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={sora.variable}>
+    <html lang="pt-BR" className={spaceGrotesk.variable}>
       <head>
         <script
           type="application/ld+json"
