@@ -4,13 +4,15 @@
 // Personalizados por perfil e dados do autor (não genéricos).
 // ============================================================
 
-export type PerfilCaso = "autoexclusao" | "ludopatia" | "publicidade" | "saque";
+export type PerfilCaso = "autoexclusao" | "ludopatia" | "publicidade" | "saque" | "premio_nao_pago" | "conta_bloqueada" | "bonus_rollover" | "publicidade_enganosa";
 
 export interface CtxArg {
   dataFato?: string;
   dataAutoexclusao?: string;
   reuNome?: string;
   valor?: number;
+  valorBonus?: string;
+  valorRollover?: string;
 }
 
 export interface Argumento {
@@ -199,6 +201,42 @@ export const ARGUMENTOS: Argumento[] = [
       `Requer-se a inversão do ônus da prova, nos termos do art. 6º, VIII, do CDC, cabendo à parte Ré demonstrar o cumprimento efetivo das obrigações de consulta ao SIGAP, bloqueio, informação, processamento de saque e respeito à vontade do consumidor, conforme o caso — sobretudo porque os sistemas de verificação e de jogo responsável estão sob seu domínio técnico.`,
     dicaProva: "Peça padrão em relações de consumo; reforçada quando há dever regulatório de registro/consulta.",
   },
+  {
+    id: "premio_nao_pago_falha_servico",
+    perfis: ["premio_nao_pago"],
+    label: "Prêmio não pago — falha na prestação do serviço",
+    texto: () =>
+      "A recusa de pagamento do prêmio configura falha na prestação do serviço (art. 14 CDC) e enriquecimento sem causa (art. 884 CC).",
+    dicaProva: "Print da aposta ganha; E-mail/chat de recusa.",
+  },
+  {
+    id: "conta_bloqueada_sem_justa_causa",
+    perfis: ["conta_bloqueada"],
+    label: "Conta bloqueada — violação do dever de informação",
+    texto: () =>
+      "O bloqueio da conta sem justa causa viola o dever de informação e a função social do contrato (art. 6º, III e art. 51, CDC).",
+    dicaProva: "Print do saldo; Print do bloqueio.",
+  },
+  {
+    id: "rollover_abusivo",
+    perfis: ["bonus_rollover"],
+    label: "Rollover abusivo — cláusula nula",
+    texto: (ctx) => {
+      const b = ctx?.valorBonus ? ` (bônus de ${ctx.valorBonus})` : "";
+      const r = ctx?.valorRollover ? ` (rollover exigido de ${ctx.valorRollover})` : "";
+      return `As cláusulas de rollover desproporcionais${b}${r} são abusivas e nulas de pleno direito (art. 51, IV, CDC).`;
+    },
+    dicaProva: "Print da oferta do bônus; Print das regras de rollover.",
+  },
+  {
+    id: "publicidade_enganosa_apostas",
+    perfis: ["publicidade_enganosa"],
+    label: "Publicidade enganosa — prática abusiva",
+    texto: () =>
+      "A publicidade que omite riscos ou promete lucro certo configura prática abusiva (art. 37, CDC).",
+    dicaProva: "Print do anúncio; Comprovantes de perdas.",
+  },
+
 ];
 
 export const PEDIDOS_ESPECIAIS: PedidoEspecial[] = [

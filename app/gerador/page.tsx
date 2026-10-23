@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertTriangle, Calculator, Download, ChevronRight, Scale,
-  AlertCircle, Heart, Lock, Loader2,
+  AlertCircle, Heart, Lock, Loader2, Trophy, Ban, Gift, Megaphone,
 } from "lucide-react";
 import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer";
 import { ARGUMENTOS, filtrarPorPerfil, Argumento } from "../lib/argumentos-peticao";
@@ -55,13 +55,17 @@ const LINE = "#E6E1D6";
 const SEAL = "#1B6B4A";
 const MAX_PETICOES = 3;
 
-type Perfil = "autoexclusao" | "ludopatia" | "publicidade" | "saque";
+type Perfil = "autoexclusao" | "ludopatia" | "publicidade" | "saque" | "premio_nao_pago" | "conta_bloqueada" | "bonus_rollover" | "publicidade_enganosa";
 
 const PERFIS: { id: Perfil; title: string; desc: string; Icon: any }[] = [
   { id: "autoexclusao", title: "Exclusão centralizada furada", desc: "Autoexcluiu e a casa ainda aceitou depósito.", Icon: Lock },
   { id: "ludopatia", title: "Ludopatia / dever de cuidado", desc: "Pedidos de limite ignorados.", Icon: Heart },
   { id: "publicidade", title: "Publicidade após pedir para parar", desc: "Bônus/push depois do opt-out.", Icon: AlertCircle },
   { id: "saque", title: "Saque travado", desc: "Saldo existe, liberação enrolada.", Icon: Calculator },
+  { id: "premio_nao_pago", title: "Prêmio ou Aposta Ganha Não Paga", desc: "A casa não pagou o prêmio, cancelou a aposta ou alterou a cotação após o resultado.", Icon: Trophy },
+  { id: "conta_bloqueada", title: "Conta Bloqueada ou Suspensa", desc: "Sua conta foi bloqueada e o saldo retido sem justificativa ou direito de defesa.", Icon: Ban },
+  { id: "bonus_rollover", title: "Bônus com Rollover Abusivo", desc: "A casa exigiu requisitos impossíveis para liberar o bônus, impedindo o saque.", Icon: Gift },
+  { id: "publicidade_enganosa", title: "Publicidade Enganosa", desc: "A plataforma prometeu ganhos garantidos ou omitiu riscos, estimulando apostas.", Icon: Megaphone },
 ];
 
 function Field({ label, value, onChange, full }: { label: string; value: string; onChange: (v: string) => void; full?: boolean }) {
@@ -93,6 +97,8 @@ export default function GeradorPage() {
   const [dobro, setDobro] = useState(false);
   const [danoMoral, setDanoMoral] = useState(true);
   const [valorDM, setValorDM] = useState("3000");
+  const [valorBonus, setValorBonus] = useState("");
+  const [valorRollover, setValorRollover] = useState("");
   const [autor, setAutor] = useState({ nome: "", cpf: "", endereco: "", comarca: "", uf: "" });
   const [reu, setReu] = useState({ nome: "", cnpj: "" });
   const [relato, setRelato] = useState("");
@@ -157,7 +163,7 @@ export default function GeradorPage() {
       setPeticoesUsadas(used);
       setLimitReached(used >= MAX_PETICOES || !!data.limitReached);
 
-      const ctx = { dataFato: dataFato || undefined, dataAutoexclusao: dataAuto || dataFato || undefined, reuNome: reu.nome, valor: calc.base };
+      const ctx = { dataFato: dataFato || undefined, dataAutoexclusao: dataAuto || dataFato || undefined, reuNome: reu.nome, valor: calc.base, valorBonus: valorBonus || undefined, valorRollover: valorRollover || undefined };
       const argumentos = ARGUMENTOS.filter((a) => argsSel.includes(a.id)).map((a) => ({
         titulo: a.label.toUpperCase(),
         texto: a.texto(ctx),
@@ -314,8 +320,14 @@ export default function GeradorPage() {
               <Field label="Casa ré" value={reu.nome} onChange={(v) => setReu({ ...reu, nome: v })} />
               <Field label="CNPJ ré" value={reu.cnpj} onChange={(v) => setReu({ ...reu, cnpj: v })} />
               <Field label="Data autoexclusão" value={dataAuto} onChange={setDataAuto} />
-              <Field label="Data do fato" value={dataFato} onChange={setDataFato} />
+              <Field label={perfil === "conta_bloqueada" ? "Data do bloqueio" : perfil === "premio_nao_pago" ? "Data da recusa" : "Data do fato"} value={dataFato} onChange={setDataFato} />
               <Field label="Valor material R$" value={valorPerdido} onChange={setValorPerdido} />
+              {perfil === "bonus_rollover" && (
+                <>
+                  <Field label="Valor do bônus R$" value={valorBonus} onChange={setValorBonus} />
+                  <Field label="Valor exigido no rollover R$" value={valorRollover} onChange={setValorRollover} />
+                </>
+              )}
               <Field label="Dano moral sugerido R$" value={valorDM} onChange={setValorDM} />
             </div>
             <label className="flex gap-2 text-sm text-white"><input type="checkbox" checked={dobro} onChange={(e) => setDobro(e.target.checked)} className="accent-emerald-500" /> Dobro (CDC art. 42)</label>
