@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import ProblemSection from "@/components/home/ProblemSection";
 import HowItWorksSection from "@/components/home/HowItWorksSection";
+import ResultsSection from "@/components/home/ResultsSection";
 import { motion } from "motion/react";
 
 interface CountUpProps {
@@ -155,6 +156,7 @@ export default function HomePage() {
 
       <ProblemSection />
       <HowItWorksSection />
+      <ResultsSection />
     </div>
   );
 }
