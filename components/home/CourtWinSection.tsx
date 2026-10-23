@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "motion/react";
-import { CheckCircle2, Lock } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function CourtWinSection() {
@@ -18,71 +19,20 @@ export default function CourtWinSection() {
 
       <div className="relative mx-auto max-w-6xl grid lg:grid-cols-2 gap-12 items-center">
         {/* Documento */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9, rotate: 0 }}
-          whileInView={{ opacity: 1, scale: 1, rotate: -2 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-          className="relative"
-        >
-          <div className="absolute -top-4 -right-4 z-10 bg-emerald-400 text-black font-black text-xs px-3 py-1.5 rotate-12 shadow-lg">
-            VITÓRIA REAL
+        <div className="relative w-full max-w-md mx-auto group mt-10 md:mt-0">
+          <div className="absolute -top-4 -right-4 z-20 bg-emerald-400 text-black font-black text-xs px-4 py-2 rounded-full shadow-lg rotate-12 transition-transform duration-300 group-hover:rotate-0">
+            SENTENÇA REAL
           </div>
-          <div className="bg-white text-gray-800 rounded-sm shadow-[0_30px_80px_rgba(0,0,0,0.6)] p-8 md:p-10 font-serif text-[13px] leading-relaxed max-w-md mx-auto">
-            <div className="text-center border-b border-gray-300 pb-3 mb-4">
-              <p className="text-[10px] uppercase tracking-widest text-gray-500">
-                Poder Judiciário
-              </p>
-              <p className="text-[11px] font-bold text-gray-700">
-                Juizado Especial Cível
-              </p>
-            </div>
-
-            <p className="mb-2">
-              Processo nº:{" "}
-              <span className="bg-black text-transparent select-none">
-                0000000-00.0000.0.00.0000
-              </span>
-            </p>
-            <p className="mb-2">
-              Autor:{" "}
-              <span className="bg-black text-transparent select-none">
-                █████████
-              </span>
-            </p>
-            <p className="mb-4">
-              Réu:{" "}
-              <span className="bg-black text-transparent select-none">
-                █████████
-              </span>
-            </p>
-
-            <p className="mb-3">
-              <span className="bg-yellow-200/80 px-1">
-                A falha, portanto, atingiu diretamente o próprio mecanismo de
-                proteção que o consumidor havia utilizado para impedir sua
-                exposição à atividade de apostas.
-              </span>
-            </p>
-
-            <p className="font-bold text-emerald-700">
-              JULGO PROCEDENTE... CONDENO{" "}
-              <span className="bg-black text-transparent select-none">
-                █████████
-              </span>{" "}
-              a pagar{" "}
-              <span className="bg-black text-transparent select-none">
-                █████████
-              </span>{" "}
-              a quantia de R$ 3.000,00 (três mil reais).
-            </p>
-
-            <div className="mt-6 flex items-center gap-2 text-[10px] text-gray-400">
-              <Lock size={12} />
-              Dados sensíveis tarjados
-            </div>
+          <div className="bg-white p-3 rounded-sm shadow-2xl shadow-black/50 rotate-[-2deg] transition-all duration-500 group-hover:rotate-0 group-hover:scale-105 border border-zinc-200">
+            <Image
+              src="/images/sentenca-real.png"
+              alt="Sentença real do Juizado Especial"
+              width={600}
+              height={900}
+              className="w-full h-auto object-cover"
+            />
           </div>
-        </motion.div>
+        </div>
 
         {/* Dados */}
         <motion.div
