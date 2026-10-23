@@ -1,6 +1,7 @@
 "use client";
 
 import Reveal from "./Reveal";
+import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "../lib/config";
 
 /** Stats de impacto — tom de campanha; fontes públicas quando disponíveis. */
 const STATS = [
@@ -16,7 +17,7 @@ const STATS = [
   },
   {
     n: "JEC",
-    d: "caminho real: Juizado Especial, jus postulandi, até 20 salários",
+    d: `caminho real: Juizado Especial, jus postulandi, até ${formatarMoeda(LIMITE_JUS_POSTULANDI)}`,
     tone: "emerald" as const,
   },
   {
