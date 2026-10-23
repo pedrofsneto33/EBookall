@@ -14,7 +14,7 @@ const BENEFITS = [
 
 export default function OfferSection() {
   return (
-    <section className="relative bg-[#05080C] py-24 px-6 overflow-hidden">
+    <section id="preco" className="relative bg-[#05080C] py-24 px-6 overflow-hidden">
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
         <div className="w-[700px] h-[700px] bg-emerald-500/15 blur-[160px] rounded-full" />
       </div>

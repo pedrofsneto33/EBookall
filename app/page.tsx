@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import CourtWinSection from "@/components/home/CourtWinSection";
+import Navbar from "@/components/shared/Navbar";
 import OfferSection from "@/components/home/OfferSection";
 import { ArrowRight, Check, X, Upload, Cpu, FileCheck2, HelpCircle } from "lucide-react";
 
@@ -56,25 +57,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#05080C] text-white">
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#05080C]/80 backdrop-blur border-b border-white/5">
-        <div className="mx-auto max-w-7xl px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" />
-            <span className="font-black tracking-tight text-lg">RecuperaJogo</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm text-zinc-300 hover:text-white px-3 py-2">
-              Entrar
-            </Link>
-            <Link
-              href="/login"
-              className="clip-custom bg-emerald-400 hover:bg-emerald-300 text-black font-bold text-sm px-5 py-2.5 transition-colors"
-            >
-              Gerar Petição
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       {/* HERO */}
       <section className="relative pt-28 pb-20 px-6 overflow-hidden">
@@ -169,8 +152,7 @@ export default function LandingPage() {
       </section>
 
       {/* COMO FUNCIONA */}
-      <section className="py-24 px-6">
-        <div className="mx-auto max-w-6xl">
+      <section id="como-funciona" className="py-24 px-6">
           <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-center mb-16">
             Como funciona
           </h2>
@@ -251,14 +233,13 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </div>
       </section>
 
       {/* OFERTA */}
       <OfferSection />
 
       {/* FAQ */}
-      <section className="py-24 px-6 border-t border-white/5">
+      <section id="faq" className="py-24 px-6 border-t border-white/5">
         <div className="mx-auto max-w-3xl">
           <div className="flex items-center gap-3 mb-10">
             <HelpCircle className="text-emerald-400" size={28} />
