@@ -68,7 +68,7 @@ function Field({ label, value, onChange, full }: { label: string; value: string;
   return (
     <label className={`text-sm ${full ? "sm:col-span-2" : ""}`}>
       <span className="block mb-1 font-medium" style={{ color: SOFT }}>{label}</span>
-      <input value={value} onChange={(e) => onChange(e.target.value)} className="w-full px-3 py-2 rounded-lg border" style={{ borderColor: LINE }} />
+      <input value={value} onChange={(e) => onChange(e.target.value)} className="w-full px-3 py-2 rounded-lg border" style={{ borderColor: LINE, color: INK }} />
     </label>
   );
 }
@@ -295,7 +295,7 @@ export default function GeradorPage() {
             <label className="flex gap-2 text-sm" style={{ color: INK }}><input type="checkbox" checked={danoMoral} onChange={(e) => setDanoMoral(e.target.checked)} /> Danos morais</label>
             <label className="block text-sm">
               <span className="block mb-1 font-medium" style={{ color: SOFT }}>Relato dos fatos desta pessoa (obrigatório)</span>
-              <textarea value={relato} onChange={(e) => setRelato(e.target.value)} rows={5} className="w-full px-3 py-2 rounded-lg border text-sm" style={{ borderColor: LINE }} placeholder="Datas, o que pediu, o que a casa fez, valores..." />
+              <textarea value={relato} onChange={(e) => setRelato(e.target.value)} rows={5} className="w-full px-3 py-2 rounded-lg border text-sm" style={{ borderColor: LINE, color: INK }} placeholder="Datas, o que pediu, o que a casa fez, valores..." />
             </label>
             <button type="button" onClick={() => setTab("argumentos")} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold" style={{ backgroundColor: SEAL }}>Continuar <ChevronRight size={16} /></button>
           </div>
