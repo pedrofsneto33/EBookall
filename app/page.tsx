@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import CourtWinSection from "@/components/home/CourtWinSection";
+import OfferSection from "@/components/home/OfferSection";
 import { ArrowRight, Check, X, Upload, Cpu, FileCheck2, HelpCircle } from "lucide-react";
 
 interface FaqItem {
@@ -254,34 +255,7 @@ export default function LandingPage() {
       </section>
 
       {/* OFERTA */}
-      <section className="py-24 px-6">
-        <div className="mx-auto max-w-md">
-          <div className="clip-custom bg-zinc-900 border border-emerald-500/50 p-8 shadow-[0_0_60px_rgba(16,185,129,0.15)]">
-            <p className="text-[11px] uppercase tracking-wider text-emerald-400 mb-2">
-              Acesso completo
-            </p>
-            <p className="text-5xl font-black text-white mb-6">
-              R$ 137,00
-            </p>
-            <ul className="space-y-3 mb-8">
-              {["Até 3 petições", "Checklist de provas", "Garantia de 7 dias", "Sem mensalidade"].map(
-                (item) => (
-                  <li key={item} className="flex items-center gap-2 text-zinc-300">
-                    <Check className="text-emerald-400" size={18} />
-                    {item}
-                  </li>
-                )
-              )}
-            </ul>
-            <Link
-              href="/login"
-              className="clip-custom block text-center bg-emerald-400 hover:bg-emerald-300 text-black font-black text-lg px-6 py-4 transition-colors"
-            >
-              Quero recuperar meu dinheiro
-            </Link>
-          </div>
-        </div>
-      </section>
+      <OfferSection />
 
       {/* FAQ */}
       <section className="py-24 px-6 border-t border-white/5">
