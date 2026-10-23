@@ -5,7 +5,7 @@ import HeroSection from "@/components/home/HeroSection";
 import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
 import OfferSection from "@/components/home/OfferSection";
-import { Check, X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText } from "lucide-react";
+import { Check, X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse } from "lucide-react";
 
 interface FaqItem {
   q: string;
@@ -78,18 +78,22 @@ export default function LandingPage() {
           <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-4">
             Autoridade
           </p>
-          <h2 className="text-4xl md:text-6xl font-black tracking-tighter">
-            A Justiça já reconheceu. Nós já vencemos.
-          </h2>
-          <div className="mt-12 clip-custom inline-block bg-zinc-900 border border-emerald-500/40 px-10 py-8 shadow-[0_0_60px_rgba(16,185,129,0.15)]">
-            <p className="text-7xl md:text-8xl font-black text-emerald-400">
-              R$ 3.000
-            </p>
-            <p className="mt-2 text-zinc-400 max-w-md mx-auto">
-              Sentença real de um caso de autoexclusão ignorada. O juiz mandou a
-              bet pagar. Você pode ser o próximo.
-            </p>
-          </div>
+           <h2 className="text-4xl md:text-6xl font-black tracking-tighter">
+             Caso Real: Sentença de R$ 3.000 em dano moral.
+           </h2>
+           <div className="mt-12 clip-custom inline-block bg-zinc-900 border border-emerald-500/40 px-10 py-8 shadow-[0_0_60px_rgba(16,185,129,0.15)]">
+             <div className="inline-block bg-emerald-400/20 text-emerald-400 text-xs font-bold px-3 py-1 mb-4 rounded-full">Caso Real</div>
+             <p className="text-5xl md:text-6xl font-black text-emerald-400">
+               R$ 3.000
+             </p>
+             <p className="mt-2 text-zinc-400 max-w-md mx-auto">
+               Sentença real de um caso de autoexclusão ignorada. O juiz mandou a
+               bet pagar.
+             </p>
+             <p className="mt-4 text-xs text-white/50 max-w-md mx-auto">
+               Resultado de um caso específico em Teresina/PI. Cada juiz decide com base nas provas. O RecuperaJogo não garante resultados.
+             </p>
+           </div>
         </div>
       </section>
 
@@ -170,7 +174,7 @@ export default function LandingPage() {
               <div className="clip-custom bg-zinc-900 border border-emerald-500/30 p-8 h-48 flex items-center justify-center">
                 <div className="text-center">
                   <FileCheck2 className="text-emerald-400 mx-auto mb-3" size={48} />
-                  <p className="text-sm text-zinc-400">peticao.pdf pronto</p>
+                  <p className="text-sm text-zinc-400">petição.pdf pronto</p>
                 </div>
               </div>
             </div>
@@ -228,21 +232,22 @@ export default function LandingPage() {
             <p className="text-sm text-white/60">Primex Sistemas LTDA - CNPJ: 55.536.885/0001-30</p>
           </div>
           <div className="space-y-2">
-            <p className="text-sm font-bold text-white mb-2">Links �teis</p>
-            <a href="/politica-privacidade" className="block text-sm text-white/60 hover:text-white">Pol�tica de Privacidade</a>
+            <p className="text-sm font-bold text-white mb-2">Links Útís</p>
+            <a href="/politica-privacidade" className="block text-sm text-white/60 hover:text-white">Política de Privacidade</a>
             <a href="/termos" className="block text-sm text-white/60 hover:text-white">Termos de Uso</a>
-            <a href="https://e-bookall.vercel.app/login" target="_blank" rel="noopener noreferrer" className="block text-sm text-white/60 hover:text-white">�rea do Cliente</a>
+            <a href="/apoio" className="flex items-center gap-2 text-sm text-white/60 hover:text-emerald-400 transition-colors"><HeartPulse size={14} /> Apoio Emocional e Jogo Responsável</a>
+            <a href="https://e-bookall.vercel.app/login" target="_blank" rel="noopener noreferrer" className="block text-sm text-white/60 hover:text-white">Área do Cliente</a>
           </div>
           <div>
             <p className="text-sm font-bold text-white mb-2">Suporte</p>
-            <p className="text-sm text-white/60 mb-2">D�vidas? Fale conosco</p>
+            <p className="text-sm text-white/60 mb-2">Dúvidas? Fale conosco</p>
             <a href="https://wa.me/5586988117925" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300">
               <MessageCircle size={16} /> WhatsApp
             </a>
           </div>
         </div>
         <div className="mx-auto max-w-7xl mt-8 pt-6 border-t border-white/5 text-center text-zinc-600 text-sm">
-          � 2026 RecuperaJogo. Todos os direitos reservados. Software de automa��o de documentos. N�o somos um escrit�rio de advocacia.
+          © 2026 RecuperaJogo. Todos os direitos reservados. Software de automação de documentos. Não somos um escritório de advocacia.
         </div>
       </footer>
 

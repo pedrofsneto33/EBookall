@@ -64,6 +64,10 @@ export default function OfferSection() {
                 </a>
               </motion.div>
 
+              <p className="mt-3 text-xs text-white/50 text-center">
+                Não é assessoria jurídica. Você é o autor e protocola em seu nome.
+              </p>
+
             <div className="mt-4 flex items-center justify-center gap-2 text-xs text-zinc-500">
               <ShieldCheck size={14} className="text-emerald-400" />
               Pagamento via Pix (CNPJ). O acesso é liberado após o envio do comprovante.

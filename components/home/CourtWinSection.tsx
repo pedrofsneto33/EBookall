@@ -50,8 +50,10 @@ export default function CourtWinSection() {
 
           <div className="mt-8 space-y-4">
             <div className="clip-custom bg-zinc-900 border border-emerald-500/30 p-6">
+              <div className="inline-block bg-emerald-400/20 text-emerald-400 text-xs font-bold px-3 py-1 mb-3 rounded-full">Caso Real</div>
               <p className="text-5xl font-black text-emerald-400">R$ 3.000,00</p>
               <p className="text-zinc-400 mt-1">Dano moral reconhecido</p>
+              <p className="mt-3 text-xs text-white/50">Resultado de um caso específico em Teresina/PI. Cada juiz decide com base nas provas. O RecuperaJogo não garante resultados.</p>
             </div>
             <div className="clip-custom bg-zinc-900 border border-white/10 p-6">
               <p className="text-5xl font-black text-white">R$ 380,00</p>

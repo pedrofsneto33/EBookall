@@ -48,7 +48,7 @@ export default function HeroSection() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 200, damping: 10 }}
-            className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-[0.9]"
+            className="text-4xl md:text-6xl lg:text-8xl font-black tracking-tighter leading-[0.9]"
           >
             {WORDS.map((w, i) => (
               <motion.span
@@ -108,7 +108,7 @@ export default function HeroSection() {
         >
           {Array.from({ length: 6 }).map((_, i) => (
             <span key={i}>
-              R$ 143 BILHÕES PERDIDOS • 1.8M DE BRASILEIROS ENDIVIDADOS • R$ 137
+              R$ 143 BILHÕES RETIRADOS DO VAREJO PELAS BETS • 1.8M DE BRASILEIROS ENDIVIDADOS • R$ 137
               PARA RECUPERAR •
             </span>
           ))}
