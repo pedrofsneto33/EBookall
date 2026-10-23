@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "motion/react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ShieldCheck } from "lucide-react";
+import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "@/app/lib/config";
 
 const WORDS = ["CHEGA", "DE", "PERDER", "PARA", "O", "TIGRINHO."];
 
@@ -93,6 +94,11 @@ export default function HeroSection() {
             >
               Como Funciona
             </a>
+          </div>
+
+          <div className="mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 text-emerald-400 font-semibold text-sm md:text-base">
+            <ShieldCheck size={20} />
+            <span>Você pode cobrar até {formatarMoeda(LIMITE_JUS_POSTULANDI)} sem precisar de advogado.</span>
           </div>
         </div>
 
