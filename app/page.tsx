@@ -5,7 +5,7 @@ import HeroSection from "@/components/home/HeroSection";
 import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
 import OfferSection from "@/components/home/OfferSection";
-import { Check, X, Upload, Cpu, FileCheck2, HelpCircle } from "lucide-react";
+import { Check, X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText } from "lucide-react";
 
 interface FaqItem {
   q: string;
@@ -14,18 +14,27 @@ interface FaqItem {
 
 const FAQS: FaqItem[] = [
   {
-    q: "Preciso de advogado?",
-    a: "Não. O RecuperaJogo gera a petição para o Juizado Especial Cível, onde a presença de advogado não é obrigatória em causas até 20 salários mínimos.",
+    q: 'Preciso de advogado para usar o sistema?',
+    a: 'Não. Causas de até 20 salários mínimos permitem que você mesmo protocole (jus postulandi, art. 9º da Lei 9.099/95). O RecuperaJogo apenas monta a petição; você revisa e assina.',
   },
   {
-    q: "E se a bet fechar?",
-    a: "A petição é direcionada à pessoa jurídica identificada (CNPJ, razão social). Se a operação for encerrada, o processo segue contra o responsável legal e seus sócios, quando aplicável.",
+    q: 'O pagamento libera na hora?',
+    a: 'O pagamento é via Pix no CNPJ. Você envia o comprovante no WhatsApp e nossa equipe libera seu acesso manualmente em até 10 minutos.',
   },
   {
-    q: "Serve para qualquer casa?",
-    a: "Priorizamos casas licenciadas no Brasil. Para plataformas ilegais/offshore a cobrança é praticamente inviável — não vendemos recuperação fácil de tarja.",
+    q: 'Serve para qualquer casa de apostas?',
+    a: 'Sim, desde que a operadora tenha CNPJ no Brasil. O sistema gera a peça com base nos fatos que você preenche.',
+  },
+  {
+    q: 'E se eu não gostar ou não quiser usar?',
+    a: 'Você tem 7 dias de garantia incondicional. Basta solicitar o reembolso e devolvemos o valor integral.',
+  },
+  {
+    q: 'Quantas petições posso gerar?',
+    a: 'Seu acesso permite gerar até 3 petições completas. Você pode editar e regerar o mesmo caso sem custo extra.',
   },
 ];
+
 
 function CountUp({ end, prefix = "", suffix = "" }: { end: number; prefix?: string; suffix?: string }) {
   const [value, setValue] = useState(0);
@@ -180,15 +189,15 @@ export default function LandingPage() {
               Perguntas frequentes
             </h2>
           </div>
-          <div className="divide-y divide-white/10">
+          <div className="space-y-4">
             {FAQS.map((item, i) => {
               const open = openFaq === i;
               return (
-                <div key={item.q} className="py-5">
+                <div key={item.q} className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
                   <button
                     type="button"
                     onClick={() => setOpenFaq(open ? null : i)}
-                    className="w-full flex items-center justify-between gap-4 text-left"
+                    className="w-full flex items-center justify-between gap-4 text-left p-5"
                   >
                     <span className={`text-lg font-bold ${open ? "text-emerald-400" : "text-white"}`}>
                       {item.q}
@@ -200,7 +209,7 @@ export default function LandingPage() {
                     )}
                   </button>
                   {open && (
-                    <p className="mt-3 text-zinc-400 leading-relaxed">{item.a}</p>
+                    <p className="px-5 pb-5 text-zinc-400 leading-relaxed">{item.a}</p>
                   )}
                 </div>
               );
@@ -209,9 +218,38 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="py-10 px-6 border-t border-white/5 text-center text-zinc-600 text-sm">
-        © {new Date().getFullYear()} RecuperaJogo. Tecnologia jurídica.
+      <footer className="bg-[#030712] border-t border-white/10 py-12 px-6">
+        <div className="mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <span className="font-black tracking-tight text-lg">Recupera<span className="text-emerald-400">Jogo</span></span>
+            </div>
+            <p className="text-sm text-white/60">Primex Sistemas LTDA - CNPJ: 55.536.885/0001-30</p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-bold text-white mb-2">Links �teis</p>
+            <a href="/politica-privacidade" className="block text-sm text-white/60 hover:text-white">Pol�tica de Privacidade</a>
+            <a href="/termos" className="block text-sm text-white/60 hover:text-white">Termos de Uso</a>
+            <a href="https://e-bookall.vercel.app/login" target="_blank" rel="noopener noreferrer" className="block text-sm text-white/60 hover:text-white">�rea do Cliente</a>
+          </div>
+          <div>
+            <p className="text-sm font-bold text-white mb-2">Suporte</p>
+            <p className="text-sm text-white/60 mb-2">D�vidas? Fale conosco</p>
+            <a href="https://wa.me/5586988117925" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300">
+              <MessageCircle size={16} /> WhatsApp
+            </a>
+          </div>
+        </div>
+        <div className="mx-auto max-w-7xl mt-8 pt-6 border-t border-white/5 text-center text-zinc-600 text-sm">
+          � 2026 RecuperaJogo. Todos os direitos reservados. Software de automa��o de documentos. N�o somos um escrit�rio de advocacia.
+        </div>
       </footer>
+
+      <a href="https://e-bookall.vercel.app/login" target="_blank" rel="noopener noreferrer" className="md:hidden fixed bottom-4 right-4 z-50 bg-emerald-500 text-[#05080C] font-bold rounded-full p-4 shadow-[0_0_20px_rgba(16,185,129,0.5)]">
+        <FileText size={24} />
+      </a>
+
     </div>
   );
 }

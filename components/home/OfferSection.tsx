@@ -66,7 +66,7 @@ export default function OfferSection() {
 
             <div className="mt-4 flex items-center justify-center gap-2 text-xs text-zinc-500">
               <ShieldCheck size={14} className="text-emerald-400" />
-              Pagamento 100% seguro via Asaas/Pix. Liberação imediata.
+              Pagamento via Pix (CNPJ). O acesso é liberado após o envio do comprovante.
             </div>
           </div>
         </div>

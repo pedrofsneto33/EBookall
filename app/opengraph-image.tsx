@@ -34,12 +34,12 @@ export default async function Image() {
           }}
         />
 
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", zIndex: 10 }}>
-          <div style={{ fontSize: "80px", fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.05em", marginBottom: "-10px" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <div style={{ fontSize: "80px", fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.05em", marginBottom: "-10px", display: "flex" }}>
             Recupera<span style={{ color: "#34D399" }}>Jogo</span>
           </div>
 
-          <div style={{ fontSize: "32px", color: "#A1A1AA", textAlign: "center", maxWidth: "800px", marginTop: "30px", lineHeight: 1.3 }}>
+          <div style={{ fontSize: "32px", color: "#A1A1AA", textAlign: "center", maxWidth: "800px", marginTop: "30px", lineHeight: 1.3, display: "flex" }}>
             As bets levaram seu dinheiro? Cobre na Justiça <strong>sem advogado</strong> por apenas R$ 137.
           </div>
 
