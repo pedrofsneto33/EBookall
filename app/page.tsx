@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { motion } from "motion/react";
 import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
@@ -85,13 +84,15 @@ export default function LandingPage() {
                 transition={{ type: "spring", stiffness: 300 }}
                 className="inline-block"
               >
-                <Link
-                  href="/login"
+                <a
+                  href="https://wa.me/5586988117925?text=Ol%C3%A1!%20Quero%20recuperar%20meu%20dinheiro%20das%20bets%20e%20gerar%20minha%20peti%C3%A7%C3%A3o."
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="clip-custom inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-black font-black text-lg px-8 py-4 transition-colors shadow-[0_0_40px_rgba(16,185,129,0.4)]"
                 >
                   Recuperar meu Dinheiro Agora
                   <ArrowRight size={20} />
-                </Link>
+                </a>
               </motion.div>
               <p className="mt-3 text-sm text-zinc-500">
                 Não é advocacia. É tecnologia jurídica. Sem juridiquês.

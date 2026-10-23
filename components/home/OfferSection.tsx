@@ -2,7 +2,6 @@
 
 import { motion } from "motion/react";
 import { CheckCircle2, ShieldCheck } from "lucide-react";
-import Link from "next/link";
 
 const BENEFITS = [
   "Até 3 petições geradas",
@@ -50,20 +49,20 @@ export default function OfferSection() {
               ))}
             </ul>
 
-            <div className="mt-8">
-              <motion.div
+            <motion.div
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 300 }}
                 className="inline-block w-full"
               >
-                <Link
-                  href="/login"
+                <a
+                  href="https://wa.me/5586988117925?text=Ol%C3%A1!%20Quero%20recuperar%20meu%20dinheiro%20das%20bets%20e%20gerar%20minha%20peti%C3%A7%C3%A3o."
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="clip-custom block text-center bg-emerald-400 hover:bg-emerald-300 text-black font-black text-lg px-6 py-4 transition-colors"
                 >
                   Gerar Minha Petição Agora
-                </Link>
+                </a>
               </motion.div>
-            </div>
 
             <div className="mt-4 flex items-center justify-center gap-2 text-xs text-zinc-500">
               <ShieldCheck size={14} className="text-emerald-400" />
