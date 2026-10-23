@@ -5,7 +5,7 @@ import HeroSection from "@/components/home/HeroSection";
 import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
 import OfferSection from "@/components/home/OfferSection";
-import { Check, X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse } from "lucide-react";
+import { Check, X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone } from "lucide-react";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "./lib/config";
 
 interface FaqItem {
@@ -70,6 +70,34 @@ export default function LandingPage() {
 
       {/* HERO */}
       <HeroSection />
+
+      {/* CASOS QUE RESOLVEMOS */}
+      <section className="py-24 px-6">
+        <div className="mx-auto max-w-6xl">
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-center mb-12">
+            Não importa o que a bet fez. Nós temos a petição certa.
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { title: "Autoexclusão ignorada", Icon: Lock },
+              { title: "Saldo ou Saque Retido", Icon: Wallet },
+              { title: "Prêmio / Aposta Ganha Não Paga", Icon: Trophy },
+              { title: "Conta Bloqueada Injustamente", Icon: UserX },
+              { title: "Bônus com Rollover Abusivo", Icon: Repeat },
+              { title: "Ludopatia com Laudo", Icon: HeartPulse },
+              { title: "Publicidade Enganosa", Icon: Megaphone },
+            ].map(({ title, Icon }) => (
+              <div
+                key={title}
+                className="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center gap-4"
+              >
+                <Icon className="text-emerald-400 shrink-0" size={28} />
+                <span className="font-semibold text-white">{title}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <CourtWinSection />
 
