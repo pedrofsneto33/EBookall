@@ -8,39 +8,40 @@ const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://recuperajogo.vercel.app";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE),
-  title: {
-    default: "RecuperaJogo — Petição contra bets no Juizado Especial",
-    template: "%s · RecuperaJogo",
-  },
-  description:
-    "Gerador de rascunho de petição para Juizado Especial Cível (jus postulandi) contra casas de apostas. Software da Primex Sistemas. R$ 137 · não é advocacia · não promete resultado.",
-  alternates: { canonical: SITE },
+  metadataBase: new URL("https://recuperajogo.com.br"),
+  title: "RecuperaJogo | Recupere seu dinheiro das bets sem advogado",
+  description: "A Inteligência Artificial que gera sua petição para o Juizado Especial em minutos. Sem advogado. Apenas R$ 137.",
+  keywords: ["recuperar dinheiro bet", "bet injusta", "petição juizado especial", "autoexclusão bet", "processo contra bet"],
+  authors: [{ name: "RecuperaJogo" }],
   openGraph: {
-    title: "RecuperaJogo — Contra as bets",
-    description:
-      "Rascunho de petição para o Juizado. Método testado em processo real. Stripe · garantia 7 dias.",
-    url: SITE,
-    siteName: "RecuperaJogo",
-    locale: "pt_BR",
     type: "website",
+    locale: "pt_BR",
+    url: "https://recuperajogo.com.br",
+    siteName: "RecuperaJogo",
+    title: "RecuperaJogo | Recupere seu dinheiro das bets",
+    description: "As bets levaram seu dinheiro? Cobre na Justiça sem precisar de advogado. O RecuperaJogo monta sua petição por R$ 137.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "RecuperaJogo — Contra as bets",
-    description: "Gerador de petição para Juizado Especial. Software, não advocacia.",
+    title: "RecuperaJogo | Recupere seu dinheiro",
+    description: "Gere sua petição contra a bet em minutos. Sem advogado.",
   },
-  robots: { index: true, follow: true },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
+
+
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
     {
       "@type": "Organization",
-      name: "Primex Sistemas LTDA",
-      url: "https://www.primexsistemas.com",
-      taxID: "55.536.885/0001-30",
+      name: "RecuperaJogo",
+      url: "https://recuperajogo.com.br",
+      
     },
     {
       "@type": "Product",
