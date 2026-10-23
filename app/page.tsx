@@ -157,7 +157,7 @@ function CaseSelector() {
         })}
       </div>
 
-      <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 md:p-8 transition-all">
+      <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-lg p-6 md:p-8 transition-all hover:bg-white/10 hover:-translate-y-1 duration-300">
         <h3 className="text-lg font-semibold mb-3">{current.title}</h3>
         <p className="text-[14px] text-white/55 leading-relaxed mb-6 max-w-2xl">
           {current.detail}
@@ -188,7 +188,7 @@ function LicenseCheck() {
   const [answer, setAnswer] = useState<"yes" | "no" | null>(null);
 
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 md:p-8">
+    <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-lg p-6 md:p-8">
       <p className="text-[15px] font-semibold mb-2">A casa tinha (ou tem) licença / CNPJ no Brasil?</p>
       <p className="text-[13px] text-white/45 mb-5 leading-relaxed">
         Resposta honesta define se o gerador faz sentido pro seu caso.
@@ -248,8 +248,9 @@ function LicenseCheck() {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white antialiased">
-      <header className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.06] bg-[#0a0a0a]/90 backdrop-blur-xl">
+    <div className="min-h-screen bg-[#05080C] text-white relative">
+      <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[700px] bg-emerald-500/10 blur-[150px] rounded-full" />
+      <header className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.06] bg-[#05080C]/90 backdrop-blur-xl">
         <div className="mx-auto max-w-5xl px-5 h-14 flex items-center justify-between">
           <Link href="/" className="text-[15px] font-semibold tracking-tight">
             Recupera<span className="text-emerald-400">Jogo</span>
@@ -278,8 +279,8 @@ export default function HomePage() {
           <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-emerald-400/90 mb-5">
             Primex Sistemas · gerador de petição
           </p>
-          <h1 className="text-4xl sm:text-5xl md:text-[3.25rem] font-bold tracking-tight leading-[1.08] max-w-3xl">
-            Petição contra bets licenciadas.
+          <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.08] max-w-3xl">
+            Petição contra <span className="text-gradient-emerald">bets licenciadas</span>.
             <span className="block text-white/40 mt-1">
               Autoexclusão, ludopatia, publicidade e saque.
             </span>
@@ -292,7 +293,7 @@ export default function HomePage() {
           <div className="mt-9 flex flex-col sm:flex-row gap-3">
             <Link
               href={LOGIN}
-              className="inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-[15px] px-7 py-3.5 rounded-full transition-colors"
+              className="inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-[#05080C] font-bold text-[15px] px-7 py-3.5 rounded-full transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]"
             >
               Gerar minha petição <ArrowRight size={18} strokeWidth={2.5} />
             </Link>
@@ -356,7 +357,7 @@ export default function HomePage() {
       <section className="border-y border-white/[0.06] bg-[#0f0f0f]">
         <div className="mx-auto max-w-5xl px-5 py-16 md:py-20">
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.04] p-6 md:p-7">
+            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-lg p-6 md:p-7 hover:bg-white/10 hover:-translate-y-1 transition-all duration-300">
               <div className="flex items-center gap-2 mb-4">
                 <FileText size={18} className="text-emerald-400" />
                 <h3 className="text-[15px] font-semibold">Bets licenciadas</h3>
@@ -369,7 +370,7 @@ export default function HomePage() {
                 Aqui faz sentido montar a peça.
               </p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 md:p-7">
+            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-lg p-6 md:p-7 hover:bg-white/10 hover:-translate-y-1 transition-all duration-300">
               <div className="flex items-center gap-2 mb-4">
                 <Ban size={18} className="text-white/40" />
                 <h3 className="text-[15px] font-semibold text-white/70">

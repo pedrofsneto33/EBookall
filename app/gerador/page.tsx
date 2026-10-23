@@ -67,8 +67,12 @@ const PERFIS: { id: Perfil; title: string; desc: string; Icon: any }[] = [
 function Field({ label, value, onChange, full }: { label: string; value: string; onChange: (v: string) => void; full?: boolean }) {
   return (
     <label className={`text-sm ${full ? "sm:col-span-2" : ""}`}>
-      <span className="block mb-1 font-medium" style={{ color: SOFT }}>{label}</span>
-      <input value={value} onChange={(e) => onChange(e.target.value)} className="w-full px-3 py-2 rounded-lg border" style={{ borderColor: LINE, color: INK }} />
+      <span className="block mb-1 font-medium text-white/60">{label}</span>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full px-3 py-2 rounded-lg border bg-black/40 border-white/10 text-white placeholder:text-white/30 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
+      />
     </label>
   );
 }
@@ -205,48 +209,44 @@ export default function GeradorPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#F3F0E9" }}>
-        <Loader2 className="animate-spin" style={{ color: SEAL }} />
+      <div className="min-h-screen flex items-center justify-center bg-[#05080C]">
+        <Loader2 className="animate-spin text-emerald-400" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#F3F0E9" }}>
-      <header className="border-b px-4 py-3 flex justify-between items-center" style={{ backgroundColor: PAPER, borderColor: LINE }}>
+    <div className="min-h-screen bg-[#05080C] text-white relative">
+      <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-emerald-500/5 blur-[120px] rounded-full" />
+      <header className="border-b px-4 py-3 flex justify-between items-center bg-white/5 backdrop-blur-lg border-white/10">
         <div>
-          <p className="text-sm font-bold" style={{ color: INK }}>Gerador · peça da causa da pessoa</p>
-          {userEmail && <p className="text-[10px]" style={{ color: SOFT }}>{userEmail}</p>}
+          <p className="text-sm font-bold text-white">Gerador · peça da causa da pessoa</p>
+          {userEmail && <p className="text-[10px] text-white/60">{userEmail}</p>}
         </div>
         <div className="flex items-center gap-3">
           <span
-            className="text-xs font-semibold px-3 py-1.5 rounded-full border"
-            style={{
-              borderColor: limitReached ? "#FECACA" : LINE,
-              backgroundColor: limitReached ? "#FEF2F2" : "#FFF",
-              color: limitReached ? "#991B1B" : SOFT,
-            }}
+            className={`text-xs font-semibold px-3 py-1.5 rounded-full border ${limitReached ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-white/5 text-white/60 border-white/10"}`}
           >
             {peticoesUsadas}/{MAX_PETICOES} petições
           </span>
-          <button type="button" onClick={() => router.push("/")} className="text-xs" style={{ color: SOFT }}>Início</button>
+          <button type="button" onClick={() => router.push("/")} className="text-xs text-white/60 hover:text-white">Início</button>
         </div>
       </header>
 
       <div className="max-w-3xl mx-auto px-4 py-8">
         {limitReached && (
-          <div className="flex gap-2 items-start border rounded-lg px-4 py-3 mb-6" style={{ backgroundColor: "#FEF2F2", borderColor: "#FECACA" }}>
-            <AlertTriangle size={18} className="shrink-0 mt-0.5 text-red-600" />
-            <p className="text-sm text-red-800">
+          <div className="flex gap-2 items-start border rounded-lg px-4 py-3 mb-6 bg-red-500/10 border-red-500/20">
+            <AlertTriangle size={18} className="shrink-0 mt-0.5 text-red-400" />
+            <p className="text-sm text-red-400">
               <strong>Limite atingido.</strong> Você já gerou as {MAX_PETICOES} petições inclusas no acesso.
               Baixe as que já tem; para novas peças é preciso novo acesso.
             </p>
           </div>
         )}
 
-        <div className="flex gap-2 items-start border rounded-lg px-4 py-3 mb-6" style={{ backgroundColor: "#FBF1DD", borderColor: "#D8B368" }}>
-          <AlertTriangle size={18} className="shrink-0 mt-0.5" style={{ color: SEAL }} />
-          <p className="text-sm" style={{ color: "#5C4A22" }}>
+        <div className="flex gap-2 items-start border rounded-lg px-4 py-3 mb-6 bg-amber-500/10 border-amber-500/20">
+          <AlertTriangle size={18} className="shrink-0 mt-0.5 text-amber-400" />
+          <p className="text-sm text-amber-400">
             <strong>Não é advocacia.</strong> Rascunho para jus postulandi. Até {MAX_PETICOES} petições no acesso.
             Restam <strong>{restantes}</strong>.
           </p>
@@ -254,30 +254,57 @@ export default function GeradorPage() {
 
         <div className="flex flex-wrap gap-2 mb-6">
           {["perfil", "dados", "argumentos", "resultado"].map((id, i) => (
-            <button key={id} type="button" onClick={() => setTab(id)} className="px-3 py-1.5 rounded-full text-xs font-semibold border" style={{ borderColor: tab === id ? SEAL : LINE, backgroundColor: tab === id ? SEAL : "#FFF", color: tab === id ? "#FFF" : SOFT }}>
+            <button
+              key={id}
+              type="button"
+              onClick={() => setTab(id)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                tab === id
+                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                  : "text-white/60 border-white/10 hover:text-white hover:bg-white/5"
+              }`}
+            >
               {i + 1}. {id}
             </button>
           ))}
         </div>
 
         {tab === "perfil" && (
-          <div className="rounded-xl border p-6" style={{ backgroundColor: PAPER, borderColor: LINE }}>
-            <h2 className="font-semibold mb-3" style={{ color: INK }}>Qual é a causa desta pessoa?</h2>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl">
+            <h2 className="font-semibold mb-3 text-white">Qual é a causa desta pessoa?</h2>
             <div className="grid sm:grid-cols-2 gap-3">
               {PERFIS.map(({ id, title, desc, Icon }) => (
-                <button key={id} type="button" onClick={() => setPerfil(id)} className="text-left flex gap-3 p-4 rounded-xl border" style={{ borderColor: perfil === id ? SEAL : LINE, backgroundColor: perfil === id ? "#E8F5EF" : "#FFF" }}>
-                  <Icon size={18} style={{ color: SEAL }} />
-                  <div><p className="text-sm font-medium" style={{ color: INK }}>{title}</p><p className="text-xs" style={{ color: SOFT }}>{desc}</p></div>
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setPerfil(id)}
+                  className={`text-left flex gap-3 p-4 rounded-xl border transition-colors ${
+                    perfil === id
+                      ? "border-emerald-500/30 bg-emerald-500/10"
+                      : "border-white/10 bg-white/5 hover:bg-white/10"
+                  }`}
+                >
+                  <Icon size={18} className="text-emerald-400" />
+                  <div>
+                    <p className="text-sm font-medium text-white">{title}</p>
+                    <p className="text-xs text-white/60">{desc}</p>
+                  </div>
                 </button>
               ))}
             </div>
-            <button type="button" onClick={() => setTab("dados")} className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold" style={{ backgroundColor: SEAL }}>Continuar <ChevronRight size={16} /></button>
+            <button
+              type="button"
+              onClick={() => setTab("dados")}
+              className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors"
+            >
+              Continuar <ChevronRight size={16} />
+            </button>
           </div>
         )}
 
         {tab === "dados" && (
-          <div className="rounded-xl border p-6 space-y-3" style={{ backgroundColor: PAPER, borderColor: LINE }}>
-            <h2 className="font-semibold" style={{ color: INK }}>Dados da pessoa e da casa</h2>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-3 shadow-xl">
+            <h2 className="font-semibold text-white">Dados da pessoa e da casa</h2>
             <div className="grid sm:grid-cols-2 gap-3">
               <Field label="Nome do autor" value={autor.nome} onChange={(v) => setAutor({ ...autor, nome: v })} />
               <Field label="CPF" value={autor.cpf} onChange={(v) => setAutor({ ...autor, cpf: v })} />
@@ -291,33 +318,61 @@ export default function GeradorPage() {
               <Field label="Valor material R$" value={valorPerdido} onChange={setValorPerdido} />
               <Field label="Dano moral sugerido R$" value={valorDM} onChange={setValorDM} />
             </div>
-            <label className="flex gap-2 text-sm" style={{ color: INK }}><input type="checkbox" checked={dobro} onChange={(e) => setDobro(e.target.checked)} /> Dobro (CDC art. 42)</label>
-            <label className="flex gap-2 text-sm" style={{ color: INK }}><input type="checkbox" checked={danoMoral} onChange={(e) => setDanoMoral(e.target.checked)} /> Danos morais</label>
-            <label className="block text-sm">
-              <span className="block mb-1 font-medium" style={{ color: SOFT }}>Relato dos fatos desta pessoa (obrigatório)</span>
-              <textarea value={relato} onChange={(e) => setRelato(e.target.value)} rows={5} className="w-full px-3 py-2 rounded-lg border text-sm" style={{ borderColor: LINE, color: INK }} placeholder="Datas, o que pediu, o que a casa fez, valores..." />
+            <label className="flex gap-2 text-sm text-white"><input type="checkbox" checked={dobro} onChange={(e) => setDobro(e.target.checked)} className="accent-emerald-500" /> Dobro (CDC art. 42)</label>
+            <label className="flex gap-2 text-sm text-white"><input type="checkbox" checked={danoMoral} onChange={(e) => setDanoMoral(e.target.checked)} className="accent-emerald-500" /> Danos morais</label>
+            <label className="block text-sm text-white">
+              <span className="block mb-1 font-medium text-white/60">Relato dos fatos desta pessoa (obrigatório)</span>
+              <textarea
+                value={relato}
+                onChange={(e) => setRelato(e.target.value)}
+                rows={5}
+                className="w-full px-3 py-2 rounded-lg border bg-black/40 border-white/10 text-white placeholder:text-white/30 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none text-sm"
+                placeholder="Datas, o que pediu, o que a casa fez, valores..."
+              />
             </label>
-            <button type="button" onClick={() => setTab("argumentos")} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold" style={{ backgroundColor: SEAL }}>Continuar <ChevronRight size={16} /></button>
+            <button
+              type="button"
+              onClick={() => setTab("argumentos")}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors"
+            >
+              Continuar <ChevronRight size={16} />
+            </button>
           </div>
         )}
 
         {tab === "argumentos" && (
-          <div className="rounded-xl border p-6 space-y-2" style={{ backgroundColor: PAPER, borderColor: LINE }}>
-            <h2 className="font-semibold mb-2" style={{ color: INK }}>Argumentos deste tipo</h2>
-            <p className="text-xs mb-3" style={{ color: SOFT }}>O texto inclui o nome da ré, datas e valor informados. Cada geração consome 1 das {MAX_PETICOES} petições.</p>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-2 shadow-xl">
+            <h2 className="font-semibold mb-2 text-white">Argumentos deste tipo</h2>
+            <p className="text-xs mb-3 text-white/60">O texto inclui o nome da ré, datas e valor informados. Cada geração consome 1 das {MAX_PETICOES} petições.</p>
             {disponiveis.map((a: Argumento) => (
-              <label key={a.id} className="flex gap-3 text-sm p-3 rounded-lg border cursor-pointer" style={{ borderColor: argsSel.includes(a.id) ? SEAL : LINE, backgroundColor: argsSel.includes(a.id) ? "#E8F5EF" : "#FFF" }}>
-                <input type="checkbox" checked={argsSel.includes(a.id)} onChange={() => setArgsSel((p) => p.includes(a.id) ? p.filter((x) => x !== a.id) : [...p, a.id])} style={{ accentColor: SEAL }} />
-                <div><p className="font-medium" style={{ color: INK }}>{a.label}</p>{a.dicaProva && <p className="text-xs" style={{ color: SOFT }}>{a.dicaProva}</p>}</div>
+              <label
+                key={a.id}
+                className={`flex gap-3 text-sm p-3 rounded-lg border cursor-pointer transition-colors ${
+                  argsSel.includes(a.id)
+                    ? "border-emerald-500/30 bg-emerald-500/10"
+                    : "border-white/10 bg-white/5 hover:bg-white/10"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={argsSel.includes(a.id)}
+                  onChange={() => setArgsSel((p) => (p.includes(a.id) ? p.filter((x) => x !== a.id) : [...p, a.id]))}
+                  className="accent-emerald-500"
+                />
+                <div>
+                  <p className="font-medium text-white">{a.label}</p>
+                  {a.dicaProva && <p className="text-xs text-white/60">{a.dicaProva}</p>}
+                </div>
               </label>
             ))}
-            <label className="flex gap-2 text-sm mt-3" style={{ color: INK }}><input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} /> Li o aviso e vou revisar antes de protocolar</label>
+            <label className="flex gap-2 text-sm mt-3 text-white">
+              <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="accent-emerald-500" /> Li o aviso e vou revisar antes de protocolar
+            </label>
             <button
               type="button"
               disabled={!ack || limitReached || generating}
               onClick={gerar}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold disabled:opacity-50"
-              style={{ backgroundColor: SEAL }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors disabled:opacity-50"
             >
               {generating ? "Gerando…" : limitReached ? "Limite de 3 atingido" : `Gerar petição (${restantes} restantes)`}
               <Scale size={16} />
@@ -326,15 +381,31 @@ export default function GeradorPage() {
         )}
 
         {tab === "resultado" && texto && (
-          <div className="rounded-xl border p-6 space-y-3" style={{ backgroundColor: PAPER, borderColor: LINE }}>
-            <h2 className="font-semibold" style={{ color: INK }}>Rascunho — revise</h2>
-            <p className="text-xs" style={{ color: SOFT }}>Usadas: {peticoesUsadas}/{MAX_PETICOES}. Baixe o PDF agora; a cota já foi consumida.</p>
-            <pre className="text-xs whitespace-pre-wrap p-4 rounded-lg border max-h-[420px] overflow-auto" style={{ backgroundColor: "#FFF", borderColor: LINE, color: INK }}>{texto}</pre>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-3 shadow-xl">
+            <h2 className="font-semibold text-white">Rascunho — revise</h2>
+            <p className="text-xs text-white/60">Usadas: {peticoesUsadas}/{MAX_PETICOES}. Baixe o PDF agora; a cota já foi consumida.</p>
+            <pre className="text-xs whitespace-pre-wrap p-4 rounded-lg border max-h-[420px] overflow-auto bg-[#0d1117] border-white/10 text-gray-300 font-mono leading-relaxed">{texto}</pre>
             <div className="flex gap-3">
-              <button type="button" onClick={baixar} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold" style={{ backgroundColor: SEAL }}><Download size={16} /> PDF</button>
-              <button type="button" onClick={() => navigator.clipboard.writeText(texto)} className="px-5 py-2.5 rounded-xl text-sm font-semibold border" style={{ borderColor: LINE, color: INK }}>Copiar</button>
+              <button
+                type="button"
+                onClick={baixar}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors"
+              >
+                <Download size={16} /> PDF
+              </button>
+              <button
+                type="button"
+                onClick={() => navigator.clipboard.writeText(texto)}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
+              >
+                Copiar
+              </button>
               {!limitReached && (
-                <button type="button" onClick={() => { setTab("perfil"); setTexto(""); setDadosPDF(null); setArgsSel([]); }} className="px-5 py-2.5 rounded-xl text-sm font-semibold border" style={{ borderColor: LINE, color: INK }}>
+                <button
+                  type="button"
+                  onClick={() => { setTab("perfil"); setTexto(""); setDadosPDF(null); setArgsSel([]); }}
+                  className="px-5 py-2.5 rounded-xl text-sm font-semibold border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
+                >
                   Nova ({restantes} restantes)
                 </button>
               )}

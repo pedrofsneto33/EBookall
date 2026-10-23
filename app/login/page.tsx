@@ -74,28 +74,22 @@ function LoginForm() {
   };
 
   return (
-    <div
-      className="bg-white p-8 rounded-2xl shadow-sm max-w-md w-full border"
-      style={{ borderColor: PAPER_LINE }}
-    >
+    <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl p-8 max-w-md w-full">
       <div className="text-center mb-6">
-        <div
-          className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center text-white text-sm font-black"
-          style={{ backgroundColor: SEAL }}
-        >
+        <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center text-[#05080C] text-sm font-black bg-emerald-500">
           RJ
         </div>
-        <h1 className="text-xl font-bold" style={{ color: INK }}>
+        <h1 className="text-xl font-bold text-white">
           Entrar / Criar conta
         </h1>
-        <p className="text-sm mt-1" style={{ color: INK_SOFT }}>
+        <p className="text-sm mt-1 text-white/60">
           Informe o e-mail. Depois você paga R$ 137 para liberar o gerador.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-medium mb-1.5" style={{ color: INK_SOFT }}>
+          <label className="block text-xs font-medium mb-1.5 text-white/60">
             E-mail
           </label>
           <input
@@ -103,8 +97,7 @@ function LoginForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2.5 rounded-xl border text-sm outline-none focus:ring-2"
-            style={{ borderColor: PAPER_LINE, color: INK }}
+            className="w-full px-3 py-2.5 rounded-xl border text-sm outline-none focus:ring-2 bg-black/40 border-white/10 text-white placeholder:text-white/30 focus:border-emerald-500"
             placeholder="seu@email.com"
             autoComplete="email"
           />
@@ -112,12 +105,11 @@ function LoginForm() {
 
         {message && (
           <div
-            className="p-3 rounded-xl text-sm font-medium flex items-start gap-2 border"
-            style={
+            className={`p-3 rounded-xl text-sm font-medium flex items-start gap-2 border ${
               messageType === "error"
-                ? { backgroundColor: "#FEF2F2", borderColor: "#FECACA", color: "#991B1B" }
-                : { backgroundColor: AMBER_BG, borderColor: AMBER_BORDER, color: "#5C4A22" }
-            }
+                ? "bg-red-500/10 border-red-500/20 text-red-400"
+                : "bg-amber-500/10 border-amber-500/20 text-amber-400"
+            }`}
           >
             {messageType === "error" ? (
               <AlertCircle size={18} className="shrink-0 mt-0.5" />
@@ -134,8 +126,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70 text-white text-[15px]"
-          style={{ backgroundColor: SEAL }}
+          className="w-full font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70 text-[#05080C] text-[15px] bg-emerald-500 hover:bg-emerald-400 transition-colors"
         >
           {loading ? (
             <>
@@ -149,12 +140,12 @@ function LoginForm() {
         </button>
       </form>
 
-      <p className="text-xs text-center mt-6" style={{ color: INK_SOFT }}>
+      <p className="text-xs text-center mt-6 text-white/60">
         O gerador só abre depois do pagamento de R$ 137 (Pix ou cartão).
       </p>
 
       <div className="text-center mt-4">
-        <a href="/" className="text-xs hover:underline" style={{ color: INK_SOFT }}>
+        <a href="/" className="text-xs hover:underline text-white/60">
           ← Voltar ao início
         </a>
       </div>
@@ -164,15 +155,12 @@ function LoginForm() {
 
 export default function Login() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: "#F3F0E9" }}>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#05080C]">
       <Suspense
         fallback={
-          <div
-            className="bg-white p-8 rounded-2xl shadow-sm max-w-md w-full border text-center"
-            style={{ borderColor: PAPER_LINE }}
-          >
-            <Loader2 size={32} className="mx-auto mb-4 animate-spin" style={{ color: SEAL }} />
-            <p className="text-sm" style={{ color: INK_SOFT }}>
+          <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+            <Loader2 size={32} className="mx-auto mb-4 animate-spin text-emerald-400" />
+            <p className="text-sm text-white/60">
               Carregando...
             </p>
           </div>

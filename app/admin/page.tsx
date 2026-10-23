@@ -3,17 +3,6 @@
 import { useState } from "react";
 import { AlertCircle, CheckCircle2, KeyRound, Loader2, Mail, ShieldCheck } from "lucide-react";
 
-const INK = "#0F1C2E";
-const INK_SOFT = "#4A5B6E";
-const PAPER_LINE = "#E6E1D6";
-const SEAL = "#1B6B4A";
-const PAPER_BG = "#F3F0E9";
-const GREEN_BG = "#E8F5EF";
-const GREEN_BORDER = "#B9CFC0";
-const RED_BG = "#FEF2F2";
-const RED_BORDER = "#FECACA";
-const RED_TEXT = "#991B1B";
-
 type Feedback = { type: "success" | "error"; text: string } | null;
 
 export default function AdminPage() {
@@ -77,34 +66,27 @@ export default function AdminPage() {
     <>
       <meta name="robots" content="noindex, nofollow" />
 
-      <div className="min-h-screen w-full flex items-center justify-center p-4" style={{ backgroundColor: PAPER_BG }}>
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-sm border p-8" style={{ borderColor: PAPER_LINE }}>
+      <div className="min-h-screen w-full flex items-center justify-center p-4 bg-[#05080C]">
+        <div className="max-w-md w-full bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl p-8">
           <div className="text-center mb-6">
-            <div
-              className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center text-white"
-              style={{ backgroundColor: SEAL }}
-            >
+            <div className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center text-[#05080C] bg-emerald-500">
               <ShieldCheck size={24} />
             </div>
-            <h1 className="text-xl font-bold" style={{ color: INK }}>
+            <h1 className="text-xl font-bold text-white">
               Liberação manual de acesso
             </h1>
-            <p className="text-sm mt-1" style={{ color: INK_SOFT }}>
+            <p className="text-sm mt-1 text-white/60">
               Acesso liberado após confirmação de PIX no CNPJ Primex.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="admin-email" className="block text-xs font-medium mb-1.5" style={{ color: INK_SOFT }}>
+              <label htmlFor="admin-email" className="block text-xs font-medium mb-1.5 text-white/60">
                 E-mail do cliente
               </label>
               <div className="relative">
-                <Mail
-                  size={16}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                  style={{ color: INK_SOFT }}
-                />
+                <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/60" />
                 <input
                   id="admin-email"
                   type="email"
@@ -112,8 +94,7 @@ export default function AdminPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border text-sm outline-none focus:ring-2 disabled:opacity-70"
-                  style={{ borderColor: PAPER_LINE, color: INK }}
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border text-sm outline-none focus:ring-2 disabled:opacity-70 bg-black/40 border-white/10 text-white placeholder:text-white/30 focus:border-emerald-500"
                   placeholder="cliente@email.com"
                   autoComplete="off"
                   spellCheck={false}
@@ -122,15 +103,11 @@ export default function AdminPage() {
             </div>
 
             <div>
-              <label htmlFor="admin-key" className="block text-xs font-medium mb-1.5" style={{ color: INK_SOFT }}>
+              <label htmlFor="admin-key" className="block text-xs font-medium mb-1.5 text-white/60">
                 Chave de administrador
               </label>
               <div className="relative">
-                <KeyRound
-                  size={16}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                  style={{ color: INK_SOFT }}
-                />
+                <KeyRound size={16} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-white/60" />
                 <input
                   id="admin-key"
                   type="password"
@@ -138,8 +115,7 @@ export default function AdminPage() {
                   value={key}
                   onChange={(e) => setKey(e.target.value)}
                   disabled={loading}
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border text-sm outline-none focus:ring-2 disabled:opacity-70"
-                  style={{ borderColor: PAPER_LINE, color: INK }}
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border text-sm outline-none focus:ring-2 disabled:opacity-70 bg-black/40 border-white/10 text-white placeholder:text-white/30 focus:border-emerald-500"
                   placeholder="ADMIN_SECRET"
                   autoComplete="off"
                   spellCheck={false}
@@ -151,17 +127,16 @@ export default function AdminPage() {
               <div
                 role="status"
                 aria-live="polite"
-                className="p-3 rounded-xl text-sm font-medium flex items-start gap-2 border"
-                style={
+                className={`p-3 rounded-xl text-sm font-medium flex items-start gap-2 border ${
                   feedback.type === "error"
-                    ? { backgroundColor: RED_BG, borderColor: RED_BORDER, color: RED_TEXT }
-                    : { backgroundColor: GREEN_BG, borderColor: GREEN_BORDER, color: INK }
-                }
+                    ? "bg-red-500/10 border-red-500/20 text-red-400"
+                    : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                }`}
               >
                 {feedback.type === "error" ? (
                   <AlertCircle size={18} className="shrink-0 mt-0.5" />
                 ) : (
-                  <CheckCircle2 size={18} className="shrink-0 mt-0.5" style={{ color: SEAL }} />
+                  <CheckCircle2 size={18} className="shrink-0 mt-0.5" />
                 )}
                 <span className="break-words">{feedback.text}</span>
               </div>
@@ -170,8 +145,7 @@ export default function AdminPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70 text-white text-[15px]"
-              style={{ backgroundColor: SEAL }}
+              className="w-full font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70 text-[#05080C] text-[15px] bg-emerald-500 hover:bg-emerald-400 transition-colors"
             >
               {loading ? (
                 <>
@@ -183,7 +157,7 @@ export default function AdminPage() {
             </button>
           </form>
 
-          <p className="text-xs text-center mt-6" style={{ color: INK_SOFT }}>
+          <p className="text-xs text-center mt-6 text-white/60">
             A chave não é salva nem fica no histórico do navegador.
           </p>
 
