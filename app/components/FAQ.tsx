@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "../lib/config";
 
 const CNPJ = "55.536.885/0001-30";
 const PRECO = "137";
@@ -13,7 +14,7 @@ const ITEMS = [
   },
   {
     q: "Preciso de advogado?",
-    a: "Em causas até 20 salários mínimos no Juizado Especial Cível, a lei permite protocolar sozinho (jus postulandi). Caso complexo ou valor maior: advogado ou Defensoria.",
+    a: `Em causas até ${formatarMoeda(LIMITE_JUS_POSTULANDI)} no Juizado Especial Cível, a lei permite protocolar sozinho (jus postulandi). Caso complexo ou valor maior: advogado ou Defensoria.`,
   },
   {
     q: "Como pago?",

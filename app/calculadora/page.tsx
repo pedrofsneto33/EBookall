@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Calculator, Heart, ArrowRight, CheckCircle2, Home } from "lucide-react";
+import { Calculator, Heart, ArrowRight, CheckCircle2, Home, AlertTriangle } from "lucide-react";
+import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "../lib/config";
 
 const INK = "#0F1C2E";
 const INK_SOFT = "#4A5B6E";
@@ -35,6 +36,9 @@ export default function CalculadoraPage() {
     if (step === 3 && !formData.email.includes("@")) return alert("Informe um e-mail válido.");
     setStep(step + 1);
   };
+
+  const valorNum = Number(formData.valorPerdido || 0);
+  const acimaLimite = valorNum > LIMITE_JUS_POSTULANDI;
 
   const getDicaDivida = () => {
     switch (formData.dividaUrgente) {
@@ -81,6 +85,14 @@ export default function CalculadoraPage() {
                 <span className="text-sm font-medium block mb-2" style={{ color: INK }}>Valor estimado (R$)</span>
                 <input type="number" name="valorPerdido" value={formData.valorPerdido} onChange={handleChange} placeholder="Ex: 2500" className="w-full px-4 py-3 rounded-xl border text-lg outline-none" style={{ borderColor: LINE, backgroundColor: PAPER }} />
               </label>
+              {acimaLimite && (
+                <div className="mb-4 flex gap-2 items-start rounded-xl border px-4 py-3 bg-red-50 border-red-200">
+                  <AlertTriangle size={18} className="shrink-0 mt-0.5 text-red-600" />
+                  <p className="text-sm text-red-700">
+                    Atenção: O valor ultrapassou o limite de {formatarMoeda(LIMITE_JUS_POSTULANDI)}. Para causas acima disso, você precisará de um advogado ou da Defensoria Pública.
+                  </p>
+                </div>
+              )}
               <button onClick={handleNext} className="w-full py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-2" style={{ backgroundColor: SEAL }}>
                 Próximo <ArrowRight size={18} />
               </button>
@@ -167,6 +179,15 @@ export default function CalculadoraPage() {
                   CVV 188 ou CAPS — gratuito e sigiloso.
                 </p>
               </div>
+
+              {acimaLimite && (
+                <div className="flex gap-2 items-start rounded-xl border px-4 py-3 bg-red-50 border-red-200">
+                  <AlertTriangle size={18} className="shrink-0 mt-0.5 text-red-600" />
+                  <p className="text-sm text-red-700">
+                    Atenção: O valor ultrapassou o limite de {formatarMoeda(LIMITE_JUS_POSTULANDI)}. Para causas acima disso, você precisará de um advogado ou da Defensoria Pública.
+                  </p>
+                </div>
+              )}
 
               <div className="p-6 rounded-xl border text-center" style={{ backgroundColor: PAPER, borderColor: AMBER_BORDER }}>
                 <h3 className="font-bold mb-3" style={{ color: INK }}>3. Busque o que é seu</h3>

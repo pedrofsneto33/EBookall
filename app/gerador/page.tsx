@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer";
 import { ARGUMENTOS, filtrarPorPerfil, Argumento } from "../lib/argumentos-peticao";
+import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "../lib/config";
 
 const pdfStyles = StyleSheet.create({
   page: { padding: 50, fontFamily: "Times-Roman", fontSize: 12, lineHeight: 1.5 },
@@ -132,12 +133,17 @@ export default function GeradorPage() {
   }, [valorPerdido, dobro, danoMoral, valorDM]);
 
   const fmt = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const acimaLimiteJEC = calc.total > LIMITE_JUS_POSTULANDI;
   const disponiveis = filtrarPorPerfil(ARGUMENTOS, perfil);
   const restantes = Math.max(0, MAX_PETICOES - peticoesUsadas);
 
   async function gerar() {
     if (limitReached || peticoesUsadas >= MAX_PETICOES) {
       alert("Você já usou as 3 petições do seu acesso. Não é possível gerar mais.");
+      return;
+    }
+    if (acimaLimiteJEC) {
+      alert(`Atenção: O valor da causa ultrapassou o limite de ${formatarMoeda(LIMITE_JUS_POSTULANDI)}. Para causas acima disso, você precisará de um advogado ou da Defensoria Pública.`);
       return;
     }
     if (argsSel.length === 0) return alert("Selecione argumentos.");
@@ -314,6 +320,15 @@ export default function GeradorPage() {
         {tab === "dados" && (
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-3 shadow-xl">
             <h2 className="font-semibold text-white">Dados da pessoa e da casa</h2>
+            <p className="text-xs text-white/60 mb-2">Limite sem advogado hoje: {formatarMoeda(LIMITE_JUS_POSTULANDI)}</p>
+            {acimaLimiteJEC && (
+              <div className="flex gap-2 items-start border rounded-lg px-4 py-3 mb-3 bg-red-500/10 border-red-500/20">
+                <AlertTriangle size={18} className="shrink-0 mt-0.5 text-red-400" />
+                <p className="text-sm text-red-400">
+                  Atenção: O valor da causa ultrapassou o limite de {formatarMoeda(LIMITE_JUS_POSTULANDI)}. Para causas acima disso, você precisará de um advogado ou da Defensoria Pública.
+                </p>
+              </div>
+            )}
             <div className="grid sm:grid-cols-2 gap-3">
               <Field label="Nome do autor" value={autor.nome} onChange={(v) => setAutor({ ...autor, nome: v })} />
               <Field label="CPF" value={autor.cpf} onChange={(v) => setAutor({ ...autor, cpf: v })} />
@@ -385,7 +400,7 @@ export default function GeradorPage() {
             </label>
             <button
               type="button"
-              disabled={!ack || limitReached || generating}
+              disabled={!ack || limitReached || generating || acimaLimiteJEC}
               onClick={gerar}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors disabled:opacity-50"
             >

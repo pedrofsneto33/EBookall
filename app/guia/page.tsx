@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BookOpen, ArrowRight, AlertTriangle } from "lucide-react";
 import CapturaLead from "../components/CapturaLead";
+import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "../lib/config";
 
 const INK = "#0F1C2E";
 const INK_SOFT = "#4A5B6E";
@@ -42,7 +43,7 @@ export default function GuiaPage() {
         </div>
 
         <div className="space-y-6 mb-12">
-          <Capitulo n="1" titulo="Você não está sozinho" texto="Depósito indevido após bloqueio, suporte evasivo e endividamento são padrões do setor — não só azar individual. O Juizado Especial existe para causas até 20 salários mínimos, sem advogado (jus postulandi)." />
+          <Capitulo n="1" titulo="Você não está sozinho" texto={`Depósito indevido após bloqueio, suporte evasivo e endividamento são padrões do setor — não só azar individual. O Juizado Especial existe para causas até ${formatarMoeda(LIMITE_JUS_POSTULANDI)}, sem advogado (jus postulandi).`} />
           <Capitulo n="2" titulo="Dois erros que pioram tudo" texto="Apostar de novo para 'recuperar' aprofunda o buraco. Reclamar só no suporte da casa, sem provas organizadas, quase nunca resolve." />
           <Capitulo n="3" titulo="O caminho do Juizado Especial" texto="Lei 9.099/95, art. 9º: em causas até 20 SM você protocola sozinho no JEC. Organize provas, monte o argumento (CDC + Lei 14.790/2023) e protocole." />
         </div>

@@ -22,3 +22,15 @@ export const PERFIS_CASO: PerfilCasoConfig[] = [
   { id: "bonus_rollover", title: "Bônus com Rollover Abusivo", desc: "A casa exigiu requisitos impossíveis para liberar o bônus, impedindo o saque." },
   { id: "publicidade_enganosa", title: "Publicidade Enganosa", desc: "A plataforma prometeu ganhos garantidos ou omitiu riscos, estimulando apostas." },
 ];
+
+
+/** Salário mínimo vigente (fonte de verdade para limites do JEC). */
+export const SALARIO_MINIMO = 1621;
+
+/** Limite do Juizado Especial para jus postulandi (20 salários mínimos). */
+export const LIMITE_JUS_POSTULANDI = SALARIO_MINIMO * 20;
+
+/** Formata um valor em reais (BRL) de forma padronizada. */
+export function formatarMoeda(valor: number): string {
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);
+}

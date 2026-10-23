@@ -6,6 +6,7 @@ import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
 import OfferSection from "@/components/home/OfferSection";
 import { Check, X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse } from "lucide-react";
+import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "./lib/config";
 
 interface FaqItem {
   q: string;
@@ -15,7 +16,7 @@ interface FaqItem {
 const FAQS: FaqItem[] = [
   {
     q: 'Preciso de advogado para usar o sistema?',
-    a: 'Não. Causas de até 20 salários mínimos permitem que você mesmo protocole (jus postulandi, art. 9º da Lei 9.099/95). O RecuperaJogo apenas monta a petição; você revisa e assina.',
+    a: `Não. Causas de até ${formatarMoeda(LIMITE_JUS_POSTULANDI)} permitem que você mesmo protocole (jus postulandi, art. 9º da Lei 9.099/95). O RecuperaJogo apenas monta a petição; você revisa e assina.`
   },
   {
     q: 'O pagamento libera na hora?',
