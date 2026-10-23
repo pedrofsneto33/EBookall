@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "motion/react";
-import Link from "next/link";
 import { CheckCircle2, ShieldCheck } from "lucide-react";
 
 const BENEFITS = [
@@ -55,12 +54,14 @@ export default function OfferSection() {
                 transition={{ type: "spring", stiffness: 300 }}
                 className="inline-block w-full"
               >
-                <Link
-                  href="/login"
+                <a
+                  href="https://e-bookall.vercel.app/login"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="clip-custom block text-center bg-emerald-400 hover:bg-emerald-300 text-black font-black text-lg px-6 py-4 transition-colors"
                 >
                   Gerar Minha Petição Agora
-                </Link>
+                </a>
               </motion.div>
 
             <div className="mt-4 flex items-center justify-center gap-2 text-xs text-zinc-500">

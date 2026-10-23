@@ -2,7 +2,6 @@
 
 import { motion } from "motion/react";
 import { CheckCircle2 } from "lucide-react";
-import Link from "next/link";
 import Image from "next/image";
 
 
@@ -66,13 +65,15 @@ export default function CourtWinSection() {
           </p>
 
           <div className="mt-8">
-            <Link
-              href="/login"
+            <a
+              href="https://e-bookall.vercel.app/login"
+              target="_blank"
+              rel="noopener noreferrer"
               className="clip-custom inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-black font-black text-base px-6 py-3 transition-colors"
             >
               Quero a minha sentença
               <CheckCircle2 size={18} />
-            </Link>
+            </a>
           </div>
         </motion.div>
       </div>
