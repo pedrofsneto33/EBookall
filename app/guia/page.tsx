@@ -1,43 +1,44 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { BookOpen, ArrowRight, AlertTriangle } from "lucide-react";
 import CapturaLead from "../components/CapturaLead";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "../lib/config";
 
-const INK = "#0F1C2E";
-const INK_SOFT = "#4A5B6E";
-const PAPER = "#FAF8F4";
-const PAPER_LINE = "#E6E1D6";
-const SEAL = "#1B6B4A";
-const AMBER_BG = "#FBF1DD";
-const AMBER_BORDER = "#D8B368";
-
 export default function GuiaPage() {
   return (
-    <div className="min-h-screen w-full" style={{ backgroundColor: PAPER }}>
-      <header className="border-b px-6 py-4 flex items-center justify-between" style={{ backgroundColor: PAPER, borderColor: PAPER_LINE }}>
+    <div className="min-h-screen w-full bg-[#05080C] text-white relative overflow-hidden">
+      <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-emerald-500/10 blur-[150px] rounded-full" />
+
+      <header className="border-b px-6 py-4 flex items-center justify-between bg-[#05080C]/90 backdrop-blur-lg border-white/10">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-xs font-bold" style={{ backgroundColor: SEAL }}>RJ</div>
-          <span className="text-[15px] font-semibold" style={{ color: INK }}>RecuperaJogo</span>
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-xs font-bold bg-emerald-500">
+            RJ
+          </div>
+          <span className="text-[15px] font-semibold text-white">RecuperaJogo</span>
         </Link>
-        <Link href="/" className="text-sm font-medium hover:underline" style={{ color: INK_SOFT }}>← Voltar</Link>
+        <Link
+          href="/"
+          className="text-sm font-medium hover:underline text-white/70 hover:text-white"
+        >
+          ← Voltar
+        </Link>
       </header>
 
-      <main className="max-w-3xl mx-auto px-6 py-12">
+      <main className="max-w-3xl mx-auto px-6 py-12 relative z-10">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-4" style={{ backgroundColor: AMBER_BG, color: "#5C4A22", border: `1px solid ${AMBER_BORDER}` }}>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-4 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             <BookOpen size={14} /> Guia gratuito
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight" style={{ color: INK }}>
+          <h1 className="text-3xl md:text-5xl font-black tracking-tighter mb-4 text-white">
             Recuperei meu dinheiro das bets sozinho — e você também pode
           </h1>
-          <p className="text-lg" style={{ color: INK_SOFT }}>
+          <p className="text-lg text-white/70">
             Guia prático do Juizado Especial: fatos, provas e jus postulandi. Sem milagre.
           </p>
         </div>
 
-        <div className="flex gap-3 items-start rounded-xl border px-4 py-3 mb-8" style={{ backgroundColor: AMBER_BG, borderColor: AMBER_BORDER }}>
-          <AlertTriangle size={18} className="shrink-0 mt-0.5" style={{ color: SEAL }} />
-          <p className="text-sm leading-relaxed" style={{ color: "#5C4A22" }}>
+        <div className="flex gap-3 items-start rounded-xl border px-4 py-3 mb-8 bg-amber-500/10 border-amber-500/20">
+          <AlertTriangle size={18} className="shrink-0 mt-0.5 text-amber-400" />
+          <p className="text-sm leading-relaxed text-amber-200">
             <strong>Aviso:</strong> material educativo. Não é assessoria jurídica. Quem revisa e protocola é você.
           </p>
         </div>
@@ -56,24 +57,24 @@ export default function GuiaPage() {
           <Capitulo n="6" titulo="Protocolar e o que esperar" texto="PJe/e-Proc ou presencial. Guarde cópias. Haverá conciliação. Prazos são curtos. Sem garantia de vitória — prova e organização fazem diferença." />
           <Capitulo n="7" titulo="Mais que o dinheiro" texto="Autoexclusão em gov.br/autoexclusaoapostas. CAPS e UBS são gratuitos. O RecuperaJogo formata a petição com os argumentos — você revisa, assina e protocola." />
 
-          <div className="rounded-2xl border-2 p-8 text-center mt-12" style={{ borderColor: SEAL, backgroundColor: "#FFF" }}>
-            <h2 className="text-2xl font-bold mb-4" style={{ color: INK }}>Pronto para montar a petição?</h2>
-            <div className="max-w-md mx-auto mb-6 p-4 rounded-xl text-left text-sm" style={{ backgroundColor: AMBER_BG, border: `1px solid ${AMBER_BORDER}`, color: "#5C4A22" }}>
-              <p className="mb-2"><strong>Comparação:</strong></p>
+          <div className="rounded-2xl border p-8 text-center mt-12 bg-white/5 border-emerald-500/30">
+            <h2 className="text-2xl font-bold mb-4 text-white">Pronto para montar a petição?</h2>
+            <div className="max-w-md mx-auto mb-6 p-4 rounded-xl text-left text-sm bg-white/5 border border-white/10 text-white/70">
+              <p className="mb-2"><strong className="text-white">Comparação:</strong></p>
               <p className="mb-1">Advogado por êxito: 20–40% do recuperado.</p>
-              <p>RecuperaJogo: <strong>R$ 137</strong> uma vez. Você fica com 100% do que recuperar.</p>
+              <p>RecuperaJogo: <strong className="text-white">R$ 137</strong> uma vez. Você fica com 100% do que recuperar.</p>
             </div>
-            <a href="/login" className="inline-flex items-center gap-2 text-[15px] font-semibold px-8 py-3.5 rounded-xl text-white" style={{ backgroundColor: SEAL }}>
+            <a href="/login" className="inline-flex items-center gap-2 text-[15px] font-semibold px-8 py-3.5 rounded-xl text-white bg-emerald-500 hover:bg-emerald-600 transition-colors">
               Gerar minha petição · R$ 137 <ArrowRight size={18} />
             </a>
-            <p className="text-xs mt-3" style={{ color: INK_SOFT }}>3 petições · Garantia 7 dias · Stripe</p>
+            <p className="text-xs mt-3 text-white/60">3 petições · Garantia 7 dias · Stripe</p>
           </div>
         </div>
       </main>
 
-      <footer className="border-t py-8 px-6 text-center" style={{ backgroundColor: PAPER, borderColor: PAPER_LINE }}>
-        <Link href="/politica-privacidade" className="text-xs hover:underline" style={{ color: INK_SOFT }}>Política de Privacidade</Link>
-        <p className="text-xs mt-2" style={{ color: INK_SOFT }}>© {new Date().getFullYear()} Primex Sistemas · RecuperaJogo</p>
+      <footer className="border-t py-8 px-6 text-center bg-[#05080C] border-white/10">
+        <Link href="/politica-privacidade" className="text-xs hover:underline text-white/60 hover:text-white">Política de Privacidade</Link>
+        <p className="text-xs mt-2 text-white/60">© {new Date().getFullYear()} Primex Sistemas · RecuperaJogo</p>
       </footer>
     </div>
   );
@@ -81,12 +82,12 @@ export default function GuiaPage() {
 
 function Capitulo({ n, titulo, texto }: { n: string; titulo: string; texto: string }) {
   return (
-    <div className="rounded-xl border p-6" style={{ backgroundColor: "#FFF", borderColor: PAPER_LINE }}>
+    <div className="rounded-xl border p-6 bg-white/5 border-white/10">
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white" style={{ backgroundColor: SEAL }}>{n}</div>
-        <h3 className="text-lg font-bold" style={{ color: INK }}>{titulo}</h3>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white bg-emerald-500">{n}</div>
+        <h3 className="text-lg font-bold text-emerald-400">{titulo}</h3>
       </div>
-      <p className="text-sm leading-relaxed" style={{ color: INK_SOFT }}>{texto}</p>
+      <p className="text-sm leading-relaxed text-white/70">{texto}</p>
     </div>
   );
 }
