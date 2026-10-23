@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { motion } from "motion/react";
+import HeroSection from "@/components/home/HeroSection";
 import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
 import OfferSection from "@/components/home/OfferSection";
-import { ArrowRight, Check, X, Upload, Cpu, FileCheck2, HelpCircle } from "lucide-react";
+import { Check, X, Upload, Cpu, FileCheck2, HelpCircle } from "lucide-react";
 
 interface FaqItem {
   q: string;
@@ -60,73 +59,7 @@ export default function LandingPage() {
       <Navbar />
 
       {/* HERO */}
-      <section className="relative pt-28 pb-20 px-6 overflow-hidden">
-        <div className="pointer-events-none absolute -top-40 -right-40 w-[600px] h-[600px] bg-emerald-500/15 blur-[140px] rounded-full" />
-        <div className="pointer-events-none absolute top-20 -left-40 w-[400px] h-[400px] bg-red-500/10 blur-[120px] rounded-full" />
-
-        <div className="mx-auto max-w-7xl grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-6">
-              Tecnologia jurídica • Sem advogado
-            </p>
-            <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9]">
-              As bets levaram seu dinheiro?{" "}
-              <span className="text-emerald-400">Cobre na Justiça.</span>{" "}
-              <span className="text-red-500">Sem advogado.</span>
-            </h1>
-            <p className="mt-6 text-xl text-zinc-400 max-w-xl leading-relaxed">
-              O RecuperaJogo monta sua petição para o Juizado Especial por R$ 137.
-              Você só revisa, assina e protocola.
-            </p>
-
-            <div className="mt-10">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 300 }}
-                className="inline-block"
-              >
-                <Link
-                  href="/login"
-                  className="clip-custom inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-black font-black text-lg px-8 py-4 transition-colors shadow-[0_0_40px_rgba(16,185,129,0.4)]"
-                >
-                  Recuperar meu Dinheiro Agora
-                  <ArrowRight size={20} />
-                </Link>
-              </motion.div>
-              <p className="mt-3 text-sm text-zinc-500">
-                Não é advocacia. É tecnologia jurídica. Sem juridiquês.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="clip-custom bg-gradient-to-br from-red-950/40 to-zinc-900 border border-red-500/30 p-6">
-              <p className="text-[11px] uppercase tracking-wider text-red-400 mb-2">
-                Perdido em bets no Brasil
-              </p>
-              <p className="text-5xl md:text-6xl font-black text-red-500">
-                R$ 143 Bi
-              </p>
-            </div>
-            <div className="clip-custom bg-zinc-900 border border-white/10 p-6">
-              <p className="text-[11px] uppercase tracking-wider text-zinc-400 mb-2">
-                Brasileiros endividados
-              </p>
-              <p className="text-5xl md:text-6xl font-black text-white">
-                1,8M
-              </p>
-            </div>
-            <div className="clip-custom col-span-2 bg-gradient-to-br from-emerald-950/40 to-zinc-900 border border-emerald-500/30 p-6">
-              <p className="text-[11px] uppercase tracking-wider text-emerald-400 mb-2">
-                Valor médio recuperado
-              </p>
-              <p className="text-6xl md:text-7xl font-black text-emerald-400">
-                R$ 3.000
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSection />
 
       <CourtWinSection />
 
