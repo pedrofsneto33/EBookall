@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
+import CourtWinSection from "@/components/home/CourtWinSection";
 import { ArrowRight, Check, X, Upload, Cpu, FileCheck2, HelpCircle } from "lucide-react";
 
 interface FaqItem {
@@ -142,6 +143,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <CourtWinSection />
 
       {/* PROVA */}
       <section className="border-y border-white/5 bg-gradient-to-b from-zinc-950 to-[#05080C] py-24 px-6">
