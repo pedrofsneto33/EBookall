@@ -5,6 +5,7 @@ import Link from "next/link";
 import ProblemSection from "@/components/home/ProblemSection";
 import HowItWorksSection from "@/components/home/HowItWorksSection";
 import ResultsSection from "@/components/home/ResultsSection";
+import FaqSection from "@/components/home/FaqSection";
 import { motion } from "motion/react";
 
 interface CountUpProps {
@@ -157,6 +158,7 @@ export default function HomePage() {
       <ProblemSection />
       <HowItWorksSection />
       <ResultsSection />
+      <FaqSection />
     </div>
   );
 }
