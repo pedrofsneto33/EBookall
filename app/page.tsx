@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import ProblemSection from "@/components/home/ProblemSection";
 import { motion } from "motion/react";
 
 interface CountUpProps {
@@ -150,6 +151,8 @@ export default function HomePage() {
           </motion.div>
         </div>
       </section>
+
+      <ProblemSection />
     </div>
   );
 }
