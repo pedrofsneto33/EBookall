@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import Link from "next/link";
 import { CheckCircle2, ShieldCheck } from "lucide-react";
 
 const BENEFITS = [
@@ -54,14 +55,12 @@ export default function OfferSection() {
                 transition={{ type: "spring", stiffness: 300 }}
                 className="inline-block w-full"
               >
-                <a
-                  href="https://wa.me/5586988117925?text=Ol%C3%A1!%20Quero%20recuperar%20meu%20dinheiro%20das%20bets%20e%20gerar%20minha%20peti%C3%A7%C3%A3o."
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  href="/login"
                   className="clip-custom block text-center bg-emerald-400 hover:bg-emerald-300 text-black font-black text-lg px-6 py-4 transition-colors"
                 >
                   Gerar Minha Petição Agora
-                </a>
+                </Link>
               </motion.div>
 
             <div className="mt-4 flex items-center justify-center gap-2 text-xs text-zinc-500">

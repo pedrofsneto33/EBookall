@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { CheckCircle2 } from "lucide-react";
+import Link from "next/link";
 import Image from "next/image";
 
 
@@ -65,15 +66,13 @@ export default function CourtWinSection() {
           </p>
 
           <div className="mt-8">
-            <a
-              href="https://wa.me/5586988117925?text=Ol%C3%A1!%20Quero%20recuperar%20meu%20dinheiro%20das%20bets%20e%20gerar%20minha%20peti%C3%A7%C3%A3o."
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/login"
               className="clip-custom inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-black font-black text-base px-6 py-3 transition-colors"
             >
               Quero a minha sentença
               <CheckCircle2 size={18} />
-            </a>
+            </Link>
           </div>
         </motion.div>
       </div>
