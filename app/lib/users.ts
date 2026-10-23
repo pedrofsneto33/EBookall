@@ -60,6 +60,15 @@ async function ensureUser(email: string): Promise<void> {
   });
 }
 
+
+export interface PeticaoRecord {
+  id: number;
+  perfil: string;
+  valorCausa: string | null;
+  texto: string;
+  createdAt: string;
+}
+
 /** Acesso pago: usuário ativo na tabela users. */
 export async function hasPaidAccess(email: string): Promise<boolean> {
   const target = normalizeEmail(email);
@@ -155,4 +164,43 @@ export async function grantAccessByEmail(email: string, reason = "manual"): Prom
             updated_at = datetime('now')`,
     args: [target, reason, new Date().toISOString()],
   });
+}
+
+
+/** Salva uma petição gerada pelo usuário. */
+export async function savePeticao(
+  email: string,
+  data: { perfil: string; valorCausa?: string; texto: string }
+): Promise<void> {
+  const target = normalizeEmail(email);
+  if (!target) return;
+  const db = await ensureDb();
+  await db.execute({
+    sql: `INSERT INTO peticoes (email, perfil, valor_causa, texto) VALUES (?, ?, ?, ?)`,
+    args: [target, data.perfil, data.valorCausa || null, data.texto],
+  });
+}
+
+/** Lista as petições do usuário (mais recentes primeiro). */
+export async function listPeticoes(email: string): Promise<PeticaoRecord[]> {
+  const target = normalizeEmail(email);
+  if (!target) return [];
+  try {
+    const db = await ensureDb();
+    const rs = await db.execute({
+      sql: `SELECT id, perfil, valor_causa, texto, created_at
+            FROM peticoes WHERE email = ? ORDER BY created_at DESC, id DESC`,
+      args: [target],
+    });
+    return rs.rows.map((row) => ({
+      id: toInt(row.id),
+      perfil: toText(row.perfil) || "",
+      valorCausa: toText(row.valor_causa),
+      texto: toText(row.texto) || "",
+      createdAt: toText(row.created_at) || "",
+    }));
+  } catch (e) {
+    console.error("listPeticoes:", e);
+    return [];
+  }
 }

@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   AlertTriangle, Calculator, Download, ChevronRight, Scale,
   AlertCircle, Heart, Lock, Loader2, Trophy, Ban, Gift, Megaphone,
@@ -145,24 +146,6 @@ export default function GeradorPage() {
 
     setGenerating(true);
     try {
-      const res = await fetch("/api/auth/peticoes", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "increment" }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setLimitReached(true);
-        setPeticoesUsadas(Number(data.peticoes_usadas) || MAX_PETICOES);
-        alert(data.error || "Limite de 3 petições atingido.");
-        setGenerating(false);
-        return;
-      }
-      const used = Number(data.peticoes_usadas) || peticoesUsadas + 1;
-      setPeticoesUsadas(used);
-      setLimitReached(used >= MAX_PETICOES || !!data.limitReached);
-
       const ctx = { dataFato: dataFato || undefined, dataAutoexclusao: dataAuto || dataFato || undefined, reuNome: reu.nome, valor: calc.base, valorBonus: valorBonus || undefined, valorRollover: valorRollover || undefined };
       const argumentos = ARGUMENTOS.filter((a) => argsSel.includes(a.id)).map((a) => ({
         titulo: a.label.toUpperCase(),
@@ -192,6 +175,25 @@ export default function GeradorPage() {
       let p = `${dados.enderecamento}\n\n${dados.qualificacao}\n\n${dados.tituloAcao}\n\n${dados.qualificacaoReu}\n\nI — DOS FATOS\n\n${dados.fatos}\n\nII — DO DIREITO\n\n`;
       argumentos.forEach((a, i) => { p += `${i + 1}. ${a.titulo}\n${a.texto}\n\n`; });
       p += `III — DOS PEDIDOS\n\n${dados.pedidos}\n\nDá-se à causa o valor de ${dados.valorCausa}.\n\nNestes termos, pede deferimento.\n\n${dados.cidadeData}\n\n${dados.autorNome}\nParte autora — em causa própria (jus postulandi)\n\nPeça elaborada e protocolada pela própria parte, nos termos do art. 9º da Lei nº 9.099/1995. Não há advogado constituído nos autos.`;
+      const res = await fetch("/api/auth/peticoes", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ perfil, valorCausa: calc.total > 0 ? fmt(calc.total) : "", texto: p }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setLimitReached(true);
+        setPeticoesUsadas(Number(data.peticoes_usadas) || MAX_PETICOES);
+        alert(data.error || "Limite de 3 petições atingido.");
+        setGenerating(false);
+        return;
+      }
+      const used = Number(data.peticoes_usadas) || peticoesUsadas + 1;
+      setPeticoesUsadas(used);
+      setLimitReached(used >= MAX_PETICOES || !!data.limitReached);
+
+      setDadosPDF(dados);
       setTexto(p);
       setTab("resultado");
     } catch (e) {
@@ -235,6 +237,7 @@ export default function GeradorPage() {
           >
             {peticoesUsadas}/{MAX_PETICOES} petições
           </span>
+          <Link href="/minhas-peticoes" className="text-xs text-white/60 hover:text-white">Meu Histórico</Link>
           <button type="button" onClick={() => router.push("/")} className="text-xs text-white/60 hover:text-white">Início</button>
         </div>
       </header>

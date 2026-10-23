@@ -27,6 +27,15 @@ const SCHEMA_STATEMENTS = [
      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
    )`,
   `CREATE INDEX IF NOT EXISTS idx_users_status ON users(status)`,
+  `CREATE TABLE IF NOT EXISTS peticoes (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+     email TEXT NOT NULL,
+     perfil TEXT NOT NULL,
+     valor_causa TEXT,
+     texto TEXT NOT NULL,
+     created_at TEXT NOT NULL DEFAULT (datetime('now'))
+   )`,
+  `CREATE INDEX IF NOT EXISTS idx_peticoes_email ON peticoes(email)`,
 ];
 
 function resolveUrl(): string {

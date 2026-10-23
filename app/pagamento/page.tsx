@@ -203,6 +203,16 @@ function PagamentoContent() {
           ← Voltar ao início
         </button>
       </div>
+
+      <a
+        href="https://wa.me/5586988117925?text=Ol%C3%A1!%20Tenho%20uma%20d%C3%BAvida%20sobre%20o%20RecuperaJogo."
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white rounded-full p-4 shadow-lg hover:scale-105 transition-transform"
+        aria-label="WhatsApp"
+      >
+        <MessageCircle size={24} />
+      </a>
     </div>
   );
 }
