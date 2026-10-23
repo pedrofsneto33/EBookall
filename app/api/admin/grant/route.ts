@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
 
     const target = email.toLowerCase();
     await grantAccessByEmail(target, "admin_grant");
-    console.log(`[admin/grant] email=${target} ts=${new Date().toISOString()}`);
     return NextResponse.json({ ok: true, email: target });
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Erro";

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Sora } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const sora = Sora({ subsets: ["latin"], variable: "--font-sora", weight: ["300", "400", "500", "600", "700", "800"] });
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://recuperajogo.vercel.app";
 
@@ -62,7 +62,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={inter.variable}>
+    <html lang="pt-BR" className={sora.variable}>
       <head>
         <script
           type="application/ld+json"

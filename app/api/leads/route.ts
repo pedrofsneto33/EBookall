@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
         console.error("Resend falhou:", mailErr);
       }
     } else {
-      console.log("Lead (sem RESEND):", { email, nome, whatsapp, origem });
+      // Lead registrado apenas em log do servidor (sem Resend configurado).
     }
 
     return NextResponse.json({ success: true });
