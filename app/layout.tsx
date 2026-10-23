@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import { Footer } from "@/components/shared/Footer";
 
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", weight: ["300", "400", "500", "600", "700"] });
 
@@ -69,7 +70,10 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="bg-[#05080C] text-white">{children}</body>
+      <body className="bg-[#05080C] text-white">
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }
