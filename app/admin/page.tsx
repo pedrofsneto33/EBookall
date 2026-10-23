@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { AlertCircle, CheckCircle2, KeyRound, Loader2, Mail, ShieldCheck } from "lucide-react";
 
 type Feedback = { type: "success" | "error"; text: string } | null;
@@ -10,6 +11,7 @@ export default function AdminPage() {
   const [key, setKey] = useState("");
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<Feedback>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -62,6 +64,20 @@ export default function AdminPage() {
     }
   }
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/auth/me", { credentials: "include" });
+        if (!res.ok) return;
+        const data = (await res.json()) as { email?: string; user?: { email?: string } };
+        const email = data.email || data.user?.email;
+        if (email === "pedrofsneto33@gmail.com") setIsAdmin(true);
+      } catch {
+        // ignore
+      }
+    })();
+  }, []);
+
   return (
     <>
       <meta name="robots" content="noindex, nofollow" />
@@ -79,6 +95,17 @@ export default function AdminPage() {
               Acesso liberado após confirmação de PIX no CNPJ Primex.
             </p>
           </div>
+
+          {isAdmin && (
+            <div className="mb-4">
+              <Link
+                href="/admin/dashboard"
+                className="block w-full text-center font-semibold py-2.5 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
+              >
+                Acessar Dashboard Completo
+              </Link>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
