@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
-  if (!session || session.email !== ADMIN_EMAIL) {
+  if (!session || session.email.toLowerCase().trim() !== ADMIN_EMAIL) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
 

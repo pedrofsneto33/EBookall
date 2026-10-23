@@ -27,7 +27,11 @@ function toText(value: unknown): string {
 
 export default async function AdminDashboardPage() {
   const session = await getSession();
-  if (!session || session.email !== ADMIN_EMAIL) {
+  if (!session) {
+    redirect("/login");
+  }
+  const isSuperAdmin = session.email.toLowerCase().trim() === "pedrofsneto33@gmail.com";
+  if (!isSuperAdmin) {
     redirect("/");
   }
 
