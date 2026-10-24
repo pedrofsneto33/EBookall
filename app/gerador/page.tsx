@@ -6,7 +6,7 @@ import Link from "next/link";
 import {
   AlertTriangle, Download, ChevronRight, Scale, Loader2,
 } from "lucide-react";
-import { Document, Page, Text, StyleSheet, pdf } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda, PERFIL_LABEL } from "../lib/config";
 import type { Perfil } from "../lib/config";
 import { argumentosDoPerfil } from "../lib/argumentos-meta";
@@ -22,8 +22,9 @@ const pdfStyles = StyleSheet.create({
   header: { textAlign: "center", marginBottom: 20, fontSize: 12, fontWeight: "bold", textTransform: "uppercase" },
   sectionTitle: { fontSize: 12, fontWeight: "bold", marginTop: 15, marginBottom: 8, textTransform: "uppercase" },
   paragraph: { textAlign: "justify", marginBottom: 10, textIndent: 25 },
-  noIndent: { textAlign: "justify", marginBottom: 10 },
   footer: { marginTop: 40, textAlign: "center" },
+  signatureView: { marginTop: 50, alignItems: "center", justifyContent: "center" },
+  signatureText: { textAlign: "center" },
 });
 
 const PeticaoPDF = ({ texto }: { texto: string }) => {
@@ -32,9 +33,23 @@ const PeticaoPDF = ({ texto }: { texto: string }) => {
     <Document>
       <Page size="A4" style={pdfStyles.page}>
         {blocos.map((b, i) => {
+          if (b.startsWith("[[CENTRO]]")) {
+            return <Text key={i} style={pdfStyles.header}>{b.replace("[[CENTRO]]", "")}</Text>;
+          }
+          if (b.startsWith("[[ASSINATURA]]")) {
+            const linhas = b.replace("[[ASSINATURA]]", "").split("\n");
+            return (
+              <View key={i} style={pdfStyles.signatureView}>
+                {linhas.map((l, j) => (
+                  <Text key={j} style={pdfStyles.signatureText}>{l}</Text>
+                ))}
+              </View>
+            );
+          }
           if (/^[IVX]+\s*[—–-]\s/.test(b)) return <Text key={i} style={pdfStyles.sectionTitle}>{b}</Text>;
-          if (b.startsWith("EXCELENT") || b.startsWith("AO JUÍZO") || b.startsWith("AO JUIZO")) return <Text key={i} style={pdfStyles.header}>{b}</Text>;
-          if (b.startsWith("Nestes termos") || b.startsWith("Dá-se à causa") || b.startsWith("Da-se a causa")) return <Text key={i} style={pdfStyles.footer}>{b}</Text>;
+          if (b.startsWith("Nestes termos") || b.startsWith("Dá-se à causa") || b.startsWith("Da-se a causa")) {
+            return <Text key={i} style={pdfStyles.footer}>{b}</Text>;
+          }
           return <Text key={i} style={pdfStyles.paragraph}>{b}</Text>;
         })}
       </Page>
@@ -73,7 +88,6 @@ export default function GeradorPage() {
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   
-  // Estados unificados
   const [usadas, setUsadas] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
   const [casoToken, setCasoToken] = useState("");
@@ -84,13 +98,14 @@ export default function GeradorPage() {
   const [perfil, setPerfil] = useState<Perfil>("autoexclusao");
   const [argsSel, setArgsSel] = useState<string[]>([]);
   
-  // Campos do formulário
   const [valorPerdido, setValorPerdido] = useState("");
   const [dataFato, setDataFato] = useState("");
   const [dataAuto, setDataAuto] = useState("");
   const [dobro, setDobro] = useState(false);
   const [danoMoral, setDanoMoral] = useState(true);
   const [valorDM, setValorDM] = useState("3000");
+  const [valorBonus, setValorBonus] = useState("");
+  const [valorRollover, setValorRollover] = useState("");
   const [autor, setAutor] = useState({ nome: "", cpf: "", endereco: "", comarca: "", uf: "" });
   const [reu, setReu] = useState({ nome: "", cnpj: "" });
   const [relato, setRelato] = useState("");
@@ -160,6 +175,8 @@ export default function GeradorPage() {
           tentativaConsumidorGov: false,
           pedirExibicao: false,
           caso_token: casoToken,
+          valorBonus,
+          valorRollover
         }),
       });
       
@@ -200,6 +217,11 @@ export default function GeradorPage() {
     a.download = `peticao-recuperajogo-${Date.now()}.pdf`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  function copiarTexto() {
+    const textoLimpo = texto.replace(/\[\[(CENTRO|ASSINATURA)\]\]/g, "");
+    navigator.clipboard.writeText(textoLimpo);
   }
 
   if (loading) {
@@ -336,6 +358,13 @@ export default function GeradorPage() {
               
               <Field label="Valor material R$" type="number" value={valorPerdido} onChange={setValorPerdido} placeholder="Ex: 8000" />
               <Field label="Dano moral sugerido R$" type="number" value={valorDM} onChange={setValorDM} />
+              
+              {perfil === "bonus_rollover" && (
+                <>
+                  <Field label="Valor do bônus R$" type="number" value={valorBonus} onChange={setValorBonus} placeholder="Ex: 4000" />
+                  <Field label="Valor exigido no rollover R$" type="number" value={valorRollover} onChange={setValorRollover} placeholder="Ex: 12000" />
+                </>
+              )}
             </div>
             
             <div className="flex flex-col gap-2 pt-2">
@@ -430,9 +459,29 @@ export default function GeradorPage() {
               </div>
             )}
             
-            <pre className="text-xs whitespace-pre-wrap p-5 rounded-lg border max-h-[420px] overflow-auto bg-[#0d1117] border-white/10 text-gray-300 font-serif leading-relaxed">
-              {texto}
-            </pre>
+            <div className="bg-[#0d1117] border border-white/10 rounded-lg p-6 max-h-[500px] overflow-auto font-serif text-sm leading-relaxed text-gray-300">
+              {texto.split(/\n{2,}/).map((b, i) => {
+                let content = b.trim();
+                if (!content) return null;
+                
+                if (content.startsWith("[[CENTRO]]")) {
+                  return <p key={i} className="text-center font-bold uppercase my-4 text-white">{content.replace("[[CENTRO]]", "")}</p>;
+                }
+                if (content.startsWith("[[ASSINATURA]]")) {
+                  return (
+                    <div key={i} className="mt-12 text-center text-white">
+                      {content.replace("[[ASSINATURA]]", "").split("\n").map((l, j) => (
+                        <p key={j} className="mb-1">{l}</p>
+                      ))}
+                    </div>
+                  );
+                }
+                if (/^[IVX]+\s*[—–-]\s/.test(content)) {
+                  return <p key={i} className="font-bold mt-6 mb-2 uppercase text-white">{content}</p>;
+                }
+                return <p key={i} className="mb-3 text-justify">{content}</p>;
+              })}
+            </div>
             
             <div className="flex flex-wrap gap-3 pt-2">
               <button
@@ -444,7 +493,7 @@ export default function GeradorPage() {
               </button>
               <button
                 type="button"
-                onClick={() => navigator.clipboard.writeText(texto)}
+                onClick={copiarTexto}
                 className="px-5 py-2.5 rounded-xl text-sm font-semibold border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
               >
                 Copiar texto
