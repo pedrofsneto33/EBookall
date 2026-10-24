@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { trackEvent } from "../lib/analytics";
 import {
   CheckCircle2,
   AlertCircle,
@@ -157,7 +158,7 @@ function PagamentoContent() {
 
           <button
             type="button"
-            onClick={abrirWhatsApp}
+            onClick={() => { trackEvent('Clique_WhatsApp_Pagamento'); abrirWhatsApp(); }}
             className="mt-4 w-full inline-flex items-center justify-center gap-2 text-[15px] font-semibold px-6 py-3.5 rounded-xl bg-[#25D366] text-[#06311A] hover:opacity-90 transition-opacity"
           >
             <MessageCircle size={18} /> Enviar comprovante no WhatsApp

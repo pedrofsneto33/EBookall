@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, CheckCircle2, KeyRound, Loader2, Mail, ShieldCheck } from "lucide-react";
+import { trackEvent } from "../lib/analytics";
 
 type Feedback = { type: "success" | "error"; text: string } | null;
 
@@ -41,6 +42,7 @@ export default function AdminPage() {
       }
 
       if (res.ok) {
+        trackEvent('Admin_Liberou_Acesso');
         const granted = data.email || target.toLowerCase();
         setFeedback({
           type: "success",

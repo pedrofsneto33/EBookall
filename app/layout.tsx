@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/shared/Footer";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", weight: ["300", "400", "500", "600", "700"] });
 
@@ -76,6 +77,7 @@ export default function RootLayout({
       <body className="bg-[#05080C] text-white">
         {children}
         <Footer />
+        <GoogleAnalytics gaId="G-BXG9L016HJ" />
       </body>
     </html>
   );

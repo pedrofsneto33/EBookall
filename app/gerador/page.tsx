@@ -10,6 +10,7 @@ import {
 import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer";
 import { ARGUMENTOS, filtrarPorPerfil, Argumento } from "../lib/argumentos-peticao";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "../lib/config";
+import { trackEvent } from "../lib/analytics";
 
 const pdfStyles = StyleSheet.create({
   page: { padding: 50, fontFamily: "Times-Roman", fontSize: 12, lineHeight: 1.5 },
@@ -138,6 +139,7 @@ export default function GeradorPage() {
   const restantes = Math.max(0, MAX_PETICOES - peticoesUsadas);
 
   async function gerar() {
+    trackEvent('Peticao_Gerada');
     if (limitReached || peticoesUsadas >= MAX_PETICOES) {
       alert("Você já usou as 3 petições do seu acesso. Não é possível gerar mais.");
       return;
