@@ -8,8 +8,12 @@ import {
   AlertCircle, Heart, Lock, Loader2, Trophy, Ban, Gift, Megaphone,
 } from "lucide-react";
 import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer";
-import { ARGUMENTOS, filtrarPorPerfil, Argumento } from "../lib/argumentos-peticao";
-import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "../lib/config";
+import { LIMITE_JUS_POSTULANDI, formatarMoeda, PERFIS, PERFIL_LABEL } from "../lib/config";
+import type { Perfil } from "../lib/config";
+import { argumentosDoPerfil, condicionaisDoPerfil, provasDoPerfil } from "../lib/argumentos-meta";
+import type { ArgumentoMeta } from "../lib/argumentos-meta";
+import { TEXTOS, TITULOS } from "../lib/server/argumentos";
+import type { CtxArg } from "../lib/server/argumentos";
 import { trackEvent } from "../lib/analytics";
 
 const pdfStyles = StyleSheet.create({
@@ -58,18 +62,7 @@ const LINE = "#E6E1D6";
 const SEAL = "#1B6B4A";
 const MAX_PETICOES = 3;
 
-type Perfil = "autoexclusao" | "ludopatia" | "publicidade" | "saque" | "premio_nao_pago" | "conta_bloqueada" | "bonus_rollover" | "publicidade_enganosa";
-
-const PERFIS: { id: Perfil; title: string; desc: string; Icon: any }[] = [
-  { id: "autoexclusao", title: "Exclusão centralizada furada", desc: "Autoexcluiu e a casa ainda aceitou depósito.", Icon: Lock },
-  { id: "ludopatia", title: "Ludopatia / dever de cuidado", desc: "Pedidos de limite ignorados.", Icon: Heart },
-  { id: "publicidade", title: "Publicidade após pedir para parar", desc: "Bônus/push depois do opt-out.", Icon: AlertCircle },
-  { id: "saque", title: "Saque travado", desc: "Saldo existe, liberação enrolada.", Icon: Calculator },
-  { id: "premio_nao_pago", title: "Prêmio ou Aposta Ganha Não Paga", desc: "A casa não pagou o prêmio, cancelou a aposta ou alterou a cotação após o resultado.", Icon: Trophy },
-  { id: "conta_bloqueada", title: "Conta Bloqueada ou Suspensa", desc: "Sua conta foi bloqueada e o saldo retido sem justificativa ou direito de defesa.", Icon: Ban },
-  { id: "bonus_rollover", title: "Bônus com Rollover Abusivo", desc: "A casa exigiu requisitos impossíveis para liberar o bônus, impedindo o saque.", Icon: Gift },
-  { id: "publicidade_enganosa", title: "Publicidade Enganosa", desc: "A plataforma prometeu ganhos garantidos ou omitiu riscos, estimulando apostas.", Icon: Megaphone },
-];
+// PERFIS, PERFIL_LABEL e Perfil agora vêm de ../lib/config.ts
 
 function Field({ label, value, onChange, full }: { label: string; value: string; onChange: (v: string) => void; full?: boolean }) {
   return (
@@ -135,7 +128,7 @@ export default function GeradorPage() {
 
   const fmt = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   const acimaLimiteJEC = calc.total > LIMITE_JUS_POSTULANDI;
-  const disponiveis = filtrarPorPerfil(ARGUMENTOS, perfil);
+  const disponiveis = argumentosDoPerfil(perfil);
   const restantes = Math.max(0, MAX_PETICOES - peticoesUsadas);
 
   async function gerar() {
@@ -154,10 +147,22 @@ export default function GeradorPage() {
 
     setGenerating(true);
     try {
-      const ctx = { dataFato: dataFato || undefined, dataAutoexclusao: dataAuto || dataFato || undefined, reuNome: reu.nome, valor: calc.base, valorBonus: valorBonus || undefined, valorRollover: valorRollover || undefined };
-      const argumentos = ARGUMENTOS.filter((a) => argsSel.includes(a.id)).map((a) => ({
-        titulo: a.label.toUpperCase(),
-        texto: a.texto(ctx),
+      const br = (iso?: string) => {
+        if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso || "";
+        const [y, m, d] = iso.split("-");
+        return `${d}/${m}/${y}`;
+      };
+      const ctxArg: CtxArg = {
+        dataFato: br(dataFato) || undefined,
+        dataAutoexclusao: br(dataAuto || dataFato) || undefined,
+        valor: calc.base,
+        devolvido: 0,
+        perfil: perfil,
+      };
+      const selecionados = argumentosDoPerfil(perfil).filter((a) => argsSel.includes(a.id));
+      const argumentos = selecionados.map((a) => ({
+        titulo: (TITULOS[a.id] ?? a.label).toUpperCase(),
+        texto: TEXTOS[a.id]?.(ctxArg) ?? "",
       }));
 
       const pedidos =
@@ -290,7 +295,9 @@ export default function GeradorPage() {
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl">
             <h2 className="font-semibold mb-3 text-white">Qual é a causa desta pessoa?</h2>
             <div className="grid sm:grid-cols-2 gap-3">
-              {PERFIS.map(({ id, title, desc, Icon }) => (
+              {(Object.keys(PERFIL_LABEL) as Perfil[]).map((id) => {
+                const { titulo, desc } = PERFIL_LABEL[id];
+                return (
                 <button
                   key={id}
                   type="button"
@@ -301,13 +308,13 @@ export default function GeradorPage() {
                       : "border-white/10 bg-white/5 hover:bg-white/10"
                   }`}
                 >
-                  <Icon size={18} className="text-emerald-400" />
                   <div>
-                    <p className="text-sm font-medium text-white">{title}</p>
+                    <p className="text-sm font-medium text-white">{titulo}</p>
                     <p className="text-xs text-white/60">{desc}</p>
                   </div>
                 </button>
-              ))}
+                );
+              })}
             </div>
             <button
               type="button"
@@ -376,7 +383,7 @@ export default function GeradorPage() {
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-2 shadow-xl">
             <h2 className="font-semibold mb-2 text-white">Argumentos deste tipo</h2>
             <p className="text-xs mb-3 text-white/60">O texto inclui o nome da ré, datas e valor informados. Cada geração consome 1 das {MAX_PETICOES} petições.</p>
-            {disponiveis.map((a: Argumento) => (
+            {disponiveis.map((a: ArgumentoMeta) => (
               <label
                 key={a.id}
                 className={`flex gap-3 text-sm p-3 rounded-lg border cursor-pointer transition-colors ${
@@ -393,7 +400,7 @@ export default function GeradorPage() {
                 />
                 <div>
                   <p className="font-medium text-white">{a.label}</p>
-                  {a.dicaProva && <p className="text-xs text-white/60">{a.dicaProva}</p>}
+                  {a.dica && <p className="text-xs text-white/60">{a.dica}</p>}
                 </div>
               </label>
             ))}
