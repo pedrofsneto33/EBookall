@@ -30,6 +30,11 @@ export const SALARIO_MINIMO = 1621;
 /** Limite do Juizado Especial para jus postulandi (20 salários mínimos). */
 export const LIMITE_JUS_POSTULANDI = SALARIO_MINIMO * 20;
 
+/** URL base do site (fallback para o domínio oficial). */
+export const SITE_URL =
+  (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_SITE_URL) ||
+  "https://recuperajogo.vercel.app";
+
 /** Formata um valor em reais (BRL) de forma padronizada. */
 export function formatarMoeda(valor: number): string {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(valor);

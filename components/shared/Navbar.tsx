@@ -27,7 +27,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-3">
           <a
-            href="https://e-bookall.vercel.app/login"
+            href="https://recuperajogo.vercel.app/login"
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-zinc-300 hover:text-white px-3 py-2"
@@ -35,7 +35,7 @@ export default function Navbar() {
             Entrar
           </a>
           <a
-            href="https://e-bookall.vercel.app/login"
+            href="https://recuperajogo.vercel.app/login"
             target="_blank"
             rel="noopener noreferrer"
             className="clip-custom bg-emerald-400 hover:bg-emerald-300 text-black font-bold text-sm px-5 py-2.5 transition-colors"

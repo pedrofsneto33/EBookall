@@ -55,7 +55,7 @@ export default function OfferSection() {
                 className="inline-block w-full"
               >
                 <a
-                  href="https://e-bookall.vercel.app/login"
+                  href="https://recuperajogo.vercel.app/login"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="clip-custom block text-center bg-emerald-400 hover:bg-emerald-300 text-black font-black text-lg px-6 py-4 transition-colors"

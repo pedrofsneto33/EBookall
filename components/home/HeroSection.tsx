@@ -79,7 +79,7 @@ export default function HeroSection() {
           <div className="mt-10 flex flex-wrap gap-4">
             <motion.div whileHover={{ scale: 1.05 }}>
               <a
-                href="https://e-bookall.vercel.app/login"
+                href="https://recuperajogo.vercel.app/login"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="clip-custom inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-black font-black text-lg px-8 py-4 transition-colors shadow-[0_0_40px_rgba(16,185,129,0.4)]"

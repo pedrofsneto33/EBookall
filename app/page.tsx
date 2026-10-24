@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import HeroSection from "@/components/home/HeroSection";
 import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
@@ -262,10 +263,10 @@ export default function LandingPage() {
           </div>
           <div className="space-y-2">
             <p className="text-sm font-bold text-white mb-2">Links Útís</p>
-            <a href="/politica-privacidade" className="block text-sm text-white/60 hover:text-white">Política de Privacidade</a>
-            <a href="/termos" className="block text-sm text-white/60 hover:text-white">Termos de Uso</a>
-            <a href="/apoio" className="flex items-center gap-2 text-sm text-white/60 hover:text-emerald-400 transition-colors"><HeartPulse size={14} /> Apoio Emocional e Jogo Responsável</a>
-            <a href="https://e-bookall.vercel.app/login" target="_blank" rel="noopener noreferrer" className="block text-sm text-white/60 hover:text-white">Área do Cliente</a>
+            <Link href="/politica-privacidade" className="block text-sm text-white/60 hover:text-white">Política de Privacidade</Link>
+            <Link href="/termos" className="block text-sm text-white/60 hover:text-white">Termos de Uso</Link>
+            <Link href="/apoio" className="flex items-center gap-2 text-sm text-white/60 hover:text-emerald-400 transition-colors"><HeartPulse size={14} /> Apoio Emocional e Jogo Responsável</Link>
+            <Link href="/login" className="block text-sm text-white/60 hover:text-white">Área do Cliente</Link>
           </div>
           <div>
             <p className="text-sm font-bold text-white mb-2">Suporte</p>
@@ -280,9 +281,9 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      <a href="https://e-bookall.vercel.app/login" target="_blank" rel="noopener noreferrer" className="md:hidden fixed bottom-4 right-4 z-50 bg-emerald-500 text-[#05080C] font-bold rounded-full p-4 shadow-[0_0_20px_rgba(16,185,129,0.5)]">
+      <Link href="/login" className="md:hidden fixed bottom-4 right-4 z-50 bg-emerald-500 text-[#05080C] font-bold rounded-full p-4 shadow-[0_0_20px_rgba(16,185,129,0.5)]">
         <FileText size={24} />
-      </a>
+      </Link>
 
       <a
         href="https://wa.me/5586988117925?text=Ol%C3%A1!%20Tenho%20uma%20d%C3%BAvida%20sobre%20o%20RecuperaJogo."

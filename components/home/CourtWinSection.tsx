@@ -68,7 +68,7 @@ export default function CourtWinSection() {
 
           <div className="mt-8">
             <a
-              href="https://e-bookall.vercel.app/login"
+              href="https://recuperajogo.vercel.app/login"
               target="_blank"
               rel="noopener noreferrer"
               className="clip-custom inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-black font-black text-base px-6 py-3 transition-colors"
