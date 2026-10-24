@@ -12,9 +12,13 @@ import { LIMITE_JUS_POSTULANDI, formatarMoeda, PERFIS, PERFIL_LABEL } from "../l
 import type { Perfil } from "../lib/config";
 import { argumentosDoPerfil, condicionaisDoPerfil, provasDoPerfil } from "../lib/argumentos-meta";
 import type { ArgumentoMeta } from "../lib/argumentos-meta";
-import { TEXTOS, TITULOS } from "../lib/server/argumentos";
-import type { CtxArg } from "../lib/server/argumentos";
 import { trackEvent } from "../lib/analytics";
+import { getSession } from "../lib/auth";
+
+async function authFetch(url: string, init: RequestInit = {}) {
+  return fetch(url, { ...init, credentials: "include" });
+}
+
 
 const pdfStyles = StyleSheet.create({
   page: { padding: 50, fontFamily: "Times-Roman", fontSize: 12, lineHeight: 1.5 },
@@ -25,36 +29,21 @@ const pdfStyles = StyleSheet.create({
   footer: { marginTop: 40, textAlign: "center" },
 });
 
-const PeticaoPDF = ({ dados }: { dados: any }) => (
-  <Document>
-    <Page size="A4" style={pdfStyles.page}>
-      <Text style={pdfStyles.header}>{dados.enderecamento}</Text>
-      <Text style={pdfStyles.noIndent}>{dados.qualificacao}</Text>
-      <Text style={{ ...pdfStyles.noIndent, textAlign: "center", fontWeight: "bold", marginVertical: 10 }}>{dados.tituloAcao}</Text>
-      <Text style={pdfStyles.noIndent}>{dados.qualificacaoReu}</Text>
-      <Text style={pdfStyles.sectionTitle}>I — DOS FATOS</Text>
-      <Text style={pdfStyles.paragraph}>{dados.fatos}</Text>
-      <Text style={pdfStyles.sectionTitle}>II — DO DIREITO</Text>
-      {dados.argumentos.map((arg: any, i: number) => (
-        <View key={i}>
-          <Text style={{ ...pdfStyles.sectionTitle, fontSize: 11, marginTop: 10 }}>{i + 1}. {arg.titulo}</Text>
-          <Text style={pdfStyles.paragraph}>{arg.texto}</Text>
-        </View>
-      ))}
-      <Text style={pdfStyles.sectionTitle}>III — DOS PEDIDOS</Text>
-      <Text style={pdfStyles.paragraph}>{dados.pedidos}</Text>
-      <Text style={pdfStyles.noIndent}>Dá-se à causa o valor de {dados.valorCausa}.</Text>
-      <Text style={pdfStyles.footer}>Nestes termos, pede deferimento.</Text>
-      <Text style={{ textAlign: "center", marginTop: 24 }}>{dados.cidadeData}</Text>
-      <Text style={{ textAlign: "center", marginTop: 36, fontWeight: "bold" }}>{dados.autorNome}</Text>
-      <Text style={{ textAlign: "center", marginTop: 4, fontSize: 10 }}>Parte autora — em causa própria (jus postulandi)</Text>
-      <Text style={{ textAlign: "center", marginTop: 16, fontSize: 9 }}>
-        Peça elaborada e protocolada pela própria parte, nos termos do art. 9º da Lei nº 9.099/1995. Não há advogado constituído nos autos.
-      </Text>
-    </Page>
-  </Document>
-);
-
+const PeticaoPDF = ({ texto }: { texto: string }) => {
+  const blocos = texto.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
+  return (
+    <Document>
+      <Page size="A4" style={pdfStyles.page}>
+        {blocos.map((b, i) => {
+          if (/^[IVX]+\s*[—–-]\s/.test(b)) return <Text key={i} style={pdfStyles.sectionTitle}>{b}</Text>;
+          if (b.startsWith("EXCELENT") || b.startsWith("AO JUÍZO") || b.startsWith("AO JUIZO")) return <Text key={i} style={pdfStyles.header}>{b}</Text>;
+          if (b.startsWith("Nestes termos") || b.startsWith("Dá-se à causa") || b.startsWith("Da-se a causa")) return <Text key={i} style={pdfStyles.footer}>{b}</Text>;
+          return <Text key={i} style={pdfStyles.paragraph}>{b}</Text>;
+        })}
+      </Page>
+    </Document>
+  );
+};
 const INK = "#0F1C2E";
 const SOFT = "#4A5B6E";
 const PAPER = "#FAF8F4";
@@ -82,6 +71,9 @@ export default function GeradorPage() {
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [peticoesUsadas, setPeticoesUsadas] = useState(0);
+  const [usadas, setUsadas] = useState(0);
+  const [casoToken, setCasoToken] = useState("");
+  const [avisos, setAvisos] = useState<string[]>([]);
   const [limitReached, setLimitReached] = useState(false);
   const [tab, setTab] = useState("perfil");
   const [ack, setAck] = useState(false);
@@ -133,81 +125,45 @@ export default function GeradorPage() {
 
   async function gerar() {
     trackEvent('Peticao_Gerada');
-    if (limitReached || peticoesUsadas >= MAX_PETICOES) {
-      alert("Você já usou as 3 petições do seu acesso. Não é possível gerar mais.");
-      return;
-    }
-    if (acimaLimiteJEC) {
-      alert(`Atenção: O valor da causa ultrapassou o limite de ${formatarMoeda(LIMITE_JUS_POSTULANDI)}. Para causas acima disso, você precisará de um advogado ou da Defensoria Pública.`);
-      return;
-    }
+    if (limitReached || peticoesUsadas >= MAX_PETICOES) { alert("Você já usou as 3 petições do seu acesso."); return; }
+    if (acimaLimiteJEC) { alert(`Atenção: valor da causa acima de ${formatarMoeda(LIMITE_JUS_POSTULANDI)}.`); return; }
     if (argsSel.length === 0) return alert("Selecione argumentos.");
-    if (relato.trim().length < 40) return alert("Relato obrigatório com os fatos desta pessoa (mín. 40 caracteres). Não copie sentença de terceiro.");
+    if (relato.trim().length < 40) return alert("Relato curto demais.");
     if (!autor.nome || !reu.nome) return alert("Preencha autor e casa ré.");
-
     setGenerating(true);
     try {
-      const br = (iso?: string) => {
-        if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso || "";
-        const [y, m, d] = iso.split("-");
-        return `${d}/${m}/${y}`;
-      };
-      const ctxArg: CtxArg = {
-        dataFato: br(dataFato) || undefined,
-        dataAutoexclusao: br(dataAuto || dataFato) || undefined,
-        valor: calc.base,
-        devolvido: 0,
-        perfil: perfil,
-      };
-      const selecionados = argumentosDoPerfil(perfil).filter((a) => argsSel.includes(a.id));
-      const argumentos = selecionados.map((a) => ({
-        titulo: (TITULOS[a.id] ?? a.label).toUpperCase(),
-        texto: TEXTOS[a.id]?.(ctxArg) ?? "",
-      }));
-
-      const pedidos =
-        `Requer-se:\n` +
-        (calc.base > 0 ? `a) restituição de ${fmt(calc.base)}${dobro ? ` em dobro (${fmt(calc.comDobro)})` : ""};\n` : "") +
-        (danoMoral ? `b) danos morais a arbitrar (parâmetro ${fmt(parseFloat(valorDM) || 0)});\n` : "") +
-        `c) inversão do ônus da prova (CDC art. 6º, VIII);\nd) citação da Ré.`;
-
-      const dados = {
-        enderecamento: `EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DO JUIZADO ESPECIAL CÍVEL DA COMARCA DE ${(autor.comarca || "[COMARCA]").toUpperCase()} – ${(autor.uf || "[UF]").toUpperCase()}`,
-        qualificacao: `${autor.nome}, CPF nº ${autor.cpf || "[CPF]"}, residente e domiciliado(a) em ${autor.endereco || "[ENDEREÇO]"}, vem, por si mesmo(a), em causa própria, com fundamento no art. 9º da Lei nº 9.099/1995 (jus postulandi) e na Lei nº 8.078/1990 (Código de Defesa do Consumidor), propor a presente`,
-        tituloAcao: `AÇÃO DE INDENIZAÇÃO POR DANOS MATERIAIS${danoMoral ? " E MORAIS" : ""}`,
-        qualificacaoReu: `em face de ${reu.nome}, inscrita no CNPJ sob o nº ${reu.cnpj || "[CNPJ]"}, pelos fatos e fundamentos a seguir expostos.`,
-        fatos: relato,
-        argumentos,
-        pedidos,
-        valorCausa: calc.total > 0 ? fmt(calc.total) : "[preencher]",
-        autorNome: autor.nome,
-        cidadeData: `${autor.comarca || "[CIDADE]"}, ${new Date().toLocaleDateString("pt-BR")}.`,
-      };
-      setDadosPDF(dados);
-
-      let p = `${dados.enderecamento}\n\n${dados.qualificacao}\n\n${dados.tituloAcao}\n\n${dados.qualificacaoReu}\n\nI — DOS FATOS\n\n${dados.fatos}\n\nII — DO DIREITO\n\n`;
-      argumentos.forEach((a, i) => { p += `${i + 1}. ${a.titulo}\n${a.texto}\n\n`; });
-      p += `III — DOS PEDIDOS\n\n${dados.pedidos}\n\nDá-se à causa o valor de ${dados.valorCausa}.\n\nNestes termos, pede deferimento.\n\n${dados.cidadeData}\n\n${dados.autorNome}\nParte autora — em causa própria (jus postulandi)\n\nPeça elaborada e protocolada pela própria parte, nos termos do art. 9º da Lei nº 9.099/1995. Não há advogado constituído nos autos.`;
-      const res = await fetch("/api/auth/peticoes", {
+      const res = await authFetch("/api/peticao", {
         method: "POST",
-        credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ perfil, valorCausa: calc.total > 0 ? fmt(calc.total) : "", texto: p }),
+        body: JSON.stringify({
+          perfil,
+          autor,
+          reu,
+          relato,
+          dataFato,
+          dataAutoexclusao: dataAuto,
+          valorPerdido,
+          valorDevolvido: "0",
+          dobro,
+          danoMoral,
+          valorDanoMoral: valorDM,
+          argumentos: argsSel,
+          condicionais: [],
+          provas: [],
+          tentativaChat: false,
+          tentativaConsumidorGov: false,
+          pedirExibicao: false,
+          caso_token: casoToken,
+        }),
       });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setLimitReached(true);
-        setPeticoesUsadas(Number(data.peticoes_usadas) || MAX_PETICOES);
-        alert(data.error || "Limite de 3 petições atingido.");
-        setGenerating(false);
-        return;
-      }
-      const used = Number(data.peticoes_usadas) || peticoesUsadas + 1;
-      setPeticoesUsadas(used);
-      setLimitReached(used >= MAX_PETICOES || !!data.limitReached);
-
-      setDadosPDF(dados);
-      setTexto(p);
+      const data = await res.json();
+      if (res.status === 401) return router.replace("/login?redirect=/gerador");
+      if (res.status === 402) return router.replace("/pagamento");
+      if (!res.ok) return alert(data.error || "Erro ao gerar");
+      setTexto(data.texto);
+      setUsadas(data.usadas);
+      setCasoToken(data.caso_token || "");
+      setAvisos(data.avisos ?? []);
       setTab("resultado");
     } catch (e) {
       console.error(e);
@@ -216,14 +172,13 @@ export default function GeradorPage() {
       setGenerating(false);
     }
   }
-
   async function baixar() {
-    if (!dadosPDF) return;
-    const blob = await pdf(<PeticaoPDF dados={dadosPDF} />).toBlob();
+    if (!texto) return;
+    const blob = await pdf(<PeticaoPDF texto={texto} />).toBlob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `peticao-${Date.now()}.pdf`;
+    a.download = `peticao-recuperajogo-${Date.now()}.pdf`;
     a.click();
     URL.revokeObjectURL(url);
   }
