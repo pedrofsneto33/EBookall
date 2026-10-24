@@ -20,11 +20,13 @@ export const metadata: Metadata = {
     siteName: "RecuperaJogo",
     title: "RecuperaJogo | Recupere seu dinheiro das bets",
     description: "As bets levaram seu dinheiro? Cobre na Justiça sem precisar de advogado. O RecuperaJogo monta sua petição por R$ 137.",
+    images: ["/opengraph-image"],
   },
   twitter: {
     card: "summary_large_image",
     title: "RecuperaJogo | Recupere seu dinheiro",
     description: "Gere sua petição contra a bet em minutos. Sem advogado.",
+    images: ["/opengraph-image"],
   },
   robots: {
     index: true,

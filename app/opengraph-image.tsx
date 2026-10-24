@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "RecuperaJogo - Recupere seu dinheiro das bets";
+export const alt = "RecuperaJogo - Cobre a bet no Juizado. Sem advogado.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -27,26 +27,21 @@ export default async function Image() {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: "800px",
-            height: "800px",
-            background: "radial-gradient(circle, rgba(52,211,153,0.15) 0%, transparent 60%)",
+            width: "900px",
+            height: "900px",
+            background: "radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 60%)",
             borderRadius: "50%",
           }}
         />
-
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <div style={{ fontSize: "80px", fontWeight: 900, color: "#FFFFFF", letterSpacing: "-0.05em", marginBottom: "-10px", display: "flex" }}>
-            Recupera<span style={{ color: "#34D399" }}>Jogo</span>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", zIndex: 1 }}>
+          <div style={{ fontSize: "48px", fontWeight: 900, color: "#34D399", letterSpacing: "-0.02em", marginBottom: "24px", display: "flex" }}>
+            RecuperaJogo
           </div>
-
-          <div style={{ fontSize: "32px", color: "#A1A1AA", textAlign: "center", maxWidth: "800px", marginTop: "30px", lineHeight: 1.3, display: "flex" }}>
-            As bets levaram seu dinheiro? Cobre na Justiça <strong>sem advogado</strong> por apenas R$ 137.
+          <div style={{ fontSize: "72px", fontWeight: 900, color: "#FFFFFF", textAlign: "center", maxWidth: "1000px", lineHeight: 1.1, display: "flex" }}>
+            Cobre a bet no Juizado. Sem advogado.
           </div>
-
-          <div style={{ display: "flex", gap: "20px", marginTop: "50px" }}>
-            <div style={{ padding: "15px 30px", background: "#34D399", color: "#000", fontWeight: "bold", borderRadius: "8px", fontSize: "24px" }}>
-              Gerar Petição Agora
-            </div>
+          <div style={{ fontSize: "32px", color: "#A1A1AA", textAlign: "center", marginTop: "32px", display: "flex" }}>
+            Software de petição por R$ 137.
           </div>
         </div>
       </div>
