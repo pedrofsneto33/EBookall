@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import HeroSection from "@/components/home/HeroSection";
 import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
 import OfferSection from "@/components/home/OfferSection";
-import { Check, X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone } from "lucide-react";
+import { Check, X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, Shield } from "lucide-react";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "./lib/config";
 
 interface FaqItem {
@@ -28,6 +28,10 @@ const FAQS: FaqItem[] = [
     a: 'Sim, desde que a operadora tenha CNPJ no Brasil. O sistema gera a peça com base nos fatos que você preenche.',
   },
   {
+    q: 'O que é o Dossiê SPA/MF?',
+    a: 'É um bônus exclusivo. Nós fornecemos as Portarias e Instruções Normativas oficiais da Secretaria de Prêmios e Apostas (Ministério da Fazenda) para você anexar ao seu processo. Isso mostra ao juiz que você conhece as regras oficiais do setor.',
+  },
+  {
     q: 'E se eu não gostar ou não quiser usar?',
     a: 'Você tem 7 dias de garantia incondicional. Basta solicitar o reembolso e devolvemos o valor integral.',
   },
@@ -37,21 +41,25 @@ const FAQS: FaqItem[] = [
   },
 ];
 
-
 function CountUp({ end, prefix = "", suffix = "" }: { end: number; prefix?: string; suffix?: string }) {
   const [value, setValue] = useState(0);
-  useState(() => {
+
+  useEffect(() => {
+    let animationFrame: number;
     const start = performance.now();
     const duration = 1400;
+    
     const step = (now: number) => {
       const progress = Math.min((now - start) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
       setValue(end * eased);
-      if (progress < 1) requestAnimationFrame(step);
+      if (progress < 1) animationFrame = requestAnimationFrame(step);
     };
-    requestAnimationFrame(step);
-    return 0;
-  });
+    
+    animationFrame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [end]);
+
   const formatted = Math.round(value).toLocaleString("pt-BR");
   return (
     <span>
@@ -75,12 +83,16 @@ export default function LandingPage() {
       {/* CASOS QUE RESOLVEMOS */}
       <section className="py-24 px-6">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-center mb-12">
-            Não importa o que a bet fez. Nós temos a petição certa.
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-center mb-4">
+            Não importa o que a bet fez.
+            <br />Nós temos a petição certa.
           </h2>
+          <p className="text-center text-white/60 mb-12 max-w-2xl mx-auto">
+            Escolha o seu caso e o gerador monta a peça jurídica específica para a sua situação.
+          </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { title: "Autoexclusão ignorada", Icon: Lock },
+              { title: "Autoexclusão Ignorada", Icon: Lock },
               { title: "Saldo ou Saque Retido", Icon: Wallet },
               { title: "Prêmio / Aposta Ganha Não Paga", Icon: Trophy },
               { title: "Conta Bloqueada Injustamente", Icon: UserX },
@@ -90,7 +102,7 @@ export default function LandingPage() {
             ].map(({ title, Icon }) => (
               <div
                 key={title}
-                className="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center gap-4"
+                className="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center gap-4 hover:bg-white/10 transition-colors"
               >
                 <Icon className="text-emerald-400 shrink-0" size={28} />
                 <span className="font-semibold text-white">{title}</span>
@@ -111,7 +123,7 @@ export default function LandingPage() {
            <h2 className="text-4xl md:text-6xl font-black tracking-tighter">
              Caso Real: Sentença de R$ 3.000 em dano moral.
            </h2>
-           <div className="mt-12 clip-custom inline-block bg-zinc-900 border border-emerald-500/40 px-10 py-8 shadow-[0_0_60px_rgba(16,185,129,0.15)]">
+           <div className="mt-12 clip-custom inline-block bg-zinc-900 border border-emerald-500/40 px-10 py-8 shadow-[0_0_60px_rgba(16,185,129,0.15)] rounded-2xl">
              <div className="inline-block bg-emerald-400/20 text-emerald-400 text-xs font-bold px-3 py-1 mb-4 rounded-full">Caso Real</div>
              <p className="text-5xl md:text-6xl font-black text-emerald-400">
                R$ 3.000
@@ -133,7 +145,7 @@ export default function LandingPage() {
             Como funciona
           </h2>
 
-          <div className="space-y-16">
+          <div className="max-w-5xl mx-auto space-y-16">
             <div className="grid md:grid-cols-2 gap-10 items-center">
               <div>
                 <div className="flex items-center gap-3 mb-4">
@@ -144,13 +156,12 @@ export default function LandingPage() {
                   Escolha seu caso
                 </h3>
                 <p className="text-zinc-400 text-lg leading-relaxed">
-                  Autoexclusão, ludopatia ou saldo retido. Selecione a tese que se
-                  encaixa na sua situação.
+                  Autoexclusão, ludopatia, saldo retido, rollover e mais. Selecione a tese que se encaixa na sua situação.
                 </p>
               </div>
-              <div className="clip-custom bg-zinc-900 border border-white/10 p-8 h-48 flex items-center justify-center">
-                <div className="grid grid-cols-3 gap-3 w-full">
-                  {["Autoexclusão", "Ludopatia", "Saldo retido"].map((t) => (
+              <div className="clip-custom bg-zinc-900 border border-white/10 p-8 h-48 flex items-center justify-center rounded-2xl">
+                <div className="grid grid-cols-2 gap-3 w-full">
+                  {["Autoexclusão", "Ludopatia", "Saldo retido", "Rollover"].map((t) => (
                     <div
                       key={t}
                       className="rounded bg-zinc-800 border border-zinc-700 p-3 text-center text-xs text-zinc-300"
@@ -163,7 +174,7 @@ export default function LandingPage() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-10 items-center">
-              <div className="order-2 md:order-1 clip-custom bg-zinc-900 border border-white/10 p-8 h-48 flex items-center justify-center">
+              <div className="order-2 md:order-1 clip-custom bg-zinc-900 border border-white/10 p-8 h-48 flex items-center justify-center rounded-2xl">
                 <div className="space-y-3 w-full">
                   <div className="h-3 rounded bg-zinc-800 w-3/4" />
                   <div className="h-3 rounded bg-emerald-500/40 w-1/2" />
@@ -182,8 +193,7 @@ export default function LandingPage() {
                   Preencha a história
                 </h3>
                 <p className="text-zinc-400 text-lg leading-relaxed">
-                  O sistema calcula o valor e gera a peça jurídica automaticamente.
-                  Sem juridiquês.
+                  O sistema calcula o valor e gera a peça jurídica automaticamente. Sem juridiquês.
                 </p>
               </div>
             </div>
@@ -198,17 +208,33 @@ export default function LandingPage() {
                   Baixe e protocole
                 </h3>
                 <p className="text-zinc-400 text-lg leading-relaxed">
-                  Pelo celular, no site do Juizado. Assine e envie. Pronto.
+                  Pelo celular, no site do Juizado. Assine, envie e anexe o Dossiê oficial. Pronto.
                 </p>
               </div>
-              <div className="clip-custom bg-zinc-900 border border-emerald-500/30 p-8 h-48 flex items-center justify-center">
+              <div className="clip-custom bg-zinc-900 border border-emerald-500/30 p-8 h-48 flex items-center justify-center rounded-2xl">
                 <div className="text-center">
                   <FileCheck2 className="text-emerald-400 mx-auto mb-3" size={48} />
-                  <p className="text-sm text-zinc-400">petição.pdf pronto</p>
+                  <p className="text-sm text-zinc-400">petição.pdf + Dossiê SPA/MF</p>
                 </div>
               </div>
             </div>
           </div>
+      </section>
+
+      {/* DESTAQUE DO BÔNUS SPA/MF */}
+      <section className="py-16 px-6">
+        <div className="mx-auto max-w-5xl bg-gradient-to-r from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 shadow-[0_0_40px_rgba(16,185,129,0.05)]">
+          <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center shrink-0">
+            <Shield className="text-emerald-400" size={40} />
+          </div>
+          <div>
+            <p className="text-emerald-400 text-sm font-bold uppercase tracking-widest mb-2">Bônus Exclusivo Incluso</p>
+            <h3 className="text-2xl md:text-3xl font-black text-white mb-2">Dossiê Oficial da SPA/MF (Ministério da Fazenda)</h3>
+            <p className="text-white/60 leading-relaxed">
+              Nós não te damos só o texto. Entregamos também as <strong className="text-white">Portarias e Instruções Normativas reais</strong> da Secretaria de Prêmios e Apostas. Anexe no seu processo para mostrar ao juiz que você está embasado nas regras oficiais do Governo.
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* OFERTA */}
@@ -262,7 +288,7 @@ export default function LandingPage() {
             <p className="text-sm text-white/60">Primex Sistemas LTDA - CNPJ: 55.536.885/0001-30</p>
           </div>
           <div className="space-y-2">
-            <p className="text-sm font-bold text-white mb-2">Links Útís</p>
+            <p className="text-sm font-bold text-white mb-2">Links Úteis</p>
             <Link href="/politica-privacidade" className="block text-sm text-white/60 hover:text-white">Política de Privacidade</Link>
             <Link href="/termos" className="block text-sm text-white/60 hover:text-white">Termos de Uso</Link>
             <Link href="/apoio" className="flex items-center gap-2 text-sm text-white/60 hover:text-emerald-400 transition-colors"><HeartPulse size={14} /> Apoio Emocional e Jogo Responsável</Link>

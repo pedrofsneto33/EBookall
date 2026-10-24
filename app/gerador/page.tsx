@@ -433,12 +433,23 @@ export default function GeradorPage() {
             </label>
             
             <button
-              type="button"
-              disabled={!ack || limitReached || generating || acimaLimiteJEC}
-              onClick={gerar}
+              <div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 p-3 rounded-lg text-sm mb-4">
+                  {perfil === "autoexclusao" ? "Para provar a autoexclusão, anexe o comprovante do Gov.br e o print do depósito posterior. (Não esqueça de anexar também as normas da SPA/MF que você recebeu por e-mail)." : perfil === "saldo_retido" ? "Anexe o print do saldo e do saque negado, além do comunicado da casa. (Inclua o Dossiê SPA/MF sobre devolução de saldos)." : perfil === "ludopatia" ? "O laudo médico é fundamental. Anexe também os comprovantes de depósitos sucessivos. (Inclua as normativas de jogo responsável da SPA/MF)." : perfil === "bonus_rollover" ? "Anexe o print da oferta do bônus e das regras de rollover. (Inclua as normativas da SPA/MF sobre publicidade)" : ""}
+                </div>
+              <div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 p-3 rounded-lg text-sm mb-4">
+                  {perfil === "autoexclusao" ? "Para provar a autoexclusão, anexe o comprovante do Gov.br e o print do depósito posterior. (Não esqueça de anexar também as normas da SPA/MF que você recebeu por e-mail)." : perfil === "saldo_retido" ? "Anexe o print do saldo e do saque negado, além do comunicado da casa. (Inclua o Dossiê SPA/MF sobre devolução de saldos)." : perfil === "ludopatia" ? "O laudo médico é fundamental. Anexe também os comprovantes de depósitos sucessivos. (Inclua as normativas de jogo responsável da SPA/MF)." : perfil === "bonus_rollover" ? "Anexe o print da oferta do bônus e das regras de rollover. (Inclua as normativas da SPA/MF sobre publicidade)" : ""}
+                </div>
+<div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 p-3 rounded-lg text-sm mb-4">
+                  {perfil === "autoexclusao" ? "Para provar a autoexclusão, anexe o comprovante do Gov.br e o print do depósito posterior. (Não esqueça de anexar também as normas da SPA/MF que você recebeu por e-mail)." : perfil === "saldo_retido" ? "Anexe o print do saldo e do saque negado, além do comunicado da casa. (Inclua o Dossiê SPA/MF sobre devolução de saldos)." : perfil === "ludopatia" ? "O laudo médico é fundamental. Anexe também os comprovantes de depósitos sucessivos. (Inclua as normativas de jogo responsável da SPA/MF)." : perfil === "bonus_rollover" ? "Anexe o print da oferta do bônus e das regras de rollover. (Inclua as normativas da SPA/MF sobre publicidade)" : ""}
+                </div>
               className="inline-flex items-center justify-center w-full gap-2 px-5 py-3 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors disabled:opacity-50 mt-2"
+
             >
               {generating ? <><Loader2 size={16} className="animate-spin" /> Gerando…</> : limitReached ? "Limite de 3 atingido" : `Gerar petição (${restantes} restantes)`}
+<div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 p-3 rounded-lg text-sm mb-4">
+                  {perfil === "autoexclusao" ? "Para provar a autoexclusão, anexe o comprovante do Gov.br e o print do depósito posterior. (Não esqueça de anexar também as normas da SPA/MF que você recebeu por e-mail)." : perfil === "saldo_retido" ? "Anexe o print do saldo e do saque negado, além do comunicado da casa. (Inclua o Dossiê SPA/MF sobre devolução de saldos)." : perfil === "ludopatia" ? "O laudo médico é fundamental. Anexe também os comprovantes de depósitos sucessivos. (Inclua as normativas de jogo responsável da SPA/MF)." : perfil === "bonus_rollover" ? "Anexe o print da oferta do bônus e das regras de rollover. (Inclua as normativas da SPA/MF sobre publicidade)" : ""}
+                </div>
+
             </button>
           </div>
         )}

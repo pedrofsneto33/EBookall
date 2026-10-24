@@ -180,7 +180,7 @@ function PagamentoContent() {
         </a>
 
         <div className="mt-6 space-y-2 text-left text-sm text-white/60">
-          {["3 petições completas", "Calculadora + checklist", "Garantia 7 dias"].map((t) => (
+          {["3 petições completas", "Calculadora + checklist", "Bônus Exclusivo: Dossiê com Portarias e Instruções Normativas reais da SPA/MF para anexar ao processo", "Garantia 7 dias"].map((t) => (
             <div key={t} className="flex items-center gap-2">
               <CheckCircle2 size={16} className="text-emerald-400" />
               <span>{t}</span>
