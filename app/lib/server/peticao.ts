@@ -248,19 +248,20 @@ export function montarPeticao(i: PeticaoInput): PeticaoResultado {
   blocos.push(`Dá-se à causa o valor de ${fmtBRL(causa.valorCausa)}.`);
 
   // Documentos
-  let anexos = PROVAS_META.filter((p) => i.provas.includes(p.id));
-// Adicionar normativas da SPA/MF automaticamente baseado no perfil
-  const normativasSPA = "Cópia das normativas da Secretaria de Prêmios e Apostas (SPA/MF) aplicáveis ao caso (Portaria SPA/MF nº 1.231/2024 e IN SPA/MF nº 31/2025)";
-  const normativasSPA_publicidade = "Cópia das normativas da Secretaria de Prêmios e Apostas (SPA/MF) sobre publicidade e jogos responsáveis";
+  const anexosTexto: string[] = PROVAS_META.filter((p) => i.provas.includes(p.id)).map((p) => p.anexo);
 
   if (i.perfil === "autoexclusao" || i.perfil === "saldo_retido" || i.perfil === "ludopatia") {
-    anexos = [...anexos, { id: "normativas_spa", anexo: normativasSPA }];
+    anexosTexto.push("Cópia das normativas da Secretaria de Prêmios e Apostas (SPA/MF) aplicáveis ao caso (Portaria SPA/MF nº 1.231/2024 e IN SPA/MF nº 31/2025)");
+  } else if (i.perfil === "bonus_rollover" || i.perfil === "publicidade_enganosa") {
+    anexosTexto.push("Cópia das normativas da Secretaria de Prêmios e Apostas (SPA/MF) sobre publicidade e jogos responsáveis");
   }
-  if (i.perfil === "bonus_rollover" || i.perfil === "publicidade_enganosa") {
-    anexos = [...anexos, { id: "normativas_spa_publicidade", anexo: normativasSPA_publicidade }];
-  }
-  if (anexos.length) {
-    blocos.push(titulo("DOS DOCUMENTOS"), "Instruem a presente petição os seguintes documentos:", ...anexos.map((p, k) => `Doc. ${String(k + 1).padStart(2, "0")} — ${p.anexo}`));
+
+  if (anexosTexto.length) {
+    blocos.push(
+      titulo("DOS DOCUMENTOS"),
+      "Instruem a presente petição os seguintes documentos:",
+      ...anexosTexto.map((p, k) => `Doc. ${String(k + 1).padStart(2, "0")} — ${p}`)
+    );
   }
 
   const hoje = new Date().toLocaleDateString("pt-BR");
