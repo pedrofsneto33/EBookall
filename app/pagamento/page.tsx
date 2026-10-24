@@ -9,16 +9,18 @@ import {
   Loader2,
   Shield,
   MessageCircle,
+  FileText,
 } from "lucide-react";
+import { PRECO_TXT, WHATSAPP_TXT, waLink } from "../lib/config";
 
-const CNPJ = "55.536.885/0001-30";
-const PRECO = "137,00";
-const WHATSAPP = "5586988117925";
+const CNPJ_FORMATADO = "55.536.885/0001-30";
+const CNPJ_LIMPO = "55536885000130";
 
 function PagamentoContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const canceled = searchParams.get("canceled") === "1";
+  
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -34,15 +36,19 @@ function PagamentoContent() {
           return;
         }
         const data = await r.json();
-        if (!data.user) {
+        
+        // CORREÇÃO: /api/auth/me retorna os dados na raiz, não dentro de "user"
+        if (!data.email) {
           router.replace("/login?next=/pagamento");
           return;
         }
+        
         if (data.status === "active") {
           router.replace("/gerador");
           return;
         }
-        setEmail(data.user.email ?? "");
+        
+        setEmail(data.email);
         setLoading(false);
       })
       .catch(() => router.replace("/login?next=/pagamento"));
@@ -51,18 +57,18 @@ function PagamentoContent() {
   async function copiarCnpj() {
     setCopiarErro("");
     try {
-      await navigator.clipboard.writeText("55536885000130");
+      await navigator.clipboard.writeText(CNPJ_LIMPO);
       setCopiado(true);
       setTimeout(() => setCopiado(false), 2500);
     } catch {
-      setCopiarErro("Copie manualmente: 55.536.885/0001-30");
+      setCopiarErro("Copie manualmente: " + CNPJ_FORMATADO);
     }
   }
 
   function abrirWhatsApp() {
     window.open(
       `https://wa.me/5586988117925?text=${encodeURIComponent(
-        "Oi! Paguei o Pix de R$ 137 e vou mandar o comprovante."
+        `Oi! Paguei o Pix de R$ ${PRECO_TXT} e vou mandar o comprovante.`
       )}`,
       "_blank"
     );
@@ -79,12 +85,13 @@ function PagamentoContent() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-[#05080C]">
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur-lg shadow-xl p-7 text-center">
+        
         <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold mb-4 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
           <Shield size={14} /> Garantia de 7 dias
         </div>
 
         <h1 className="text-2xl font-bold mb-1 text-white">
-          Pagar acesso — R$ {PRECO}
+          Pagar acesso — R$ {PRECO_TXT}
         </h1>
         <p className="text-sm mb-6 text-white/60">
           {email}
@@ -93,7 +100,7 @@ function PagamentoContent() {
         {canceled && (
           <div className="mb-4 p-3 rounded-xl text-sm flex gap-2 items-start border text-left bg-red-500/10 border-red-500/20 text-red-400">
             <AlertCircle size={16} className="shrink-0 mt-0.5" />
-            <span>Cartão cancelado. Você pode pagar via Pix abaixo.</span>
+            <span>Pagamento cancelado. Você pode tentar novamente.</span>
           </div>
         )}
 
@@ -104,10 +111,10 @@ function PagamentoContent() {
           </div>
         )}
 
-        {/* PIX estatico no CNPJ */}
+        {/* PIX ESTÁTICO */}
         <div className="mb-5 p-5 rounded-2xl border text-left border-emerald-500/20 bg-emerald-500/5">
           <p className="text-xs font-semibold uppercase tracking-wide mb-3 text-emerald-400">
-            Pague R$ 137,00 via Pix
+            Pague R$ {PRECO_TXT} via Pix
           </p>
 
           {qrErro ? (
@@ -133,7 +140,7 @@ function PagamentoContent() {
           </p>
           <div className="flex items-center gap-2">
             <code className="flex-1 px-3 py-2.5 rounded-xl border font-mono text-sm border-emerald-500/20 bg-black/40 text-white">
-              55.536.885/0001-30
+              {CNPJ_FORMATADO}
             </code>
             <button
               type="button"
@@ -144,15 +151,13 @@ function PagamentoContent() {
             </button>
           </div>
           {copiarErro && (
-            <p className="text-xs mt-2 text-red-400">
-              {copiarErro}
-            </p>
+            <p className="text-xs mt-2 text-red-400">{copiarErro}</p>
           )}
 
           <ol className="mt-4 space-y-1 text-sm text-left text-white/60">
             <li>1. Abra o app do seu banco.</li>
             <li>2. Escolha Pix &#8594; Pagar com CNPJ.</li>
-            <li>3. Cole a chave acima e digite R$ 137,00.</li>
+            <li>3. Cole a chave acima e digite R$ {PRECO_TXT}.</li>
             <li>4. Envie o comprovante no WhatsApp abaixo.</li>
           </ol>
 
@@ -166,12 +171,11 @@ function PagamentoContent() {
 
           <p className="text-xs mt-3 leading-relaxed text-white/60">
             Seu acesso é liberado manualmente em até 10 minutos após o envio do comprovante.
-            Você recebe um e-mail quando estiver liberado.
           </p>
         </div>
 
         <a
-          href={`https://wa.me/${WHATSAPP}?text=Oi!%20Tenho%20d%C3%BAvida%20sobre%20o%20pagamento%20via%20Pix`}
+          href={waLink("Oi! Tenho dúvida sobre o pagamento via Pix")}
           target="_blank"
           rel="noopener noreferrer"
           className="mt-2 block text-xs text-center hover:underline text-white/60"
@@ -179,20 +183,36 @@ function PagamentoContent() {
           Dúvida? Fale no WhatsApp
         </a>
 
-        <div className="mt-6 space-y-2 text-left text-sm text-white/60">
-          {["3 petições completas", "Calculadora + checklist", "Bônus Exclusivo: Dossiê com Portarias e Instruções Normativas reais da SPA/MF para anexar ao processo", "Garantia 7 dias"].map((t) => (
-            <div key={t} className="flex items-center gap-2">
-              <CheckCircle2 size={16} className="text-emerald-400" />
-              <span>{t}</span>
-            </div>
-          ))}
+        {/* BENEFÍCIOS */}
+        <div className="mt-6 space-y-3 text-left text-sm text-white/80">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+            <span>3 petições completas</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+            <span>Calculadora + checklist de provas</span>
+          </div>
+          
+          {/* DESTAQUE DO BÔNUS SPA/MF */}
+          <div className="flex items-start gap-2 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg mt-2">
+            <FileText size={18} className="text-emerald-400 shrink-0 mt-0.5" />
+            <span className="text-emerald-400 font-semibold">
+              Bônus Exclusivo: Dossiê com Portarias e Instruções Normativas reais da SPA/MF para anexar ao processo
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 pt-1">
+            <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+            <span>Garantia incondicional de 7 dias</span>
+          </div>
         </div>
 
         <div className="mt-6 p-3 rounded-xl border text-left text-xs border-white/10 text-white/60">
           <p className="font-semibold mb-1 text-white">
             Primex Sistemas LTDA
           </p>
-          <p>CNPJ {CNPJ}</p>
+          <p>CNPJ {CNPJ_FORMATADO}</p>
           <p className="mt-1">Software de documento · não é advocacia</p>
         </div>
 
@@ -204,16 +224,6 @@ function PagamentoContent() {
           ← Voltar ao início
         </button>
       </div>
-
-      <a
-        href="https://wa.me/5586988117925?text=Ol%C3%A1!%20Tenho%20uma%20d%C3%BAvida%20sobre%20o%20RecuperaJogo."
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white rounded-full p-4 shadow-lg hover:scale-105 transition-transform"
-        aria-label="WhatsApp"
-      >
-        <MessageCircle size={24} />
-      </a>
     </div>
   );
 }
