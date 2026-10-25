@@ -264,13 +264,17 @@ export default function GeradorPage() {
           </div>
         )}
 
-        <div className="flex gap-2 items-start border rounded-lg px-4 py-3 mb-6 bg-amber-500/10 border-amber-500/20 w-full overflow-hidden">
-          <AlertTriangle size={18} className="shrink-0 mt-0.5 text-amber-400" />
-          <p className="text-sm text-amber-400 break-words">
-            <strong>Não é advocacia.</strong> Rascunho para jus postulandi. Até {MAX_PETICOES} petições no acesso.
-            Restam <strong>{restantes}</strong>.
-          </p>
-        </div>
+        {/* AVISO LEGAL TRANSFORMADO EM ACORDEÃO */}
+        <details className="group border rounded-lg bg-amber-500/10 border-amber-500/20 mb-6 overflow-hidden cursor-pointer">
+          <summary className="flex items-center gap-2 px-4 py-2.5 text-sm text-amber-400 font-medium list-none [&::-webkit-details-marker]:hidden">
+            <AlertTriangle size={16} className="shrink-0" />
+            <span>Aviso legal: Não é advocacia. Clique para ler.</span>
+            <ChevronRight size={16} className="ml-auto transform group-open:rotate-90 transition-transform" />
+          </summary>
+          <div className="px-4 pb-3 pt-1 text-xs text-amber-400/90 leading-relaxed border-t border-amber-500/20">
+            Este é um software de automação de documentos. Você é o autor da peça e deve revisá-la antes de protocolar. Rascunho para jus postulandi. Até {MAX_PETICOES} petições no acesso. Restam <strong>{restantes}</strong>.
+          </div>
+        </details>
 
         <div className="flex overflow-x-auto whitespace-nowrap gap-2 mb-6 pb-2 px-4 sm:mx-0 sm:px-0">
           {["perfil", "dados", "argumentos", "resultado"].map((id, i) => (
