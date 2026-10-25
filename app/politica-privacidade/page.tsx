@@ -26,7 +26,7 @@ export default function PrivacidadePage() {
             Política de Privacidade
           </h1>
         </div>
-        <p className="text-sm mb-8 text-white/70">Última atualização: 07 de agosto de 2026</p>
+        <p className="text-sm mb-8 text-white/70">Última atualização: 25 de outubro de 2026</p>
 
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-10">
           <div className="space-y-8 text-base leading-relaxed text-white/70">
@@ -62,7 +62,7 @@ export default function PrivacidadePage() {
               </h2>
               <p>
                 Seus dados são utilizados exclusivamente para: (a) gerar o documento solicitado
-                (execução de contrato, art. 7º, V); (b) processar o pagamento via Stripe; (c) prestar
+                (execução de contrato, art. 7º, V); (b) processar a liberação do seu acesso via Pix e WhatsApp; (c) prestar
                 suporte. <strong className="text-white">Nunca</strong> vendemos ou compartilhamos seus
                 dados com terceiros para fins de marketing.
               </p>
@@ -72,10 +72,11 @@ export default function PrivacidadePage() {
               <h2 className="text-xl font-bold mb-3 flex items-center gap-2 text-emerald-400">
                 <Lock size={20} className="text-emerald-400" /> 3. Segurança e Armazenamento
               </h2>
-              <p>
-                Utilizamos infraestrutura segura (Supabase/Vercel). Os dados são armazenados de forma
-                criptografada pelo prazo necessário para a prestação do serviço ou até você solicitar a
-                exclusão.
+              <p className="mb-4">
+                Utilizamos infraestrutura segura na nuvem (Vercel e Turso). Os dados são armazenados pelo prazo necessário para a prestação do serviço ou até você solicitar a exclusão.
+              </p>
+              <p className="bg-white/5 p-4 rounded-xl border border-white/10 text-sm">
+                <strong className="text-white">Dados Sensíveis (CPF e Endereço):</strong> Os dados inseridos no gerador de petições (como CPF, endereço e relato dos fatos) são armazenados em nosso banco de dados exclusivamente para permitir que você acesse o seu histórico de petições e faça o download novamente. O acesso a esses dados é estritamente restrito ao titular da conta e aos administradores da plataforma para fins de suporte. Nós não vendemos, alugamos ou compartilhamos esses dados com terceiros.
               </p>
             </div>
 
@@ -86,7 +87,7 @@ export default function PrivacidadePage() {
               <p>
                 Você pode solicitar acesso, correção ou exclusão total dos seus dados a qualquer momento.
                 Para exercer esses direitos ou tirar dúvidas, envie um e-mail para:{" "}
-                <strong className="text-white">[pedrofsnet0@gmail.com]</strong> ou entre em contato pelo
+                <strong className="text-white">pedrofsneto33@gmail.com</strong> ou entre em contato pelo
                 WhatsApp (86) 98811-7925.
               </p>
             </div>
