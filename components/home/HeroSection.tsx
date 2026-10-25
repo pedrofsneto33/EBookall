@@ -105,21 +105,6 @@ export default function HeroSection() {
         <div className="hidden lg:block" />
       </div>
 
-      {/* Marquee */}
-      <div className="relative mt-16 border-y border-white/5 py-4 overflow-hidden">
-        <motion.div
-          animate={{ x: ["0%", "-50%"] }}
-          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-          className="flex gap-12 whitespace-nowrap text-sm font-bold tracking-widest text-zinc-400"
-        >
-          {Array.from({ length: 6 }).map((_, i) => (
-            <span key={i}>
-              R$ 143 BILHÕES RETIRADOS DO VAREJO PELAS BETS • 1.8M DE BRASILEIROS ENDIVIDADOS • R$ 137
-              PARA RECUPERAR •
-            </span>
-          ))}
-        </motion.div>
-      </div>
     </section>
   );
 }
