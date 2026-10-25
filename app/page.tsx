@@ -6,7 +6,7 @@ import HeroSection from "@/components/home/HeroSection";
 import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
 import OfferSection from "@/components/home/OfferSection";
-import { X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, Shield } from "lucide-react";
+import { X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, Shield, ExternalLink } from "lucide-react";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "./lib/config";
 
 interface FaqItem {
@@ -39,6 +39,13 @@ const FAQS: FaqItem[] = [
     q: 'Quantas petições posso gerar?',
     a: 'Seu acesso permite gerar até 3 petições completas. Você pode editar e regerar o mesmo caso sem custo extra.',
   },
+];
+
+const DECISOES = [
+  { uf: "TJSC · Tubarão", proc: "5005803-28.2025.8.24.0075", t: "Falha no dever de jogo responsável", v: "R$ 217 mil + R$ 10 mil (Dano Moral)", d: "Aplicou CDC, Lei 14.790/23 e Portaria SPA/MF 1.231/24. A ré não contestou.", href: "https://www.migalhas.com.br/quentes/448239/casa-de-aposta-devolve-r-217-mil-por-violar-dever-de-jogo-responsavel", fonte: "Migalhas" },
+  { uf: "TJDFT · 3ª Turma Cível", proc: "0707743-74.2025.8.07.0001", t: "Ludopatia: apostas anuladas", v: "R$ 180.963,12 + R$ 4 mil (Dano Moral)", d: "Tribunal manteve a nulidade das apostas de consumidor com laudo e reconheceu falha da casa em bloquear o acesso.", href: "https://www.tjdft.jus.br/institucional/imprensa/noticias/2026/junho/tjdft-anula-apostas-e-condena-plataforma-a-devolver-r-180-mil-a-consumidor-com-ludopatia", fonte: "TJDFT" },
+  { uf: "TJSP", proc: "4000778-26.2026.8.26.0248", t: "Autoexclusão não bloqueada no prazo", v: "R$ 81 mil", d: "Casa continuou aceitando depósitos e apostas depois da autoexclusão. Fundamento: dever de segurança e de jogo responsável.", href: "https://bnldata.com.br/justica-condena-plataforma-de-apostas-por-falha-em-autoexclusao-de-apostador/", fonte: "BNL Data" },
+  { uf: "TJDFT · Turma Recursal", proc: "0759332-60.2025.8.07.0016", t: "Conta suspensa sem provar irregularidade", v: "R$ 7 mil", d: "A casa suspendeu a conta sem avisar nem provar a violação dos termos de uso. Decisão unânime. Cabe sem advogado.", href: "https://www.tjdft.jus.br/institucional/imprensa/noticias/2026/abril/tjdft-mantem-condenacao-de-plataforma-de-apostas-que-suspendeu-conta-sem-comprovar-irregularidade", fonte: "TJDFT" },
 ];
 
 export default function LandingPage() {
@@ -85,27 +92,45 @@ export default function LandingPage() {
 
       <CourtWinSection />
 
-      {/* PROVA */}
+      {/* PROVA (AGORA COM AS DECISÕES REAIS) */}
       <section className="border-y border-white/5 bg-gradient-to-b from-zinc-950 to-[#05080C] py-16 sm:py-20 md:py-24 px-4 sm:px-6">
-        <div className="mx-auto max-w-5xl text-center">
-          <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-4">
-            Autoridade
-          </p>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter">
-            Caso Real: Sentença de R$ 3.000 em dano moral.
-          </h2>
-          <div className="mt-8 sm:mt-12 clip-custom inline-block bg-zinc-900 border border-emerald-500/40 px-6 py-6 sm:px-10 sm:py-8 shadow-[0_0_60px_rgba(16,185,129,0.15)] rounded-2xl w-full max-w-xl">
-            <div className="inline-block bg-emerald-400/20 text-emerald-400 text-xs font-bold px-3 py-1 mb-4 rounded-full">Caso Real</div>
-            <p className="text-4xl sm:text-5xl md:text-6xl font-black text-emerald-400">
-              R$ 3.000
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center mb-10 sm:mb-14">
+            <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-4">
+              Autoridade
             </p>
-            <p className="mt-2 text-zinc-400 text-sm sm:text-base max-w-md mx-auto">
-              Sentença real de um caso de autoexclusão ignorada. O juiz mandou a bet pagar.
-            </p>
-            <p className="mt-4 text-xs text-white/50 max-w-md mx-auto">
-              Resultado de um caso específico em Teresina/PI. Cada juiz decide com base nas provas. O RecuperaJogo não garante resultados.
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter">
+              A Justiça já mandou as bets pagarem.
+            </h2>
+            <p className="mt-4 text-white/60 max-w-2xl mx-auto text-sm sm:text-base">
+              Decisões reais, com número de processo e fonte. Cada caso depende das provas, mas o caminho já está aberto nos tribunais.
             </p>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            {DECISOES.map((c) => (
+              <div key={c.proc} className="bg-zinc-900 border border-white/10 rounded-2xl p-6 sm:p-8 hover:border-emerald-500/30 transition-colors flex flex-col justify-between">
+                <div>
+                  <p className="text-[11px] font-mono text-emerald-400/80 mb-3">{c.uf} · proc. {c.proc}</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{c.t}</h3>
+                  <p className="text-3xl sm:text-4xl font-black text-emerald-400 mb-3">{c.v}</p>
+                  <p className="text-sm text-zinc-400 leading-relaxed mb-6">{c.d}</p>
+                </div>
+                <a 
+                  href={c.href} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-white/50 hover:text-white transition-colors mt-auto"
+                >
+                  Fonte: {c.fonte} <ExternalLink size={12} />
+                </a>
+              </div>
+            ))}
+          </div>
+          
+          <p className="text-center text-xs text-white/30 mt-8 max-w-2xl mx-auto">
+            Decisões noticiadas pela imprensa e pelos próprios tribunais. Não há garantia de resultado para casos futuros. O juiz decide com base nas provas de cada processo.
+          </p>
         </div>
       </section>
 
@@ -150,7 +175,7 @@ export default function LandingPage() {
                 <div className="h-3 rounded bg-emerald-500/40 w-1/2" />
                 <div className="h-3 rounded bg-zinc-800 w-2/3" />
                 <div className="mt-4 text-center text-emerald-400 font-bold">
-                  R$ 3.000 calculado
+                  Valor da causa calculado
                 </div>
               </div>
             </div>
