@@ -6,7 +6,7 @@ import HeroSection from "@/components/home/HeroSection";
 import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
 import OfferSection from "@/components/home/OfferSection";
-import MpAviso from "./components/MpAviso"; // <-- ADICIONADO
+
 import { X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, Shield, ExternalLink } from "lucide-react";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "./lib/config";
 
@@ -91,7 +91,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#05080C] text-white overflow-x-hidden">
       <Navbar />
-      <MpAviso /> {/* <-- ADICIONADO: Barra de urgência da MP */}
+
 
       {/* HERO */}
       <HeroSection />
