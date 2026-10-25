@@ -83,8 +83,8 @@ function PagamentoContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-[#05080C]">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur-lg shadow-xl p-7 text-center">
+    <div className="min-h-screen flex items-center justify-center px-4 py-6 sm:py-10 bg-[#05080C]">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur-lg shadow-xl p-7 text-center flex flex-col sm:flex-row">
         
         <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold mb-4 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
           <Shield size={14} /> Garantia de 7 dias

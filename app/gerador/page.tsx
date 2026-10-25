@@ -76,7 +76,7 @@ function Field({ label, value, onChange, full, type = "text", placeholder, hint 
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full px-3 py-2 rounded-lg border bg-black/40 border-white/10 text-white placeholder:text-white/30 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none [color-scheme:dark]"
+        className="w-full px-3 py-2 rounded-lg border bg-black/40 border-white/10 text-base text-white placeholder:text-white/30 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none [color-scheme:dark]"
       />
       {hint && <span className="block text-xs mt-1 text-white/40">{hint}</span>}
     </label>
@@ -137,7 +137,6 @@ export default function GeradorPage() {
     return { base, comDobro, total: comDobro + dm };
   }, [valorPerdido, dobro, danoMoral, valorDM]);
 
-  const fmt = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   const acimaLimiteJEC = calc.total > LIMITE_JUS_POSTULANDI;
   const disponiveis = argumentosDoPerfil(perfil);
   const restantes = Math.max(0, MAX_PETICOES - usadas);
@@ -269,13 +268,13 @@ export default function GeradorPage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-6">
+        <div className="flex overflow-x-auto whitespace-nowrap gap-2 mb-6 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
           {["perfil", "dados", "argumentos", "resultado"].map((id, i) => (
             <button
               key={id}
               type="button"
               onClick={() => setTab(id)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+              className={`px-4 py-2 rounded-full text-sm font-semibold border transition-colors ${
                 tab === id
                   ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                   : "text-white/60 border-white/10 hover:text-white hover:bg-white/5"
@@ -314,7 +313,7 @@ export default function GeradorPage() {
             <button
               type="button"
               onClick={() => setTab("dados")}
-              className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors"
+              className="mt-4 inline-flex items-center justify-center w-full sm:w-auto gap-2 px-5 py-3.5 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors"
             >
               Continuar <ChevronRight size={16} />
             </button>
@@ -367,13 +366,13 @@ export default function GeradorPage() {
               )}
             </div>
             
-            <div className="flex flex-col gap-2 pt-2">
-              <label className="flex items-center gap-2 text-sm text-white cursor-pointer">
-                <input type="checkbox" checked={dobro} onChange={(e) => setDobro(e.target.checked)} className="accent-emerald-500 w-4 h-4" /> 
+            <div className="flex flex-col gap-3 pt-2">
+              <label className="flex items-center gap-3 text-sm text-white cursor-pointer p-2 -m-2">
+                <input type="checkbox" checked={dobro} onChange={(e) => setDobro(e.target.checked)} className="accent-emerald-500 w-5 h-5" /> 
                 Pedir restituição em dobro (CDC art. 42)
               </label>
-              <label className="flex items-center gap-2 text-sm text-white cursor-pointer">
-                <input type="checkbox" checked={danoMoral} onChange={(e) => setDanoMoral(e.target.checked)} className="accent-emerald-500 w-4 h-4" /> 
+              <label className="flex items-center gap-3 text-sm text-white cursor-pointer p-2 -m-2">
+                <input type="checkbox" checked={danoMoral} onChange={(e) => setDanoMoral(e.target.checked)} className="accent-emerald-500 w-5 h-5" /> 
                 Incluir pedido de danos morais
               </label>
             </div>
@@ -384,7 +383,7 @@ export default function GeradorPage() {
                 value={relato}
                 onChange={(e) => setRelato(e.target.value)}
                 rows={5}
-                className="w-full px-3 py-2 rounded-lg border bg-black/40 border-white/10 text-white placeholder:text-white/30 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none text-sm"
+                className="w-full px-3 py-2 rounded-lg border bg-black/40 border-white/10 text-base text-white placeholder:text-white/30 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
                 placeholder="Conte em ordem: quando abriu a conta, o que a casa fez, valores e datas. Mínimo 60 caracteres."
               />
               <span className="block text-xs mt-1 text-white/40">{relato.length} caracteres</span>
@@ -393,7 +392,7 @@ export default function GeradorPage() {
             <button
               type="button"
               onClick={() => setTab("argumentos")}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors mt-2"
+              className="inline-flex items-center justify-center w-full sm:w-auto gap-2 px-5 py-3.5 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors mt-2"
             >
               Continuar <ChevronRight size={16} />
             </button>
@@ -408,7 +407,7 @@ export default function GeradorPage() {
             {disponiveis.map((a: ArgumentoMeta) => (
               <label
                 key={a.id}
-                className={`flex gap-3 text-sm p-3 rounded-lg border cursor-pointer transition-colors ${
+                className={`flex gap-3 text-sm p-4 rounded-xl border cursor-pointer transition-colors ${
                   argsSel.includes(a.id)
                     ? "border-emerald-500/30 bg-emerald-500/10"
                     : "border-white/10 bg-white/5 hover:bg-white/10"
@@ -418,7 +417,7 @@ export default function GeradorPage() {
                   type="checkbox"
                   checked={argsSel.includes(a.id)}
                   onChange={() => setArgsSel((p) => (p.includes(a.id) ? p.filter((x) => x !== a.id) : [...p, a.id]))}
-                  className="accent-emerald-500 mt-0.5 w-4 h-4"
+                  className="accent-emerald-500 mt-0.5 w-5 h-5 shrink-0"
                 />
                 <div>
                   <p className="font-medium text-white">{a.label}</p>
@@ -427,29 +426,29 @@ export default function GeradorPage() {
               </label>
             ))}
             
-            <label className="flex gap-2 text-sm mt-4 text-white bg-white/5 p-3 rounded-lg border border-white/10 cursor-pointer">
-              <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="accent-emerald-500 mt-0.5 w-4 h-4" /> 
+            <div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 p-4 rounded-xl text-sm mt-4">
+              <p className="font-semibold mb-1 text-blue-300">Lembrete de Provas e Documentos:</p>
+              {perfil === "autoexclusao" && <p>Anexe o comprovante do Gov.br e o print do depósito posterior. E não esqueça do seu Dossiê SPA/MF.</p>}
+              {perfil === "saldo_retido" && <p>Anexe o print do saldo e do saque negado, além do comunicado da casa. Inclua o Dossiê SPA/MF.</p>}
+              {perfil === "ludopatia" && <p>O laudo médico é fundamental. Anexe também os comprovantes de depósitos sucessivos. Inclua as normativas de jogo responsável.</p>}
+              {perfil === "bonus_rollover" && <p>Anexe o print da oferta do bônus e das regras de rollover. Inclua as normas da SPA/MF sobre publicidade.</p>}
+              {perfil === "premio_nao_pago" && <p>Anexe o print da aposta ganha e a resposta da casa negando o pagamento.</p>}
+              {perfil === "conta_bloqueada" && <p>Anexe o print do saldo e o print da tela de bloqueio.</p>}
+              {perfil === "publicidade_enganosa" && <p>Anexe o print do anúncio que prometeu lucro certo e os comprovantes das perdas.</p>}
+            </div>
+
+            <label className="flex gap-3 text-sm mt-4 text-white bg-white/5 p-4 rounded-xl border border-white/10 cursor-pointer items-start">
+              <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="accent-emerald-500 mt-0.5 w-5 h-5 shrink-0" /> 
               <span>Li o aviso e vou revisar o rascunho antes de protocolar.</span>
             </label>
             
             <button
-              <div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 p-3 rounded-lg text-sm mb-4">
-                  {perfil === "autoexclusao" ? "Para provar a autoexclusão, anexe o comprovante do Gov.br e o print do depósito posterior. (Não esqueça de anexar também as normas da SPA/MF que você recebeu por e-mail)." : perfil === "saldo_retido" ? "Anexe o print do saldo e do saque negado, além do comunicado da casa. (Inclua o Dossiê SPA/MF sobre devolução de saldos)." : perfil === "ludopatia" ? "O laudo médico é fundamental. Anexe também os comprovantes de depósitos sucessivos. (Inclua as normativas de jogo responsável da SPA/MF)." : perfil === "bonus_rollover" ? "Anexe o print da oferta do bônus e das regras de rollover. (Inclua as normativas da SPA/MF sobre publicidade)" : ""}
-                </div>
-              <div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 p-3 rounded-lg text-sm mb-4">
-                  {perfil === "autoexclusao" ? "Para provar a autoexclusão, anexe o comprovante do Gov.br e o print do depósito posterior. (Não esqueça de anexar também as normas da SPA/MF que você recebeu por e-mail)." : perfil === "saldo_retido" ? "Anexe o print do saldo e do saque negado, além do comunicado da casa. (Inclua o Dossiê SPA/MF sobre devolução de saldos)." : perfil === "ludopatia" ? "O laudo médico é fundamental. Anexe também os comprovantes de depósitos sucessivos. (Inclua as normativas de jogo responsável da SPA/MF)." : perfil === "bonus_rollover" ? "Anexe o print da oferta do bônus e das regras de rollover. (Inclua as normativas da SPA/MF sobre publicidade)" : ""}
-                </div>
-<div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 p-3 rounded-lg text-sm mb-4">
-                  {perfil === "autoexclusao" ? "Para provar a autoexclusão, anexe o comprovante do Gov.br e o print do depósito posterior. (Não esqueça de anexar também as normas da SPA/MF que você recebeu por e-mail)." : perfil === "saldo_retido" ? "Anexe o print do saldo e do saque negado, além do comunicado da casa. (Inclua o Dossiê SPA/MF sobre devolução de saldos)." : perfil === "ludopatia" ? "O laudo médico é fundamental. Anexe também os comprovantes de depósitos sucessivos. (Inclua as normativas de jogo responsável da SPA/MF)." : perfil === "bonus_rollover" ? "Anexe o print da oferta do bônus e das regras de rollover. (Inclua as normativas da SPA/MF sobre publicidade)" : ""}
-                </div>
-              className="inline-flex items-center justify-center w-full gap-2 px-5 py-3 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors disabled:opacity-50 mt-2"
-
+              type="button"
+              disabled={!ack || limitReached || generating || acimaLimiteJEC}
+              onClick={gerar}
+              className="inline-flex items-center justify-center w-full gap-2 px-5 py-4 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors disabled:opacity-50 mt-2"
             >
-              {generating ? <><Loader2 size={16} className="animate-spin" /> Gerando…</> : limitReached ? "Limite de 3 atingido" : `Gerar petição (${restantes} restantes)`}
-<div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 p-3 rounded-lg text-sm mb-4">
-                  {perfil === "autoexclusao" ? "Para provar a autoexclusão, anexe o comprovante do Gov.br e o print do depósito posterior. (Não esqueça de anexar também as normas da SPA/MF que você recebeu por e-mail)." : perfil === "saldo_retido" ? "Anexe o print do saldo e do saque negado, além do comunicado da casa. (Inclua o Dossiê SPA/MF sobre devolução de saldos)." : perfil === "ludopatia" ? "O laudo médico é fundamental. Anexe também os comprovantes de depósitos sucessivos. (Inclua as normativas de jogo responsável da SPA/MF)." : perfil === "bonus_rollover" ? "Anexe o print da oferta do bônus e das regras de rollover. (Inclua as normativas da SPA/MF sobre publicidade)" : ""}
-                </div>
-
+              {generating ? <><Loader2 size={18} className="animate-spin" /> Gerando…</> : limitReached ? "Limite de 3 atingido" : `Gerar petição (${restantes} restantes)`}
             </button>
           </div>
         )}
@@ -494,18 +493,18 @@ export default function GeradorPage() {
               })}
             </div>
             
-            <div className="flex flex-wrap gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <button
                 type="button"
                 onClick={baixar}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors"
+                className="inline-flex items-center justify-center w-full sm:w-auto gap-2 px-5 py-3.5 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors"
               >
                 <Download size={16} /> Baixar PDF
               </button>
               <button
                 type="button"
                 onClick={copiarTexto}
-                className="px-5 py-2.5 rounded-xl text-sm font-semibold border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
+                className="w-full sm:w-auto px-5 py-3.5 rounded-xl text-sm font-semibold border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
               >
                 Copiar texto
               </button>
@@ -513,7 +512,7 @@ export default function GeradorPage() {
                 <button
                   type="button"
                   onClick={() => { setTab("perfil"); setTexto(""); setArgsSel([]); }}
-                  className="px-5 py-2.5 rounded-xl text-sm font-semibold border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
+                  className="w-full sm:w-auto px-5 py-3.5 rounded-xl text-sm font-semibold border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
                 >
                   Criar nova petição ({restantes} restantes)
                 </button>

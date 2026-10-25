@@ -83,7 +83,7 @@ export default function LandingPage() {
       {/* CASOS QUE RESOLVEMOS */}
       <section className="py-24 px-6">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-center mb-4">
+          <h2 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter text-center mb-4">
             Não importa o que a bet fez.
             <br />Nós temos a petição certa.
           </h2>
