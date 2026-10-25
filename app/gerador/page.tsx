@@ -12,6 +12,7 @@ import type { Perfil } from "../lib/config";
 import { argumentosDoPerfil } from "../lib/argumentos-meta";
 import type { ArgumentoMeta } from "../lib/argumentos-meta";
 import { trackEvent } from "../lib/analytics";
+import { toast } from "sonner";
 
 async function authFetch(url: string, init: RequestInit = {}) {
   return fetch(url, { ...init, credentials: "include" });
@@ -143,12 +144,12 @@ export default function GeradorPage() {
 
   async function gerar() {
     trackEvent('Peticao_Gerada');
-    if (limitReached || usadas >= MAX_PETICOES) { alert("Você já usou as 3 petições do seu acesso."); return; }
-    if (acimaLimiteJEC) { alert(`Atenção: valor da causa acima de ${formatarMoeda(LIMITE_JUS_POSTULANDI)}.`); return; }
-    if (argsSel.length === 0) return alert("Selecione ao menos um argumento.");
-    if (relato.trim().length < 60) return alert("O relato está curto demais. Conte com detalhes (mínimo 60 caracteres).");
-    if (!autor.nome || !reu.nome) return alert("Preencha o nome do autor e da casa ré.");
-    if (!dataFato) return alert("Preencha a data do fato.");
+    if (limitReached || usadas >= MAX_PETICOES) { toast.error("Você já usou as 3 petições do seu acesso."); return; }
+    if (acimaLimiteJEC) { toast.error(`Atenção: valor da causa acima de ${formatarMoeda(LIMITE_JUS_POSTULANDI)}.`); return; }
+    if (argsSel.length === 0) return toast.error("Selecione ao menos um argumento.");
+    if (relato.trim().length < 60) return toast.error("O relato está curto demais. Conte com detalhes (mínimo 60 caracteres).");
+    if (!autor.nome || !reu.nome) return toast.error("Preencha o nome do autor e da casa ré.");
+    if (!dataFato) return toast.error("Preencha a data do fato.");
     
     setGenerating(true);
     try {
@@ -186,9 +187,9 @@ export default function GeradorPage() {
       
       if (!res.ok) {
         if (Array.isArray(data.erros) && data.erros.length > 0) {
-          alert("Atenção, corrija os seguintes pontos:\n\n• " + data.erros.join("\n• "));
+          toast.error("Atenção, corrija os seguintes pontos:\n\n• " + data.erros.join("\n• "));
         } else {
-          alert(data.error || "Erro ao gerar petição.");
+          toast.error(data.error || "Erro ao gerar petição.");
         }
         return;
       }
@@ -201,7 +202,7 @@ export default function GeradorPage() {
       setTab("resultado");
     } catch (e) {
       console.error(e);
-      alert("Erro ao gerar. Tente de novo.");
+      toast.error("Erro ao gerar. Tente de novo.");
     } finally {
       setGenerating(false);
     }

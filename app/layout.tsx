@@ -3,6 +3,7 @@ import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/shared/Footer";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { Toaster } from "sonner";
 
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", weight: ["300", "400", "500", "600", "700"] });
 
@@ -78,6 +79,7 @@ export default function RootLayout({
         {children}
         <Footer />
         <GoogleAnalytics gaId="G-BXG9L016HJ" />
+        <Toaster theme="dark" position="bottom-right" richColors />
       </body>
     </html>
   );
