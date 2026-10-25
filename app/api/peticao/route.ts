@@ -27,6 +27,18 @@ export async function POST(req: NextRequest) {
     const inc = await incrementPeticoes(session.email);
     if (!inc.ok) return NextResponse.json({ error: inc.error || "Erro ao registrar" }, { status: 500 });
 
+    // Salvar a petição no histórico
+    try {
+      const { ensureDb } = await import("../../../lib/db");
+      const db = await ensureDb();
+      await db.execute({
+        sql: `INSERT INTO peticoes (email, perfil, valor_causa, texto) VALUES (?, ?, ?, ?)`,
+        args: [session.email, valid.data.perfil, String(resultado.valorCausa), resultado.texto],
+      });
+    } catch (e) {
+      console.error("Falha ao salvar petição no histórico:", e);
+    }
+
     const key = chaveCaso(valid.data);
     const token = Buffer.from(JSON.stringify({ u: session.email, k: key, e: Date.now() + 86400000 })).toString("base64url");
 
