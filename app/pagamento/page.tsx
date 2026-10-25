@@ -36,18 +36,14 @@ function PagamentoContent() {
           return;
         }
         const data = await r.json();
-        
-        // CORREÇÃO: /api/auth/me retorna os dados na raiz, não dentro de "user"
         if (!data.email) {
           router.replace("/login?next=/pagamento");
           return;
         }
-        
         if (data.status === "active") {
           router.replace("/gerador");
           return;
         }
-        
         setEmail(data.email);
         setLoading(false);
       })
@@ -84,7 +80,7 @@ function PagamentoContent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-6 sm:py-10 bg-[#05080C]">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur-lg shadow-xl p-7 text-center flex flex-col sm:flex-row">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur-lg shadow-xl p-5 sm:p-7 text-center">
         
         <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold mb-4 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
           <Shield size={14} /> Garantia de 7 dias
@@ -129,7 +125,7 @@ function PagamentoContent() {
                 alt="QR Code Pix CNPJ Primex"
                 width={220}
                 height={220}
-                className="rounded-xl bg-white p-2"
+                className="rounded-xl bg-white p-2 w-full max-w-[220px] h-auto"
                 onError={() => setQrErro(true)}
               />
             </div>
@@ -138,14 +134,14 @@ function PagamentoContent() {
           <p className="text-xs mb-1 text-white/60">
             Chave Pix (CNPJ):
           </p>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 px-3 py-2.5 rounded-xl border font-mono text-sm border-emerald-500/20 bg-black/40 text-white">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <code className="flex-1 px-3 py-2.5 rounded-xl border font-mono text-sm border-emerald-500/20 bg-black/40 text-white break-all">
               {CNPJ_FORMATADO}
             </code>
             <button
               type="button"
               onClick={copiarCnpj}
-              className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold px-3 py-2.5 rounded-xl border border-emerald-500/20 text-emerald-400 bg-black/40 hover:bg-emerald-500/10 transition-colors"
+              className="shrink-0 inline-flex items-center justify-center gap-1 text-sm font-semibold px-4 py-3 rounded-xl border border-emerald-500/20 text-emerald-400 bg-black/40 hover:bg-emerald-500/10 transition-colors"
             >
               {copiado ? "Copiado!" : "Copiar CNPJ"}
             </button>
@@ -164,7 +160,7 @@ function PagamentoContent() {
           <button
             type="button"
             onClick={() => { trackEvent('Clique_WhatsApp_Pagamento'); abrirWhatsApp(); }}
-            className="mt-4 w-full inline-flex items-center justify-center gap-2 text-[15px] font-semibold px-6 py-3.5 rounded-xl bg-[#25D366] text-[#06311A] hover:opacity-90 transition-opacity"
+            className="mt-4 w-full inline-flex items-center justify-center gap-2 text-[15px] font-bold px-6 py-4 rounded-xl bg-[#25D366] text-[#06311A] hover:opacity-90 transition-opacity"
           >
             <MessageCircle size={18} /> Enviar comprovante no WhatsApp
           </button>
@@ -194,7 +190,6 @@ function PagamentoContent() {
             <span>Calculadora + checklist de provas</span>
           </div>
           
-          {/* DESTAQUE DO BÔNUS SPA/MF */}
           <div className="flex items-start gap-2 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg mt-2">
             <FileText size={18} className="text-emerald-400 shrink-0 mt-0.5" />
             <span className="text-emerald-400 font-semibold">

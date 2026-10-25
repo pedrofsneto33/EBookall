@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import HeroSection from "@/components/home/HeroSection";
 import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
 import OfferSection from "@/components/home/OfferSection";
-import { Check, X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, Shield } from "lucide-react";
+import { X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, Shield } from "lucide-react";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "./lib/config";
 
 interface FaqItem {
@@ -41,56 +41,27 @@ const FAQS: FaqItem[] = [
   },
 ];
 
-function CountUp({ end, prefix = "", suffix = "" }: { end: number; prefix?: string; suffix?: string }) {
-  const [value, setValue] = useState(0);
-
-  useEffect(() => {
-    let animationFrame: number;
-    const start = performance.now();
-    const duration = 1400;
-    
-    const step = (now: number) => {
-      const progress = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(end * eased);
-      if (progress < 1) animationFrame = requestAnimationFrame(step);
-    };
-    
-    animationFrame = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(animationFrame);
-  }, [end]);
-
-  const formatted = Math.round(value).toLocaleString("pt-BR");
-  return (
-    <span>
-      {prefix}
-      {formatted}
-      {suffix}
-    </span>
-  );
-}
-
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-[#05080C] text-white">
+    <div className="min-h-screen bg-[#05080C] text-white overflow-x-hidden">
       <Navbar />
 
       {/* HERO */}
       <HeroSection />
 
       {/* CASOS QUE RESOLVEMOS */}
-      <section className="py-24 px-6">
+      <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter text-center mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter text-center mb-4">
             Não importa o que a bet fez.
             <br />Nós temos a petição certa.
           </h2>
-          <p className="text-center text-white/60 mb-12 max-w-2xl mx-auto">
+          <p className="text-center text-white/60 mb-8 sm:mb-12 max-w-2xl mx-auto text-sm sm:text-base">
             Escolha o seu caso e o gerador monta a peça jurídica específica para a sua situação.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {[
               { title: "Autoexclusão Ignorada", Icon: Lock },
               { title: "Saldo ou Saque Retido", Icon: Wallet },
@@ -102,10 +73,10 @@ export default function LandingPage() {
             ].map(({ title, Icon }) => (
               <div
                 key={title}
-                className="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center gap-4 hover:bg-white/10 transition-colors"
+                className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 flex items-center gap-4 hover:bg-white/10 transition-colors"
               >
-                <Icon className="text-emerald-400 shrink-0" size={28} />
-                <span className="font-semibold text-white">{title}</span>
+                <Icon className="text-emerald-400 shrink-0" size={24} />
+                <span className="font-semibold text-white text-sm sm:text-base">{title}</span>
               </div>
             ))}
           </div>
@@ -115,122 +86,121 @@ export default function LandingPage() {
       <CourtWinSection />
 
       {/* PROVA */}
-      <section className="border-y border-white/5 bg-gradient-to-b from-zinc-950 to-[#05080C] py-24 px-6">
+      <section className="border-y border-white/5 bg-gradient-to-b from-zinc-950 to-[#05080C] py-16 sm:py-20 md:py-24 px-4 sm:px-6">
         <div className="mx-auto max-w-5xl text-center">
           <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-4">
             Autoridade
           </p>
-           <h2 className="text-4xl md:text-6xl font-black tracking-tighter">
-             Caso Real: Sentença de R$ 3.000 em dano moral.
-           </h2>
-           <div className="mt-12 clip-custom inline-block bg-zinc-900 border border-emerald-500/40 px-10 py-8 shadow-[0_0_60px_rgba(16,185,129,0.15)] rounded-2xl">
-             <div className="inline-block bg-emerald-400/20 text-emerald-400 text-xs font-bold px-3 py-1 mb-4 rounded-full">Caso Real</div>
-             <p className="text-5xl md:text-6xl font-black text-emerald-400">
-               R$ 3.000
-             </p>
-             <p className="mt-2 text-zinc-400 max-w-md mx-auto">
-               Sentença real de um caso de autoexclusão ignorada. O juiz mandou a
-               bet pagar.
-             </p>
-             <p className="mt-4 text-xs text-white/50 max-w-md mx-auto">
-               Resultado de um caso específico em Teresina/PI. Cada juiz decide com base nas provas. O RecuperaJogo não garante resultados.
-             </p>
-           </div>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter">
+            Caso Real: Sentença de R$ 3.000 em dano moral.
+          </h2>
+          <div className="mt-8 sm:mt-12 clip-custom inline-block bg-zinc-900 border border-emerald-500/40 px-6 py-6 sm:px-10 sm:py-8 shadow-[0_0_60px_rgba(16,185,129,0.15)] rounded-2xl w-full max-w-xl">
+            <div className="inline-block bg-emerald-400/20 text-emerald-400 text-xs font-bold px-3 py-1 mb-4 rounded-full">Caso Real</div>
+            <p className="text-4xl sm:text-5xl md:text-6xl font-black text-emerald-400">
+              R$ 3.000
+            </p>
+            <p className="mt-2 text-zinc-400 text-sm sm:text-base max-w-md mx-auto">
+              Sentença real de um caso de autoexclusão ignorada. O juiz mandou a bet pagar.
+            </p>
+            <p className="mt-4 text-xs text-white/50 max-w-md mx-auto">
+              Resultado de um caso específico em Teresina/PI. Cada juiz decide com base nas provas. O RecuperaJogo não garante resultados.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* COMO FUNCIONA */}
-      <section id="como-funciona" className="py-24 px-6">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-center mb-16">
-            Como funciona
-          </h2>
+      <section id="como-funciona" className="py-16 sm:py-20 md:py-24 px-4 sm:px-6">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter text-center mb-10 sm:mb-16">
+          Como funciona
+        </h2>
 
-          <div className="max-w-5xl mx-auto space-y-16">
-            <div className="grid md:grid-cols-2 gap-10 items-center">
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-6xl font-black text-zinc-800">01</span>
-                  <Upload className="text-emerald-400" size={32} />
-                </div>
-                <h3 className="text-3xl font-black tracking-tight mb-3">
-                  Escolha seu caso
-                </h3>
-                <p className="text-zinc-400 text-lg leading-relaxed">
-                  Autoexclusão, ludopatia, saldo retido, rollover e mais. Selecione a tese que se encaixa na sua situação.
-                </p>
+        <div className="max-w-5xl mx-auto space-y-10 sm:space-y-16">
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-10 items-center">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-4xl sm:text-5xl md:text-6xl font-black text-zinc-800">01</span>
+                <Upload className="text-emerald-400" size={28} />
               </div>
-              <div className="clip-custom bg-zinc-900 border border-white/10 p-8 h-48 flex items-center justify-center rounded-2xl">
-                <div className="grid grid-cols-2 gap-3 w-full">
-                  {["Autoexclusão", "Ludopatia", "Saldo retido", "Rollover"].map((t) => (
-                    <div
-                      key={t}
-                      className="rounded bg-zinc-800 border border-zinc-700 p-3 text-center text-xs text-zinc-300"
-                    >
-                      {t}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <h3 className="text-2xl sm:text-3xl font-black tracking-tight mb-3">
+                Escolha seu caso
+              </h3>
+              <p className="text-zinc-400 text-base sm:text-lg leading-relaxed">
+                Autoexclusão, ludopatia, saldo retido, rollover e mais. Selecione a tese que se encaixa na sua situação.
+              </p>
             </div>
-
-            <div className="grid md:grid-cols-2 gap-10 items-center">
-              <div className="order-2 md:order-1 clip-custom bg-zinc-900 border border-white/10 p-8 h-48 flex items-center justify-center rounded-2xl">
-                <div className="space-y-3 w-full">
-                  <div className="h-3 rounded bg-zinc-800 w-3/4" />
-                  <div className="h-3 rounded bg-emerald-500/40 w-1/2" />
-                  <div className="h-3 rounded bg-zinc-800 w-2/3" />
-                  <div className="mt-4 text-center text-emerald-400 font-bold">
-                    R$ 3.000 calculado
+            <div className="clip-custom bg-zinc-900 border border-white/10 p-6 sm:p-8 h-auto min-h-[180px] sm:h-48 flex items-center justify-center rounded-2xl">
+              <div className="grid grid-cols-2 gap-3 w-full">
+                {["Autoexclusão", "Ludopatia", "Saldo retido", "Rollover"].map((t) => (
+                  <div
+                    key={t}
+                    className="rounded bg-zinc-800 border border-zinc-700 p-3 text-center text-xs text-zinc-300"
+                  >
+                    {t}
                   </div>
-                </div>
-              </div>
-              <div className="order-1 md:order-2">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-6xl font-black text-zinc-800">02</span>
-                  <Cpu className="text-emerald-400" size={32} />
-                </div>
-                <h3 className="text-3xl font-black tracking-tight mb-3">
-                  Preencha a história
-                </h3>
-                <p className="text-zinc-400 text-lg leading-relaxed">
-                  O sistema calcula o valor e gera a peça jurídica automaticamente. Sem juridiquês.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-10 items-center">
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="text-6xl font-black text-zinc-800">03</span>
-                  <FileCheck2 className="text-emerald-400" size={32} />
-                </div>
-                <h3 className="text-3xl font-black tracking-tight mb-3">
-                  Baixe e protocole
-                </h3>
-                <p className="text-zinc-400 text-lg leading-relaxed">
-                  Pelo celular, no site do Juizado. Assine, envie e anexe o Dossiê oficial. Pronto.
-                </p>
-              </div>
-              <div className="clip-custom bg-zinc-900 border border-emerald-500/30 p-8 h-48 flex items-center justify-center rounded-2xl">
-                <div className="text-center">
-                  <FileCheck2 className="text-emerald-400 mx-auto mb-3" size={48} />
-                  <p className="text-sm text-zinc-400">petição.pdf + Dossiê SPA/MF</p>
-                </div>
+                ))}
               </div>
             </div>
           </div>
+
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-10 items-center">
+            <div className="order-2 md:order-1 clip-custom bg-zinc-900 border border-white/10 p-6 sm:p-8 h-auto min-h-[180px] sm:h-48 flex items-center justify-center rounded-2xl">
+              <div className="space-y-3 w-full">
+                <div className="h-3 rounded bg-zinc-800 w-3/4" />
+                <div className="h-3 rounded bg-emerald-500/40 w-1/2" />
+                <div className="h-3 rounded bg-zinc-800 w-2/3" />
+                <div className="mt-4 text-center text-emerald-400 font-bold">
+                  R$ 3.000 calculado
+                </div>
+              </div>
+            </div>
+            <div className="order-1 md:order-2">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-4xl sm:text-5xl md:text-6xl font-black text-zinc-800">02</span>
+                <Cpu className="text-emerald-400" size={28} />
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-black tracking-tight mb-3">
+                Preencha a história
+              </h3>
+              <p className="text-zinc-400 text-base sm:text-lg leading-relaxed">
+                O sistema calcula o valor e gera a peça jurídica automaticamente. Sem juridiquês.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-10 items-center">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-4xl sm:text-5xl md:text-6xl font-black text-zinc-800">03</span>
+                <FileCheck2 className="text-emerald-400" size={28} />
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-black tracking-tight mb-3">
+                Baixe e protocole
+              </h3>
+              <p className="text-zinc-400 text-base sm:text-lg leading-relaxed">
+                Pelo celular, no site do Juizado. Assine, envie e anexe o Dossiê oficial. Pronto.
+              </p>
+            </div>
+            <div className="clip-custom bg-zinc-900 border border-emerald-500/30 p-6 sm:p-8 h-auto min-h-[180px] sm:h-48 flex items-center justify-center rounded-2xl">
+              <div className="text-center">
+                <FileCheck2 className="text-emerald-400 mx-auto mb-3" size={40} />
+                <p className="text-sm text-zinc-400">petição.pdf + Dossiê SPA/MF</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* DESTAQUE DO BÔNUS SPA/MF */}
-      <section className="py-16 px-6">
-        <div className="mx-auto max-w-5xl bg-gradient-to-r from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 shadow-[0_0_40px_rgba(16,185,129,0.05)]">
-          <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center shrink-0">
-            <Shield className="text-emerald-400" size={40} />
+      <section className="py-10 sm:py-16 px-4 sm:px-6">
+        <div className="mx-auto max-w-5xl bg-gradient-to-r from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-3xl p-6 sm:p-8 md:p-12 flex flex-col md:flex-row items-center gap-6 md:gap-8 shadow-[0_0_40px_rgba(16,185,129,0.05)]">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-500/20 rounded-full flex items-center justify-center shrink-0">
+            <Shield className="text-emerald-400" size={36} />
           </div>
-          <div>
-            <p className="text-emerald-400 text-sm font-bold uppercase tracking-widest mb-2">Bônus Exclusivo Incluso</p>
-            <h3 className="text-2xl md:text-3xl font-black text-white mb-2">Dossiê Oficial da SPA/MF (Ministério da Fazenda)</h3>
-            <p className="text-white/60 leading-relaxed">
+          <div className="text-center md:text-left">
+            <p className="text-emerald-400 text-xs sm:text-sm font-bold uppercase tracking-widest mb-2">Bônus Exclusivo Incluso</p>
+            <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white mb-2">Dossiê Oficial da SPA/MF (Ministério da Fazenda)</h3>
+            <p className="text-white/60 leading-relaxed text-sm sm:text-base">
               Nós não te damos só o texto. Entregamos também as <strong className="text-white">Portarias e Instruções Normativas reais</strong> da Secretaria de Prêmios e Apostas. Anexe no seu processo para mostrar ao juiz que você está embasado nas regras oficiais do Governo.
             </p>
           </div>
@@ -241,15 +211,15 @@ export default function LandingPage() {
       <OfferSection />
 
       {/* FAQ */}
-      <section id="faq" className="py-24 px-6 border-t border-white/5">
+      <section id="faq" className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 border-t border-white/5">
         <div className="mx-auto max-w-3xl">
-          <div className="flex items-center gap-3 mb-10">
-            <HelpCircle className="text-emerald-400" size={28} />
-            <h2 className="text-4xl md:text-5xl font-black tracking-tighter">
+          <div className="flex items-center gap-3 mb-8 sm:mb-10">
+            <HelpCircle className="text-emerald-400" size={24} />
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter">
               Perguntas frequentes
             </h2>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {FAQS.map((item, i) => {
               const open = openFaq === i;
               return (
@@ -257,9 +227,9 @@ export default function LandingPage() {
                   <button
                     type="button"
                     onClick={() => setOpenFaq(open ? null : i)}
-                    className="w-full flex items-center justify-between gap-4 text-left p-5"
+                    className="w-full flex items-center justify-between gap-4 text-left p-4 sm:p-5"
                   >
-                    <span className={`text-lg font-bold ${open ? "text-emerald-400" : "text-white"}`}>
+                    <span className={`text-base sm:text-lg font-bold ${open ? "text-emerald-400" : "text-white"}`}>
                       {item.q}
                     </span>
                     {open ? (
@@ -269,7 +239,7 @@ export default function LandingPage() {
                     )}
                   </button>
                   {open && (
-                    <p className="px-5 pb-5 text-zinc-400 leading-relaxed">{item.a}</p>
+                    <p className="px-4 sm:px-5 pb-4 sm:pb-5 text-zinc-400 text-sm sm:text-base leading-relaxed">{item.a}</p>
                   )}
                 </div>
               );
@@ -278,8 +248,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="bg-[#030712] border-t border-white/10 py-12 px-6">
-        <div className="mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-3 gap-8">
+      <footer className="bg-[#030712] border-t border-white/10 py-10 sm:py-12 px-4 sm:px-6">
+        <div className="mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="w-2 h-2 rounded-full bg-emerald-400" />
@@ -302,7 +272,7 @@ export default function LandingPage() {
             </a>
           </div>
         </div>
-        <div className="mx-auto max-w-7xl mt-8 pt-6 border-t border-white/5 text-center text-zinc-600 text-sm">
+        <div className="mx-auto max-w-7xl mt-8 pt-6 border-t border-white/5 text-center text-zinc-600 text-xs sm:text-sm">
           © 2026 RecuperaJogo. Todos os direitos reservados. Software de automação de documentos. Não somos um escritório de advocacia.
         </div>
       </footer>
@@ -320,7 +290,6 @@ export default function LandingPage() {
       >
         <MessageCircle size={24} />
       </a>
-
     </div>
   );
 }
