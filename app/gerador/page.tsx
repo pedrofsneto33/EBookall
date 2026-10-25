@@ -232,15 +232,15 @@ export default function GeradorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#05080C] text-white relative pb-12">
+    <div className="min-h-screen bg-[#05080C] text-white relative pb-12 overflow-x-hidden">
       <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-emerald-500/5 blur-[120px] rounded-full" />
       
       <header className="border-b px-4 py-3 flex justify-between items-center bg-white/5 backdrop-blur-lg border-white/10 sticky top-0 z-10">
         <div>
           <p className="text-sm font-bold text-white">Gerador de Petição</p>
-          {userEmail && <p className="text-[10px] text-white/60">{userEmail}</p>}
+          {userEmail && <p className="hidden sm:block text-[10px] text-white/60">{userEmail}</p>}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 overflow-x-auto whitespace-nowrap pb-1">
           <span className={`text-xs font-semibold px-3 py-1.5 rounded-full border ${limitReached ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-white/5 text-white/60 border-white/10"}`}>
             {usadas}/{MAX_PETICOES} petições
           </span>
@@ -249,7 +249,7 @@ export default function GeradorPage() {
         </div>
       </header>
 
-      <div className="max-w-3xl mx-auto px-4 py-8 relative z-10">
+      <div className="max-w-3xl mx-auto px-4 py-8 relative z-10 w-full">
         {limitReached && (
           <div className="flex gap-2 items-start border rounded-lg px-4 py-3 mb-6 bg-red-500/10 border-red-500/20">
             <AlertTriangle size={18} className="shrink-0 mt-0.5 text-red-400" />
@@ -260,15 +260,15 @@ export default function GeradorPage() {
           </div>
         )}
 
-        <div className="flex gap-2 items-start border rounded-lg px-4 py-3 mb-6 bg-amber-500/10 border-amber-500/20">
+        <div className="flex gap-2 items-start border rounded-lg px-4 py-3 mb-6 bg-amber-500/10 border-amber-500/20 w-full overflow-hidden">
           <AlertTriangle size={18} className="shrink-0 mt-0.5 text-amber-400" />
-          <p className="text-sm text-amber-400">
+          <p className="text-sm text-amber-400 break-words">
             <strong>Não é advocacia.</strong> Rascunho para jus postulandi. Até {MAX_PETICOES} petições no acesso.
             Restam <strong>{restantes}</strong>.
           </p>
         </div>
 
-        <div className="flex overflow-x-auto whitespace-nowrap gap-2 mb-6 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex overflow-x-auto whitespace-nowrap gap-2 mb-6 pb-2 px-4 sm:mx-0 sm:px-0">
           {["perfil", "dados", "argumentos", "resultado"].map((id, i) => (
             <button
               key={id}
@@ -296,7 +296,7 @@ export default function GeradorPage() {
                     key={id}
                     type="button"
                     onClick={() => setPerfil(id)}
-                    className={`text-left flex gap-3 p-4 rounded-xl border transition-colors ${
+                    className={`text-left flex gap-3 p-4 rounded-xl border transition-colors w-full ${
                       perfil === id
                         ? "border-emerald-500/30 bg-emerald-500/10"
                         : "border-white/10 bg-white/5 hover:bg-white/10"
@@ -304,7 +304,7 @@ export default function GeradorPage() {
                   >
                     <div>
                       <p className="text-sm font-medium text-white">{titulo}</p>
-                      <p className="text-xs text-white/60">{desc}</p>
+                      <p className="text-xs text-white/60 break-words">{desc}</p>
                     </div>
                   </button>
                 );
@@ -446,7 +446,7 @@ export default function GeradorPage() {
               type="button"
               disabled={!ack || limitReached || generating || acimaLimiteJEC}
               onClick={gerar}
-              className="inline-flex items-center justify-center w-full gap-2 px-5 py-4 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors disabled:opacity-50 mt-2"
+              className="inline-flex items-center justify-center w-full sm:w-auto gap-2 px-5 py-3.5 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors disabled:opacity-50 mt-2"
             >
               {generating ? <><Loader2 size={18} className="animate-spin" /> Gerando…</> : limitReached ? "Limite de 3 atingido" : `Gerar petição (${restantes} restantes)`}
             </button>
