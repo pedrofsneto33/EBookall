@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  AlertTriangle, Download, ChevronRight, Loader2, Scale
+  AlertTriangle, Download, ChevronRight, Loader2
 } from "lucide-react";
 import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda, PERFIL_LABEL } from "../lib/config";
@@ -100,7 +100,7 @@ export default function GeradorPage() {
   const [argsSel, setArgsSel] = useState<string[]>([]);
   
   const [valorPerdido, setValorPerdido] = useState("");
-  const [valorDevolvido, setValorDevolvido] = useState(""); // NOVO CAMPO
+  const [valorDevolvido, setValorDevolvido] = useState("");
   const [dataFato, setDataFato] = useState("");
   const [dataAuto, setDataAuto] = useState("");
   const [dobro, setDobro] = useState(false);
@@ -167,7 +167,7 @@ export default function GeradorPage() {
           dataFato,
           dataAutoexclusao: dataAuto || dataFato,
           valorPerdido,
-          valorDevolvido: valorDevolvido || "0", // ENVIANDO O CAMPO
+          valorDevolvido: valorDevolvido || "0",
           dobro,
           danoMoral,
           valorDanoMoral: valorDM,
@@ -315,7 +315,7 @@ export default function GeradorPage() {
               })}
             </div>
 
-            {/* AVISOS DE PERFIS FRÁGEIS ADICIONADOS AQUI */}
+            {/* AVISOS DE PERFIS FRÁGEIS */}
             {perfil === "bonus_rollover" && (
               <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200 text-sm leading-relaxed mt-4">
                 <strong>Atenção:</strong> O rollover é uma cláusula que você aceitou ao ativar a promoção. A tese de nulidade é difícil e depende do juiz considerar a cláusula abusiva. A chance de sucesso é menor. Siga apenas se o valor for alto.
@@ -379,7 +379,6 @@ export default function GeradorPage() {
               
               <Field label="Valor material R$" type="number" value={valorPerdido} onChange={setValorPerdido} placeholder="Ex: 8000" />
               
-              {/* NOVO CAMPO ADICIONADO */}
               <Field label="Já devolvido pela casa R$" type="number" value={valorDevolvido} onChange={setValorDevolvido} placeholder="Ex: 0" hint="Se a casa já devolveu algo, abatemos do pedido." />
 
               <Field label="Dano moral sugerido R$" type="number" value={valorDM} onChange={setValorDM} />
@@ -541,8 +540,12 @@ export default function GeradorPage() {
                     setTab("perfil"); 
                     setTexto(""); 
                     setArgsSel([]); 
-                    setCasoToken(""); // LIMPA O TOKEN PARA SER UM CASO NOVO
-                    setRelato(""); // Limpa o relato para não confundir
+                    setCasoToken("");
+                    setRelato("");
+                    setValorPerdido("");
+                    setValorDevolvido("");
+                    setDataFato("");
+                    setDataAuto("");
                   }}
                   className="w-full sm:w-auto px-5 py-3.5 rounded-xl text-sm font-semibold border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
                 >
