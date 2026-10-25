@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  AlertTriangle, Download, ChevronRight, Scale, Loader2,
+  AlertTriangle, Download, ChevronRight, Loader2, Scale
 } from "lucide-react";
 import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda, PERFIL_LABEL } from "../lib/config";
@@ -100,6 +100,7 @@ export default function GeradorPage() {
   const [argsSel, setArgsSel] = useState<string[]>([]);
   
   const [valorPerdido, setValorPerdido] = useState("");
+  const [valorDevolvido, setValorDevolvido] = useState(""); // NOVO CAMPO
   const [dataFato, setDataFato] = useState("");
   const [dataAuto, setDataAuto] = useState("");
   const [dobro, setDobro] = useState(false);
@@ -133,10 +134,12 @@ export default function GeradorPage() {
 
   const calc = useMemo(() => {
     const base = parseFloat(valorPerdido) || 0;
+    const devolvido = parseFloat(valorDevolvido) || 0;
     const comDobro = dobro ? base * 2 : base;
     const dm = danoMoral ? parseFloat(valorDM) || 0 : 0;
-    return { base, comDobro, total: comDobro + dm };
-  }, [valorPerdido, dobro, danoMoral, valorDM]);
+    const restituicao = Math.max(0, comDobro - devolvido);
+    return { base, comDobro, dm, restituicao, total: restituicao + dm };
+  }, [valorPerdido, valorDevolvido, dobro, danoMoral, valorDM]);
 
   const acimaLimiteJEC = calc.total > LIMITE_JUS_POSTULANDI;
   const disponiveis = argumentosDoPerfil(perfil);
@@ -164,7 +167,7 @@ export default function GeradorPage() {
           dataFato,
           dataAutoexclusao: dataAuto || dataFato,
           valorPerdido,
-          valorDevolvido: "0",
+          valorDevolvido: valorDevolvido || "0", // ENVIANDO O CAMPO
           dobro,
           danoMoral,
           valorDanoMoral: valorDM,
@@ -311,6 +314,24 @@ export default function GeradorPage() {
                 );
               })}
             </div>
+
+            {/* AVISOS DE PERFIS FRÁGEIS ADICIONADOS AQUI */}
+            {perfil === "bonus_rollover" && (
+              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200 text-sm leading-relaxed mt-4">
+                <strong>Atenção:</strong> O rollover é uma cláusula que você aceitou ao ativar a promoção. A tese de nulidade é difícil e depende do juiz considerar a cláusula abusiva. A chance de sucesso é menor. Siga apenas se o valor for alto.
+              </div>
+            )}
+            {perfil === "publicidade_enganosa" && (
+              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200 text-sm leading-relaxed mt-4">
+                <strong>Atenção:</strong> Para publicidade enganosa, o juiz exigirá prova de que a propaganda te induziu ao erro e causou o seu prejuízo. Sem print da propaganda e do comprovante da aposta, a tese pode cair.
+              </div>
+            )}
+            {perfil === "conta_bloqueada" && (
+              <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-200 text-sm leading-relaxed mt-4">
+                <strong>Lembrete importante:</strong> A casa de apostas pode vencer o processo se provar que você violou os termos de uso (ex: múltiplas contas, fraude). Reúna todas as provas possíveis de que seu bloqueio foi indevido.
+              </div>
+            )}
+
             <button
               type="button"
               onClick={() => setTab("dados")}
@@ -357,6 +378,10 @@ export default function GeradorPage() {
               />
               
               <Field label="Valor material R$" type="number" value={valorPerdido} onChange={setValorPerdido} placeholder="Ex: 8000" />
+              
+              {/* NOVO CAMPO ADICIONADO */}
+              <Field label="Já devolvido pela casa R$" type="number" value={valorDevolvido} onChange={setValorDevolvido} placeholder="Ex: 0" hint="Se a casa já devolveu algo, abatemos do pedido." />
+
               <Field label="Dano moral sugerido R$" type="number" value={valorDM} onChange={setValorDM} />
               
               {perfil === "bonus_rollover" && (
@@ -512,7 +537,13 @@ export default function GeradorPage() {
               {!limitReached && (
                 <button
                   type="button"
-                  onClick={() => { setTab("perfil"); setTexto(""); setArgsSel([]); }}
+                  onClick={() => { 
+                    setTab("perfil"); 
+                    setTexto(""); 
+                    setArgsSel([]); 
+                    setCasoToken(""); // LIMPA O TOKEN PARA SER UM CASO NOVO
+                    setRelato(""); // Limpa o relato para não confundir
+                  }}
                   className="w-full sm:w-auto px-5 py-3.5 rounded-xl text-sm font-semibold border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
                 >
                   Criar nova petição ({restantes} restantes)

@@ -6,6 +6,7 @@ import HeroSection from "@/components/home/HeroSection";
 import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
 import OfferSection from "@/components/home/OfferSection";
+import MpAviso from "./components/MpAviso"; // <-- ADICIONADO
 import { X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, Shield, ExternalLink } from "lucide-react";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "./lib/config";
 
@@ -42,10 +43,46 @@ const FAQS: FaqItem[] = [
 ];
 
 const DECISOES = [
-  { uf: "TJSC · Tubarão", proc: "5005803-28.2025.8.24.0075", t: "Falha no dever de jogo responsável", v: "R$ 217 mil + R$ 10 mil (Dano Moral)", d: "Aplicou CDC, Lei 14.790/23 e Portaria SPA/MF 1.231/24. A ré não contestou.", href: "https://www.migalhas.com.br/quentes/448239/casa-de-aposta-devolve-r-217-mil-por-violar-dever-de-jogo-responsavel", fonte: "Migalhas" },
-  { uf: "TJDFT · 3ª Turma Cível", proc: "0707743-74.2025.8.07.0001", t: "Ludopatia: apostas anuladas", v: "R$ 180.963,12 + R$ 4 mil (Dano Moral)", d: "Tribunal manteve a nulidade das apostas de consumidor com laudo e reconheceu falha da casa em bloquear o acesso.", href: "https://www.tjdft.jus.br/institucional/imprensa/noticias/2026/junho/tjdft-anula-apostas-e-condena-plataforma-a-devolver-r-180-mil-a-consumidor-com-ludopatia", fonte: "TJDFT" },
-  { uf: "TJSP", proc: "4000778-26.2026.8.26.0248", t: "Autoexclusão não bloqueada no prazo", v: "R$ 81 mil", d: "Casa continuou aceitando depósitos e apostas depois da autoexclusão. Fundamento: dever de segurança e de jogo responsável.", href: "https://bnldata.com.br/justica-condena-plataforma-de-apostas-por-falha-em-autoexclusao-de-apostador/", fonte: "BNL Data" },
-  { uf: "TJDFT · Turma Recursal", proc: "0759332-60.2025.8.07.0016", t: "Conta suspensa sem provar irregularidade", v: "R$ 7 mil", d: "A casa suspendeu a conta sem avisar nem provar a violação dos termos de uso. Decisão unânime. Cabe sem advogado.", href: "https://www.tjdft.jus.br/institucional/imprensa/noticias/2026/abril/tjdft-mantem-condenacao-de-plataforma-de-apostas-que-suspendeu-conta-sem-comprovar-irregularidade", fonte: "TJDFT" },
+  { 
+    uf: "TJSC · Tubarão", 
+    proc: "5005803-28.2025.8.24.0075", 
+    t: "Falha no dever de jogo responsável", 
+    v: "R$ 217 mil + R$ 10 mil (Dano Moral)", 
+    d: "Aplicou CDC, Lei 14.790/23 e Portaria SPA/MF 1.231/24. A ré não contestou.", 
+    href: "https://www.migalhas.com.br/quentes/448239/casa-de-aposta-devolve-r-217-mil-por-violar-dever-de-jogo-responsavel", 
+    fonte: "Migalhas", 
+    aviso: "Acima de R$ 32.420: precisa de advogado ou Defensoria." 
+  },
+  { 
+    uf: "TJDFT · 3ª Turma Cível", 
+    proc: "0707743-74.2025.8.07.0001", 
+    t: "Ludopatia: apostas anuladas", 
+    v: "R$ 180.963,12 + R$ 4 mil (Dano Moral)", 
+    d: "Tribunal manteve a nulidade das apostas de consumidor com laudo e reconheceu falha da casa em bloquear o acesso.", 
+    href: "https://www.tjdft.jus.br/institucional/imprensa/noticias/2026/junho/tjdft-anula-apostas-e-condena-plataforma-a-devolver-r-180-mil-a-consumidor-com-ludopatia", 
+    fonte: "TJDFT", 
+    aviso: "Acima de R$ 32.420: precisa de advogado ou Defensoria." 
+  },
+  { 
+    uf: "TJSP", 
+    proc: "4000778-26.2026.8.26.0248", 
+    t: "Autoexclusão não bloqueada no prazo", 
+    v: "R$ 81 mil", 
+    d: "Casa continuou aceitando depósitos e apostas depois da autoexclusão. Fundamento: dever de segurança e de jogo responsável.", 
+    href: "https://bnldata.com.br/justica-condena-plataforma-de-apostas-por-falha-em-autoexclusao-de-apostador/", 
+    fonte: "BNL Data", 
+    aviso: "Acima de R$ 32.420: precisa de advogado ou Defensoria." 
+  },
+  { 
+    uf: "TJDFT · Turma Recursal", 
+    proc: "0759332-60.2025.8.07.0016", 
+    t: "Conta suspensa sem provar irregularidade", 
+    v: "R$ 7 mil", 
+    d: "A casa suspendeu a conta sem avisar nem provar a violação dos termos de uso. Decisão unânime.", 
+    href: "https://www.tjdft.jus.br/institucional/imprensa/noticias/2026/abril/tjdft-mantem-condenacao-de-plataforma-de-apostas-que-suspendeu-conta-sem-comprovar-irregularidade", 
+    fonte: "TJDFT", 
+    aviso: "Cabe sem advogado (até R$ 32.420)." 
+  },
 ];
 
 export default function LandingPage() {
@@ -54,6 +91,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#05080C] text-white overflow-x-hidden">
       <Navbar />
+      <MpAviso /> {/* <-- ADICIONADO: Barra de urgência da MP */}
 
       {/* HERO */}
       <HeroSection />
@@ -113,7 +151,13 @@ export default function LandingPage() {
                 <div>
                   <p className="text-[11px] font-mono text-emerald-400/80 mb-3">{c.uf} · proc. {c.proc}</p>
                   <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{c.t}</h3>
-                  <p className="text-3xl sm:text-4xl font-black text-emerald-400 mb-3">{c.v}</p>
+                  <p className="text-3xl sm:text-4xl font-black text-emerald-400 mb-2">{c.v}</p>
+                  
+                  {/* NOVO AVISO AQUI */}
+                  <p className={`text-xs font-semibold mb-4 ${c.aviso.includes('sem advogado') ? 'text-emerald-400' : 'text-amber-400'}`}>
+                    {c.aviso}
+                  </p>
+
                   <p className="text-sm text-zinc-400 leading-relaxed mb-6">{c.d}</p>
                 </div>
                 <a 
