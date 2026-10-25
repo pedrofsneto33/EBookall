@@ -254,6 +254,8 @@ export default function GeradorPage() {
       </header>
 
       <div className="max-w-3xl mx-auto px-4 py-8 relative z-10 w-full">
+        {/* O aviso amarelo grandão foi REMOVIDO daqui. */}
+        
         {limitReached && (
           <div className="flex gap-2 items-start border rounded-lg px-4 py-3 mb-6 bg-red-500/10 border-red-500/20">
             <AlertTriangle size={18} className="shrink-0 mt-0.5 text-red-400" />
@@ -263,18 +265,6 @@ export default function GeradorPage() {
             </p>
           </div>
         )}
-
-        {/* AVISO LEGAL TRANSFORMADO EM ACORDEÃO */}
-        <details className="group border rounded-lg bg-amber-500/10 border-amber-500/20 mb-6 overflow-hidden cursor-pointer">
-          <summary className="flex items-center gap-2 px-4 py-2.5 text-sm text-amber-400 font-medium list-none [&::-webkit-details-marker]:hidden">
-            <AlertTriangle size={16} className="shrink-0" />
-            <span>Aviso legal: Não é advocacia. Clique para ler.</span>
-            <ChevronRight size={16} className="ml-auto transform group-open:rotate-90 transition-transform" />
-          </summary>
-          <div className="px-4 pb-3 pt-1 text-xs text-amber-400/90 leading-relaxed border-t border-amber-500/20">
-            Este é um software de automação de documentos. Você é o autor da peça e deve revisá-la antes de protocolar. Rascunho para jus postulandi. Até {MAX_PETICOES} petições no acesso. Restam <strong>{restantes}</strong>.
-          </div>
-        </details>
 
         <div className="flex overflow-x-auto whitespace-nowrap gap-2 mb-6 pb-2 px-4 sm:mx-0 sm:px-0">
           {["perfil", "dados", "argumentos", "resultado"].map((id, i) => (
@@ -319,7 +309,6 @@ export default function GeradorPage() {
               })}
             </div>
 
-            {/* AVISOS DE PERFIS FRÁGEIS */}
             {perfil === "bonus_rollover" && (
               <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200 text-sm leading-relaxed mt-4">
                 <strong>Atenção:</strong> O rollover é uma cláusula que você aceitou ao ativar a promoção. A tese de nulidade é difícil e depende do juiz considerar a cláusula abusiva. A chance de sucesso é menor. Siga apenas se o valor for alto.
@@ -479,6 +468,11 @@ export default function GeradorPage() {
             >
               {generating ? <><Loader2 size={18} className="animate-spin" /> Gerando…</> : limitReached ? "Limite de 3 atingido" : `Gerar petição (${restantes} restantes)`}
             </button>
+
+            {/* O AVISO LEGAL AGORA É UM TEXTO MINÚSCULO NO RODAPÉ DO BOTÃO */}
+            <p className="text-[10px] text-white/30 text-center mt-4 leading-tight">
+              Este é um software de automação de documentos. Não é advocacia. Você é o autor da peça e deve revisá-la antes de protocolar. Jus postulandi.
+            </p>
           </div>
         )}
 
