@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     // Salvar a petição no histórico
     try {
-      const { ensureDb } = await import("../../../lib/db");
+      const { ensureDb } = await import("../../lib/db");
       const db = await ensureDb();
       await db.execute({
         sql: `INSERT INTO peticoes (email, perfil, valor_causa, texto) VALUES (?, ?, ?, ?)`,
