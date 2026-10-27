@@ -24,7 +24,6 @@ export const LIMITE_JEC = SALARIO_MINIMO * 40;
 
 export const MAX_PETICOES = 3;
 export const ACCESS_DAYS = 365;
-export const GARANTIA_DIAS = 7;
 
 export const WHATSAPP = "5586988117925";
 export const WHATSAPP_TXT = "(86) 98811-7925";

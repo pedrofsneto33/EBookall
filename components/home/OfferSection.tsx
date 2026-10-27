@@ -7,7 +7,6 @@ const BENEFITS = [
   "Até 3 petições geradas",
   "Checklist de Provas Automatizado",
   "Acesso imediato ao sistema",
-  "Garantia incondicional de 7 dias",
   "Suporte via WhatsApp",
 ];
 

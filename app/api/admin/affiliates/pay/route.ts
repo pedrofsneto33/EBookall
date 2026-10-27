@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "../../../../lib/auth";
 import { ensureDb } from "../../../../lib/db";
-
-const ADMIN_EMAIL = "pedrofsneto33@gmail.com";
+import { isAdmin } from "../../../../lib/admin";
 
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   const session = await getSession();
-  if (!session || session.email.toLowerCase().trim() !== ADMIN_EMAIL) {
+  if (!session || !isAdmin(session.email)) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
 

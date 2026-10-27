@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, CheckCircle2, KeyRound, Loader2, Mail, ShieldCheck } from "lucide-react";
 import { trackEvent } from "../lib/analytics";
+import { isAdmin as checkIsAdmin } from "../lib/admin";
 
 type Feedback = { type: "success" | "error"; text: string } | null;
 
@@ -73,7 +74,7 @@ export default function AdminPage() {
         if (!res.ok) return;
         const data = (await res.json()) as { email?: string; user?: { email?: string } };
         const email = data.email || data.user?.email;
-        if (email?.toLowerCase().trim() === "pedrofsneto33@gmail.com") setIsAdmin(true);
+        if (email && checkIsAdmin(email)) setIsAdmin(true);
       } catch {
         // ignore
       }

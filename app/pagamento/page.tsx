@@ -9,7 +9,6 @@ import {
   Loader2,
   Shield,
   MessageCircle,
-  FileText,
 } from "lucide-react";
 import { PRECO_TXT, WHATSAPP_TXT, waLink } from "../lib/config";
 
@@ -83,7 +82,7 @@ function PagamentoContent() {
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur-lg shadow-xl p-5 sm:p-7 text-center">
         
         <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold mb-4 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-          <Shield size={14} /> Garantia de 7 dias
+           <Shield size={14} /> Acesso imediato
         </div>
 
         <h1 className="text-2xl font-bold mb-1 text-white">
@@ -189,17 +188,10 @@ function PagamentoContent() {
             <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
             <span>Calculadora + checklist de provas</span>
           </div>
-          
-          <div className="flex items-start gap-2 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg mt-2">
-            <FileText size={18} className="text-emerald-400 shrink-0 mt-0.5" />
-            <span className="text-emerald-400 font-semibold">
-              Bônus Exclusivo: Dossiê com Portarias e Instruções Normativas reais da SPA/MF para anexar ao processo
-            </span>
-          </div>
 
           <div className="flex items-center gap-2 pt-1">
             <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
-            <span>Garantia incondicional de 7 dias</span>
+            <span>Acesso imediato após confirmação</span>
           </div>
         </div>
 

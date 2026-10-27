@@ -2,10 +2,9 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "../../lib/auth";
 import { ensureDb } from "../../lib/db";
+import { isAdmin } from "../../lib/admin";
 import ActionButton from "./ActionButton";
 import PayReferralButton from "./PayReferralButton";
-
-const ADMIN_EMAIL = "pedrofsneto33@gmail.com";
 
 type UserRow = {
   email: string;
@@ -39,7 +38,7 @@ export default async function AdminDashboardPage() {
   if (!session) {
     redirect("/login");
   }
-  const isSuperAdmin = session.email.toLowerCase().trim() === "pedrofsneto33@gmail.com";
+  const isSuperAdmin = isAdmin(session.email);
   if (!isSuperAdmin) {
     redirect("/");
   }

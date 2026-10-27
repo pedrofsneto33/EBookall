@@ -7,7 +7,7 @@ import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
 import OfferSection from "@/components/home/OfferSection";
 
-import { X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, Shield, ExternalLink } from "lucide-react";
+import { X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, ExternalLink } from "lucide-react";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "./lib/config";
 
 interface FaqItem {
@@ -27,14 +27,6 @@ const FAQS: FaqItem[] = [
   {
     q: 'Serve para qualquer casa de apostas?',
     a: 'Sim, desde que a operadora tenha CNPJ no Brasil. O sistema gera a peça com base nos fatos que você preenche.',
-  },
-  {
-    q: 'O que é o Dossiê SPA/MF?',
-    a: 'É um bônus exclusivo. Nós fornecemos as Portarias e Instruções Normativas oficiais da Secretaria de Prêmios e Apostas (Ministério da Fazenda) para você anexar ao seu processo. Isso mostra ao juiz que você conhece as regras oficiais do setor.',
-  },
-  {
-    q: 'E se eu não gostar ou não quiser usar?',
-    a: 'Você tem 7 dias de garantia incondicional. Basta solicitar o reembolso e devolvemos o valor integral.',
   },
   {
     q: 'Quantas petições posso gerar?',
@@ -247,31 +239,15 @@ export default function LandingPage() {
                 Baixe e protocole
               </h3>
               <p className="text-zinc-400 text-base sm:text-lg leading-relaxed">
-                Pelo celular, no site do Juizado. Assine, envie e anexe o Dossiê oficial. Pronto.
+                Pelo celular, no site do Juizado. Assine, envie e anexe a petição. Pronto.
               </p>
             </div>
             <div className="clip-custom bg-zinc-900 border border-emerald-500/30 p-6 sm:p-8 h-auto min-h-[180px] sm:h-48 flex items-center justify-center rounded-2xl">
               <div className="text-center">
                 <FileCheck2 className="text-emerald-400 mx-auto mb-3" size={40} />
-                <p className="text-sm text-zinc-400">petição.pdf + Dossiê SPA/MF</p>
+                <p className="text-sm text-zinc-400">petição.pdf</p>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* DESTAQUE DO BÔNUS SPA/MF */}
-      <section className="py-10 sm:py-16 px-4 sm:px-6">
-        <div className="mx-auto max-w-5xl bg-gradient-to-r from-emerald-500/10 to-transparent border border-emerald-500/20 rounded-3xl p-6 sm:p-8 md:p-12 flex flex-col md:flex-row items-center gap-6 md:gap-8 shadow-[0_0_40px_rgba(16,185,129,0.05)]">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-500/20 rounded-full flex items-center justify-center shrink-0">
-            <Shield className="text-emerald-400" size={36} />
-          </div>
-          <div className="text-center md:text-left">
-            <p className="text-emerald-400 text-xs sm:text-sm font-bold uppercase tracking-widest mb-2">Bônus Exclusivo Incluso</p>
-            <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white mb-2">Dossiê Oficial da SPA/MF (Ministério da Fazenda)</h3>
-            <p className="text-white/60 leading-relaxed text-sm sm:text-base">
-              Nós não te damos só o texto. Entregamos também as <strong className="text-white">Portarias e Instruções Normativas reais</strong> da Secretaria de Prêmios e Apostas. Anexe no seu processo para mostrar ao juiz que você está embasado nas regras oficiais do Governo.
-            </p>
           </div>
         </div>
       </section>

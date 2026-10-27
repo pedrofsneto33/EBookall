@@ -446,8 +446,8 @@ export default function GeradorPage() {
             
             <div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 p-4 rounded-xl text-sm mt-4">
               <p className="font-semibold mb-1 text-blue-300">Lembrete de Provas e Documentos:</p>
-              {perfil === "autoexclusao" && <p>Anexe o comprovante do Gov.br e o print do depósito posterior. E não esqueça do seu Dossiê SPA/MF.</p>}
-              {perfil === "saldo_retido" && <p>Anexe o print do saldo e do saque negado, além do comunicado da casa. Inclua o Dossiê SPA/MF.</p>}
+              {perfil === "autoexclusao" && <p>Anexe o comprovante do Gov.br e o print do depósito posterior.</p>}
+              {perfil === "saldo_retido" && <p>Anexe o print do saldo e do saque negado, além do comunicado da casa.</p>}
               {perfil === "ludopatia" && <p>O laudo médico é fundamental. Anexe também os comprovantes de depósitos sucessivos. Inclua as normativas de jogo responsável.</p>}
               {perfil === "bonus_rollover" && <p>Anexe o print da oferta do bônus e das regras de rollover. Inclua as normas da SPA/MF sobre publicidade.</p>}
               {perfil === "premio_nao_pago" && <p>Anexe o print da aposta ganha e a resposta da casa negando o pagamento.</p>}

@@ -67,7 +67,7 @@ export default function GuiaPage() {
             <a href="/login" className="inline-flex items-center gap-2 text-[15px] font-semibold px-8 py-3.5 rounded-xl text-white bg-emerald-500 hover:bg-emerald-600 transition-colors">
               Gerar minha petição · R$ 137 <ArrowRight size={18} />
             </a>
-            <p className="text-xs mt-3 text-white/60">3 petições · Garantia 7 dias · Stripe</p>
+            <p className="text-xs mt-3 text-white/60">3 petições · Stripe</p>
           </div>
         </div>
       </main>
