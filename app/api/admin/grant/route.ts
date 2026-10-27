@@ -1,11 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
+import { rateLimit } from "../../../lib/rate-limit";
 import { grantAccessByEmail } from "../../../lib/users";
 
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      request.headers.get("x-real-ip") ||
+      "unknown";
+
+    if (!rateLimit(`admin-grant:${ip}`, 5, 15 * 60 * 1000)) {
+      return NextResponse.json(
+        { error: "Muitas tentativas. Tente novamente mais tarde." },
+        { status: 429 }
+      );
+    }
+
     const secret = process.env.ADMIN_SECRET?.trim();
     if (!secret) {
       return NextResponse.json(

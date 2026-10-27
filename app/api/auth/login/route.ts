@@ -2,11 +2,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createMagicToken } from "../../../lib/auth";
+import { rateLimit } from "../../../lib/rate-limit";
 
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      request.headers.get("x-real-ip") ||
+      "unknown";
+
+    if (!rateLimit(`login:${ip}`, 5, 10 * 60 * 1000)) {
+      return NextResponse.json(
+        { error: "Muitas tentativas. Tente novamente mais tarde." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const email = String(body.email ?? "").trim().toLowerCase();
     

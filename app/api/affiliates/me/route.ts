@@ -17,8 +17,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
   }
 
-  console.log("Buscando afiliado para o email:", session.email);
-
   try {
     const db = await ensureDb();
     const affiliateRes = await db.execute({
@@ -27,7 +25,6 @@ export async function GET(request: NextRequest) {
     });
 
     const affiliate = affiliateRes.rows[0];
-    console.log("Resultado da busca:", affiliate);
 
     if (!affiliate) {
       return NextResponse.json({ error: "Não é afiliado" }, { status: 404 });

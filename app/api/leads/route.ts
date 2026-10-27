@@ -2,6 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { rateLimit } from "../../lib/rate-limit";
 
+function escapeHtml(text: string): string {
+  return text.replace(/[&<>"']/g, (char) => {
+    switch (char) {
+      case "&":
+        return "&amp;";
+      case "<":
+        return "&lt;";
+      case ">":
+        return "&gt;";
+      case '"':
+        return "&quot;";
+      case "'":
+        return "&#39;";
+      default:
+        return char;
+    }
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const ip =
@@ -20,6 +39,11 @@ export async function POST(request: NextRequest) {
     const whatsapp = String(body.whatsapp ?? "").trim();
     const origem = String(body.origem ?? "site").trim();
 
+const safeNome = escapeHtml(nome);
+const safeEmail = escapeHtml(email);
+const safeWhatsapp = escapeHtml(whatsapp);
+const safeOrigem = escapeHtml(origem);
+
     if (!email || !email.includes("@")) {
       return NextResponse.json({ error: "E-mail inválido" }, { status: 400 });
     }
@@ -35,15 +59,15 @@ export async function POST(request: NextRequest) {
         await resend.emails.send({
           from,
           to: [notifyTo],
-          subject: `Novo lead (${origem}): ${email}`,
+          subject: `Novo lead (${safeOrigem}): ${safeEmail}`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
               <h2 style="color: #1B6B4A;">Novo lead no RecuperaJogo</h2>
               <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-                <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Nome</td><td style="padding: 8px; border: 1px solid #ddd;">${nome || "—"}</td></tr>
-                <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">E-mail</td><td style="padding: 8px; border: 1px solid #ddd;">${email}</td></tr>
-                <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">WhatsApp</td><td style="padding: 8px; border: 1px solid #ddd;">${whatsapp || "—"}</td></tr>
-                <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Origem</td><td style="padding: 8px; border: 1px solid #ddd;">${origem}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Nome</td><td style="padding: 8px; border: 1px solid #ddd;">${safeNome || "—"}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">E-mail</td><td style="padding: 8px; border: 1px solid #ddd;">${safeEmail}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">WhatsApp</td><td style="padding: 8px; border: 1px solid #ddd;">${safeWhatsapp || "—"}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Origem</td><td style="padding: 8px; border: 1px solid #ddd;">${safeOrigem}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Data</td><td style="padding: 8px; border: 1px solid #ddd;">${new Date().toLocaleString("pt-BR")}</td></tr>
               </table>
             </div>

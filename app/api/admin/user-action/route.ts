@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   } else {
     const db = await ensureDb();
     await db.execute({
-      sql: `UPDATE users SET status = 'inactive', updated_at = datetime('now') WHERE email = ?`,
+      sql: `UPDATE users SET status = 'pending', peticoes_usadas = 0, updated_at = datetime('now') WHERE email = ?`,
       args: [email],
     });
   }

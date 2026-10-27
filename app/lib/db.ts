@@ -36,6 +36,22 @@ const SCHEMA_STATEMENTS = [
      created_at TEXT NOT NULL DEFAULT (datetime('now'))
    )`,
   `CREATE INDEX IF NOT EXISTS idx_peticoes_email ON peticoes(email)`,
+  `CREATE TABLE IF NOT EXISTS affiliates (
+     id TEXT PRIMARY KEY,
+     email TEXT UNIQUE NOT NULL,
+     code TEXT UNIQUE NOT NULL,
+     comissao_percentual REAL DEFAULT 20,
+     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+   )`,
+  `CREATE TABLE IF NOT EXISTS referrals (
+     id TEXT PRIMARY KEY,
+     affiliate_code TEXT NOT NULL,
+     buyer_email TEXT NOT NULL,
+     status TEXT DEFAULT 'pendente',
+     valor_venda REAL,
+     comissao_valor REAL,
+     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+   )`,
 ];
 
 function resolveUrl(): string {

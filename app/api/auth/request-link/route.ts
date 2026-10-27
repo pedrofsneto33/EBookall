@@ -1,11 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createMagicToken } from "../../../lib/auth";
+import { rateLimit } from "../../../lib/rate-limit";
 
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      request.headers.get("x-real-ip") ||
+      "unknown";
+
+    if (!rateLimit(`request-link:${ip}`, 5, 10 * 60 * 1000)) {
+      return NextResponse.json(
+        { error: "Muitas tentativas. Tente novamente mais tarde." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const email = String(body.email ?? "").trim().toLowerCase();
     if (!email || !email.includes("@")) {
@@ -13,21 +26,12 @@ export async function POST(request: NextRequest) {
     }
 
     const token = await createMagicToken(email);
-    const origin =
-      request.headers.get("origin") ||
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      "https://recuperajogo.vercel.app";
+    const origin = (process.env.NEXT_PUBLIC_SITE_URL || "https://recuperajogo.vercel.app").replace(/\/$/, "");
     const link = `${origin}/api/auth/verify?token=${encodeURIComponent(token)}`;
 
-    const resendKey = process.env.RESEND_API_KEY;
+    const resendKey = process.env.RESEND_API_KEY?.trim();
     if (!resendKey) {
-      // Dev fallback: devolve o link (só se não houver Resend)
-      console.warn("RESEND_API_KEY ausente — retornando link no JSON");
-      return NextResponse.json({
-        ok: true,
-        message: "Link gerado (Resend não configurado).",
-        devLink: link,
-      });
+      return NextResponse.json({ error: "Serviço de e-mail indisponível." }, { status: 503 });
     }
 
     const resend = new Resend(resendKey);
