@@ -36,35 +36,32 @@ function LoginForm() {
     setMessage("");
 
     try {
-      const res = await fetch("/api/auth/session", {
+      const res = await fetch("/api/auth/request-link", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ email: email.trim() }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
-      if (!res.ok) {
-        setMessage("Erro: " + (data.error || "Falha ao entrar"));
+      if (res.status === 429 || res.status === 503) {
+        setMessage("Erro: " + (data.error || "Serviço indisponível. Tente novamente mais tarde."));
         setMessageType("error");
         setLoading(false);
         return;
       }
 
-      setMessage("Pronto! Redirecionando...");
-      setMessageType("success");
-
-      // Confere pagamento de verdade no servidor
-      const meRes = await fetch("/api/auth/me", { credentials: "include" });
-      const me = meRes.ok ? await meRes.json() : null;
-
-      if (me?.status === "active") {
-        const dest = redirectAfterPay.startsWith("/") ? redirectAfterPay : "/gerador";
-        router.replace(dest);
-      } else {
-        // Sempre pagamento se não pagou
-        router.replace("/pagamento");
+      if (!res.ok) {
+        setMessage("Erro: " + (data.error || "Falha ao enviar o link"));
+        setMessageType("error");
+        setLoading(false);
+        return;
       }
+
+      setMessage("Link enviado! Verifique sua caixa de entrada e o spam.");
+      setMessageType("success");
+      setLoading(false);
+      return;
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Erro de rede";
       setMessage("Erro: " + msg);
