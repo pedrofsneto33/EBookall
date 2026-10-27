@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getSession } from "../../lib/auth";
 import { ensureDb } from "../../lib/db";
 import ActionButton from "./ActionButton";
+import PayReferralButton from "./PayReferralButton";
 
 const ADMIN_EMAIL = "pedrofsneto33@gmail.com";
 
@@ -10,6 +11,14 @@ type UserRow = {
   email: string;
   status: string;
   peticoesUsadas: number;
+  createdAt: string;
+};
+
+type ReferralRow = {
+  id: string;
+  affiliateCode: string;
+  buyerEmail: string;
+  affiliateEmail: string;
   createdAt: string;
 };
 
@@ -54,6 +63,22 @@ export default async function AdminDashboardPage() {
     email: toText(row.email),
     status: toText(row.status),
     peticoesUsadas: toInt(row.peticoes_usadas),
+    createdAt: toText(row.created_at),
+  }));
+
+  const referralsRes = await db.execute(
+    `SELECT r.id, r.affiliate_code, r.buyer_email, r.created_at, a.email AS affiliate_email
+       FROM referrals r
+       LEFT JOIN affiliates a ON a.code = r.affiliate_code
+      WHERE r.status = 'pendente'
+      ORDER BY r.created_at DESC`
+  );
+
+  const referrals: ReferralRow[] = referralsRes.rows.map((row) => ({
+    id: toText(row.id),
+    affiliateCode: toText(row.affiliate_code),
+    buyerEmail: toText(row.buyer_email),
+    affiliateEmail: toText(row.affiliate_email),
     createdAt: toText(row.created_at),
   }));
 
@@ -116,6 +141,45 @@ export default async function AdminDashboardPage() {
                     </td>
                   </tr>
                 ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
+          <div className="px-6 py-4 border-b border-white/10">
+            <h2 className="font-semibold text-white">Indicações de Afiliados (Pendentes)</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-white/60 border-b border-white/10">
+                  <th className="px-6 py-3 font-medium">Data da Indicação</th>
+                  <th className="px-6 py-3 font-medium">E-mail do Cliente</th>
+                  <th className="px-6 py-3 font-medium">Código do Afiliado</th>
+                  <th className="px-6 py-3 font-medium">Comissão</th>
+                  <th className="px-6 py-3 font-medium">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {referrals.map((r) => (
+                  <tr key={r.id} className="border-b border-white/5">
+                    <td className="px-6 py-3 text-white/60">{r.createdAt}</td>
+                    <td className="px-6 py-3 text-white">{r.buyerEmail}</td>
+                    <td className="px-6 py-3 text-white/80">{r.affiliateCode}</td>
+                    <td className="px-6 py-3 text-emerald-400 font-semibold">R$ 27,40</td>
+                    <td className="px-6 py-3">
+                      <PayReferralButton id={r.id} />
+                    </td>
+                  </tr>
+                ))}
+                {referrals.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-6 text-center text-white/40">
+                      Nenhuma indicação pendente.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
