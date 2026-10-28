@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import { createMagicToken } from "../../../lib/auth";
 import { rateLimit } from "../../../lib/rate-limit";
 
@@ -29,30 +29,41 @@ export async function POST(request: NextRequest) {
     const origin = (process.env.NEXT_PUBLIC_SITE_URL || "https://recuperajogo.vercel.app").replace(/\/$/, "");
     const link = `${origin}/api/auth/verify?token=${encodeURIComponent(token)}`;
 
-    const resendKey = process.env.RESEND_API_KEY?.trim();
-    if (!resendKey) {
+    const smtpUser = process.env.BREVO_SMTP_USER?.trim();
+    const smtpPass = process.env.BREVO_SMTP_PASS?.trim();
+    if (!smtpUser || !smtpPass) {
       return NextResponse.json({ error: "Serviço de e-mail indisponível." }, { status: 503 });
     }
 
-    const resend = new Resend(resendKey);
-    const from = process.env.RESEND_FROM || "RecuperaJogo <onboarding@resend.dev>";
-    await resend.emails.send({
-      from,
-      to: [email],
-      subject: "Seu acesso ao RecuperaJogo",
-      html: `
-        <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto">
-          <h2 style="color:#1B6B4A">Entrar no RecuperaJogo</h2>
-          <p>Clique no botão abaixo. O link vale por 30 minutos.</p>
-          <p style="margin:28px 0">
-            <a href="${link}" style="background:#1B6B4A;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600">
-              Entrar agora
-            </a>
-          </p>
-          <p style="color:#666;font-size:12px">Se você não pediu este e-mail, ignore.</p>
-        </div>
-      `,
+    const transporter = nodemailer.createTransport({
+      host: "smtp-relay.brevo.com",
+      port: 587,
+      secure: false,
+      auth: { user: smtpUser, pass: smtpPass },
     });
+
+    try {
+      await transporter.sendMail({
+        from: "RecuperaJogo <pedrofsneto33@gmail.com>",
+        to: email,
+        subject: "Seu acesso ao RecuperaJogo",
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto">
+            <h2 style="color:#1B6B4A">Entrar no RecuperaJogo</h2>
+            <p>Clique no botão abaixo. O link vale por 30 minutos.</p>
+            <p style="margin:28px 0">
+              <a href="${link}" style="background:#1B6B4A;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600">
+                Entrar agora
+              </a>
+            </p>
+            <p style="color:#666;font-size:12px">Se você não pediu este e-mail, ignore.</p>
+          </div>
+        `,
+      });
+    } catch (err) {
+      console.error("request-link:", err instanceof Error ? err.message : err);
+      return NextResponse.json({ error: "Erro ao enviar e-mail. Tente novamente." }, { status: 500 });
+    }
 
     return NextResponse.json({
       ok: true,
