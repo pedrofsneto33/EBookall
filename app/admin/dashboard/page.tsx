@@ -5,6 +5,7 @@ import { ensureDb } from "../../lib/db";
 import { isAdmin } from "../../lib/admin";
 import ActionButton from "./ActionButton";
 import PayReferralButton from "./PayReferralButton";
+import AffiliateForm from "./AffiliateForm";
 
 type UserRow = {
   email: string;
@@ -18,6 +19,13 @@ type ReferralRow = {
   affiliateCode: string;
   buyerEmail: string;
   affiliateEmail: string;
+  createdAt: string;
+};
+
+type AffiliateRow = {
+  id: string;
+  email: string;
+  code: string;
   createdAt: string;
 };
 
@@ -81,6 +89,16 @@ export default async function AdminDashboardPage() {
     createdAt: toText(row.created_at),
   }));
 
+  const affiliatesRes = await db.execute(
+    "SELECT id, email, code, created_at FROM affiliates ORDER BY created_at DESC"
+  );
+  const affiliates: AffiliateRow[] = affiliatesRes.rows.map((row) => ({
+    id: toText(row.id),
+    email: toText(row.email),
+    code: toText(row.code),
+    createdAt: toText(row.created_at),
+  }));
+
   return (
     <div className="min-h-screen bg-[#05080C] text-white">
       <header className="border-b border-white/10 bg-white/5 backdrop-blur-lg">
@@ -101,6 +119,41 @@ export default async function AdminDashboardPage() {
           <KpiCard label="Ativos" value={String(activeUsers)} />
           <KpiCard label="Petições Geradas" value={String(totalPeticoes)} />
           <KpiCard label="Receita Estimada" value={`R$ ${receita.toLocaleString("pt-BR")}`} />
+        </div>
+
+        <AffiliateForm />
+
+        <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
+          <div className="px-6 py-4 border-b border-white/10">
+            <h2 className="font-semibold text-white">Afiliados Cadastrados</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-white/60 border-b border-white/10">
+                  <th className="px-6 py-3 font-medium">E-mail</th>
+                  <th className="px-6 py-3 font-medium">Código</th>
+                  <th className="px-6 py-3 font-medium">Data de Cadastro</th>
+                </tr>
+              </thead>
+              <tbody>
+                {affiliates.map((a) => (
+                  <tr key={a.id} className="border-b border-white/5">
+                    <td className="px-6 py-3 text-white">{a.email}</td>
+                    <td className="px-6 py-3 text-emerald-400 font-semibold">{a.code}</td>
+                    <td className="px-6 py-3 text-white/60">{a.createdAt}</td>
+                  </tr>
+                ))}
+                {affiliates.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="px-6 py-6 text-center text-white/40">
+                      Nenhum afiliado cadastrado.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
