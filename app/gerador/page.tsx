@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  AlertTriangle, Download, ChevronRight, Loader2
+  AlertTriangle, Download, ChevronRight, Loader2, LogOut
 } from "lucide-react";
 import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda, PERFIL_LABEL } from "../lib/config";
@@ -227,6 +227,11 @@ export default function GeradorPage() {
     navigator.clipboard.writeText(textoLimpo);
   }
 
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.replace("/login");
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#05080C]">
@@ -250,6 +255,9 @@ export default function GeradorPage() {
           </span>
           <Link href="/minhas-peticoes" className="text-xs text-white/60 hover:text-white transition-colors">Meu Histórico</Link>
           <button type="button" onClick={() => router.push("/")} className="text-xs text-white/60 hover:text-white transition-colors">Início</button>
+          <button type="button" onClick={handleLogout} className="text-xs text-white/60 hover:text-white transition-colors flex items-center gap-1">
+            <LogOut size={14} /> Sair
+          </button>
         </div>
       </header>
 

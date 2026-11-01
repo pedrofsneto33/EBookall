@@ -6,6 +6,7 @@ import { isAdmin } from "../../lib/admin";
 import ActionButton from "./ActionButton";
 import PayReferralButton from "./PayReferralButton";
 import AffiliateForm from "./AffiliateForm";
+import LogoutButton from "./LogoutButton";
 
 type UserRow = {
   email: string;
@@ -110,6 +111,7 @@ export default async function AdminDashboardPage() {
           <Link href="/admin" className="text-xs text-white/60 hover:text-white">
             Liberação manual
           </Link>
+          <LogoutButton />
         </div>
       </header>
 
