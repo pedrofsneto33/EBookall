@@ -7,7 +7,7 @@ import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
 import OfferSection from "@/components/home/OfferSection";
 
-import { X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, ExternalLink } from "lucide-react";
+import { X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, ExternalLink, MapPin, ShieldCheck, ClipboardList, Scale } from "lucide-react";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "./lib/config";
 
 interface FaqItem {
@@ -248,6 +248,51 @@ export default function LandingPage() {
                 <p className="text-sm text-zinc-400">petição.pdf</p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* RECURSOS DO GERADOR */}
+      <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 border-t border-white/5">
+        <div className="mx-auto max-w-6xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter text-center mb-4">
+            Recursos do Gerador
+          </h2>
+          <p className="text-center text-white/60 mb-8 sm:mb-12 max-w-2xl mx-auto text-sm sm:text-base">
+            Ferramentas que deixam sua petição mais forte e pronta para protocolar.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {[
+              {
+                Icon: MapPin,
+                title: "Guia de Protocolo por Estado",
+                desc: "Saiba exatamente onde protocolar no Juizado Especial da sua UF (links oficiais, e-mail ou WhatsApp).",
+              },
+              {
+                Icon: ShieldCheck,
+                title: "Verificação de CNPJ",
+                desc: "O sistema confere o CNPJ da casa de apostas na Receita Federal para você não processar a empresa errada.",
+              },
+              {
+                Icon: ClipboardList,
+                title: "Checklist de Provas",
+                desc: "Marque as provas que você tem e o sistema monta a lista de documentos anexos automaticamente.",
+              },
+              {
+                Icon: Scale,
+                title: "Jurisprudência e Decisões",
+                desc: "Insira decisões de casos semelhantes e argumentos condicionais para fortalecer o seu pedido.",
+              },
+            ].map(({ Icon, title, desc }) => (
+              <div
+                key={title}
+                className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col gap-3 hover:bg-white/10 transition-colors"
+              >
+                <Icon className="text-emerald-400 shrink-0" size={28} />
+                <span className="font-semibold text-white text-sm sm:text-base">{title}</span>
+                <p className="text-white/60 text-sm leading-relaxed">{desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

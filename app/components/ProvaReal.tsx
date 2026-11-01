@@ -31,7 +31,7 @@ export default function ProvaReal() {
           Sentença no Juizado Especial
         </h2>
         <p className="text-sm text-white/45 text-center mb-10 max-w-xl mx-auto leading-relaxed">
-          Um caso de autoexclusão furada julgado no 4º JEC de Teresina. O juiz reconheceu falha no
+          Um caso de autoexclusão ignorada julgado no 4º JEC de Teresina. O juiz reconheceu falha no
           serviço e fixou danos morais.
         </p>
 

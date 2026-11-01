@@ -12,6 +12,7 @@ import type { Perfil } from "../lib/config";
 import { argumentosDoPerfil, argumentosPadrao, condicionaisDoPerfil, provasDoPerfil, CANAIS_META, SITUACOES_DECISAO } from "../lib/argumentos-meta";
 import type { ArgumentoMeta } from "../lib/argumentos-meta";
 import { jecDaUF, JEC_DATA_LEVANTAMENTO } from "../lib/jec";
+import { UFS } from "../lib/validators";
 import { trackEvent } from "../lib/analytics";
 import { toast } from "sonner";
 
@@ -64,7 +65,7 @@ const PeticaoPDF = ({ texto }: { texto: string }) => {
 
 const MAX_PETICOES = 3;
 
-function Field({ label, value, onChange, full, type = "text", placeholder, hint }: { 
+function Field({ label, value, onChange, full, type = "text", placeholder, hint, inputMode, options }: { 
   label: string; 
   value: string; 
   onChange: (v: string) => void; 
@@ -72,17 +73,33 @@ function Field({ label, value, onChange, full, type = "text", placeholder, hint 
   type?: string; 
   placeholder?: string;
   hint?: string;
+  inputMode?: "text" | "decimal" | "numeric" | "tel" | "email" | "url" | "search" | "none";
+  options?: string[];
 }) {
   return (
     <label className={`text-sm ${full ? "sm:col-span-2" : ""}`}>
       <span className="block mb-1 font-medium text-white/60">{label}</span>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full px-3 py-2 rounded-lg border bg-black/40 border-white/10 text-base text-white placeholder:text-white/30 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none [color-scheme:dark]"
-      />
+      {options ? (
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full px-3 py-2 rounded-lg border bg-black/40 border-white/10 text-base text-white placeholder:text-white/30 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none [color-scheme:dark]"
+        >
+          <option value="">Selecione</option>
+          {options.map((o) => (
+            <option key={o} value={o}>{o}</option>
+          ))}
+        </select>
+      ) : (
+        <input
+          type={type}
+          inputMode={inputMode}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full px-3 py-2 rounded-lg border bg-black/40 border-white/10 text-base text-white placeholder:text-white/30 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none [color-scheme:dark]"
+        />
+      )}
       {hint && <span className="block text-xs mt-1 text-white/40">{hint}</span>}
     </label>
   );
@@ -425,7 +442,7 @@ export default function GeradorPage() {
               <Field label="CPF" value={autor.cpf} onChange={(v) => setAutor({ ...autor, cpf: v })} placeholder="000.000.000-00" />
               <Field label="Endereço" value={autor.endereco} onChange={(v) => setAutor({ ...autor, endereco: v })} full placeholder="Rua, número, bairro, CEP, cidade" />
               <Field label="Comarca" value={autor.comarca} onChange={(v) => setAutor({ ...autor, comarca: v })} placeholder="Ex: Teresina" />
-              <Field label="UF" value={autor.uf} onChange={(v) => setAutor({ ...autor, uf: v })} placeholder="Ex: PI" />
+              <Field label="UF" value={autor.uf} onChange={(v) => setAutor({ ...autor, uf: v })} options={[...UFS]} />
               
               <Field label="Empresa ré (razão social)" value={reu.nome} onChange={(v) => setReu({ ...reu, nome: v })} placeholder="Ex.: Lucky Gaming Ltda." hint="Use a razão social da OPERADORA (Termos de Uso / rodapé do site), não o nome do site." />
               <Field label="CNPJ da ré" value={reu.cnpj} onChange={(v) => setReu({ ...reu, cnpj: v })} placeholder="00.000.000/0000-00" hint="Conferimos na Receita ao gerar. Evite processar a empresa errada." />
@@ -441,16 +458,16 @@ export default function GeradorPage() {
                 onChange={setDataFato} 
               />
               
-              <Field label="Valor material R$" type="number" value={valorPerdido} onChange={setValorPerdido} placeholder="Ex: 8000" />
+              <Field label="Valor material R$" type="text" inputMode="decimal" value={valorPerdido} onChange={setValorPerdido} placeholder="Ex: 8000" />
               
-              <Field label="Já devolvido pela casa R$" type="number" value={valorDevolvido} onChange={setValorDevolvido} placeholder="Ex: 0" hint="Se a casa já devolveu algo, abatemos do pedido." />
+              <Field label="Já devolvido pela casa R$" type="text" inputMode="decimal" value={valorDevolvido} onChange={setValorDevolvido} placeholder="Ex: 0" hint="Se a casa já devolveu algo, abatemos do pedido." />
 
-              <Field label="Dano moral sugerido R$" type="number" value={valorDM} onChange={setValorDM} />
+              <Field label="Dano moral sugerido R$" type="text" inputMode="decimal" value={valorDM} onChange={setValorDM} />
               
               {perfil === "bonus_rollover" && (
                 <>
-                  <Field label="Valor do bônus R$" type="number" value={valorBonus} onChange={setValorBonus} placeholder="Ex: 4000" />
-                  <Field label="Valor exigido no rollover R$" type="number" value={valorRollover} onChange={setValorRollover} placeholder="Ex: 12000" />
+                  <Field label="Valor do bônus R$" type="text" inputMode="decimal" value={valorBonus} onChange={setValorBonus} placeholder="Ex: 4000" />
+                  <Field label="Valor exigido no rollover R$" type="text" inputMode="decimal" value={valorRollover} onChange={setValorRollover} placeholder="Ex: 12000" />
                 </>
               )}
             </div>
@@ -622,7 +639,7 @@ export default function GeradorPage() {
             </button>
 
             {/* O AVISO LEGAL AGORA É UM TEXTO MINÚSCULO NO RODAPÉ DO BOTÃO */}
-            <p className="text-[10px] text-white/30 text-center mt-4 leading-tight">
+            <p className="text-xs text-white/60 text-center mt-4 leading-tight">
               Este é um software de automação de documentos. Não é advocacia. Você é o autor da peça e deve revisá-la antes de protocolar. Jus postulandi.
             </p>
           </div>
@@ -644,7 +661,7 @@ export default function GeradorPage() {
               </div>
             )}
             
-            <div className="bg-[#0d1117] border border-white/10 rounded-lg p-6 max-h-[500px] overflow-auto font-serif text-sm leading-relaxed text-gray-300">
+            <div className="bg-[#0d1117] border border-white/10 rounded-lg p-6 max-h-none md:max-h-[500px] overflow-auto font-serif text-sm leading-relaxed text-gray-300">
               {texto.split(/\n{2,}/).map((b, i) => {
                 const content = b.trim();
                 if (!content) return null;

@@ -51,7 +51,7 @@ export type Perfil = (typeof PERFIS)[number];
 
 export const PERFIL_LABEL: Record<Perfil, { titulo: string; desc: string }> = {
   autoexclusao: {
-    titulo: "Exclusão centralizada furada",
+    titulo: "Exclusão centralizada descumprida",
     desc: "Autoexcluiu e a casa ainda aceitou depósito.",
   },
   ludopatia: {
