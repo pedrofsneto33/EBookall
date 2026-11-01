@@ -101,21 +101,23 @@ export default async function AdminDashboardPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-[#05080C] text-white">
+    <div className="min-h-screen bg-[#05080C] text-white w-full overflow-x-hidden">
       <header className="border-b border-white/10 bg-white/5 backdrop-blur-lg">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-sm font-bold text-white">Dashboard Administrativo</p>
             <p className="text-[10px] text-white/60">{session.email}</p>
           </div>
-          <Link href="/admin" className="text-xs text-white/60 hover:text-white">
-            Liberação manual
-          </Link>
-          <LogoutButton />
+          <div className="flex flex-wrap gap-2">
+            <Link href="/admin" className="text-xs text-white/60 hover:text-white">
+              Liberação manual
+            </Link>
+            <LogoutButton />
+          </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-6 py-8 space-y-8 w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <KpiCard label="Clientes Totais" value={String(totalUsers)} />
           <KpiCard label="Ativos" value={String(activeUsers)} />
@@ -129,7 +131,7 @@ export default async function AdminDashboardPage() {
           <div className="px-6 py-4 border-b border-white/10">
             <h2 className="font-semibold text-white">Afiliados Cadastrados</h2>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto hidden md:block">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-white/60 border-b border-white/10">
@@ -156,13 +158,26 @@ export default async function AdminDashboardPage() {
               </tbody>
             </table>
           </div>
+          <div className="px-6 py-4 md:hidden space-y-3">
+            {affiliates.length === 0 ? (
+              <p className="text-white/40 text-center text-sm">Nenhum afiliado cadastrado.</p>
+            ) : (
+              affiliates.map((a) => (
+                <div key={a.id} className="bg-white/5 border border-white/10 rounded-xl p-4">
+                  <p className="font-bold text-white">{a.email}</p>
+                  <p className="text-emerald-400 font-semibold text-sm">Código: {a.code}</p>
+                  <p className="text-xs text-white/60 mt-1">Criado em: {a.createdAt}</p>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
           <div className="px-6 py-4 border-b border-white/10">
             <h2 className="font-semibold text-white">Usuários</h2>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto hidden md:block">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-white/60 border-b border-white/10">
@@ -198,13 +213,43 @@ export default async function AdminDashboardPage() {
               </tbody>
             </table>
           </div>
+          <div className="px-6 py-4 md:hidden space-y-3">
+            {users.length === 0 ? (
+              <p className="text-white/40 text-center text-sm">Nenhum usuário cadastrado.</p>
+            ) : (
+              users.map((u) => (
+                <div key={u.email} className="bg-white/5 border border-white/10 rounded-xl p-4">
+                  <p className="font-bold text-white">{u.email}</p>
+                  <span
+                    className={`inline-block text-xs font-semibold px-2 py-1 rounded-full border mt-2 ${
+                      u.status === "active"
+                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                        : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                    }`}
+                  >
+                    {u.status}
+                  </span>
+                  <p className="text-sm text-white/80 mt-2">
+                    {u.peticoesUsadas} petição(s) usada(s)
+                  </p>
+                  <div className="mt-3 flex gap-2">
+                    <ActionButton
+                      email={u.email}
+                      status={u.status}
+                      className="flex-1 text-xs py-2"
+                    />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
           <div className="px-6 py-4 border-b border-white/10">
             <h2 className="font-semibold text-white">Indicações de Afiliados (Pendentes)</h2>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto hidden md:block">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-white/60 border-b border-white/10">
@@ -236,6 +281,21 @@ export default async function AdminDashboardPage() {
                 )}
               </tbody>
             </table>
+          </div>
+          <div className="px-6 py-4 md:hidden space-y-3">
+            {referrals.length === 0 ? (
+              <p className="text-white/40 text-center text-sm">Nenhuma indicação pendente.</p>
+            ) : (
+              referrals.map((r) => (
+                <div key={r.id} className="bg-white/5 border border-white/10 rounded-xl p-4">
+                  <p className="text-sm text-white/60">E-mail do Cliente</p>
+                  <p className="font-bold text-white">{r.buyerEmail}</p>
+                  <p className="text-xs text-white/60 mt-1">Código: {r.affiliateCode}</p>
+                  <p className="text-emerald-400 font-semibold mt-2">R$ 27,40</p>
+                  <PayReferralButton id={r.id} className="w-full mt-3" />
+                </div>
+              ))
+            )}
           </div>
         </div>
       </main>

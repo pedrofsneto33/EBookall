@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function PayReferralButton({ id }: { id: string }) {
+export default function PayReferralButton({ id, className }: { id: string; className?: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -26,7 +26,7 @@ export default function PayReferralButton({ id }: { id: string }) {
       type="button"
       onClick={handleClick}
       disabled={loading}
-      className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
+      className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 ${className ?? ""}`}
     >
       {loading ? "..." : "Marcar como Pago"}
     </button>
