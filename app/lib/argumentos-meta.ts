@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Metadados dos argumentos e provas (seguro para o cliente).
  * Os TEXTOS jurídicos ficam em lib/server/argumentos.ts e só são montados
  * no servidor, depois de checar assinatura ativa e limite de petições.
@@ -29,6 +29,12 @@ export const ARGUMENTOS_META: ArgumentoMeta[] = [
     label: "Deixar claro que não é reclamação por ter perdido aposta",
     dica: "Enquadra o caso como falha de serviço, não como arrependimento.",
     padrao: true,
+  },
+  {
+    id: "sigap_prazo",
+    perfis: ["autoexclusao"],
+    label: "A casa já devia consultar o Sigap: o prazo de 30 dias da IN SPA/MF 31/2025 acabou em 10/12/2025",
+    dica: "Só vale para fatos a partir de 11/12/2025. A tese é disputada (há sentença que adotou prazo maior), então use junto com o argumento central.",
   },
   {
     id: "deposito_pos_bloqueio",
@@ -140,6 +146,16 @@ export interface CondicionalMeta {
 
 export const CONDICIONAIS_META: CondicionalMeta[] = [
   {
+    id: "cond_novo_cadastro",
+    perfis: ["autoexclusao"],
+    label: "Depois da autoexclusão a casa ACEITOU UM NOVO CADASTRO meu (abri conta de novo e ela deixou)",
+  },
+  {
+    id: "cond_autoexclusao_saude",
+    perfis: ["autoexclusao"],
+    label: "Meu comprovante de autoexclusão (gov.br) registra perda de controle sobre o jogo como motivo",
+  },
+  {
     id: "cond_email",
     perfis: ["autoexclusao"],
     label: "Tenho e-mail da casa dizendo “conta bloqueada” e, no mesmo dia, um depósito aceito (contradição temporal)",
@@ -149,7 +165,35 @@ export const CONDICIONAIS_META: CondicionalMeta[] = [
     perfis: ["autoexclusao", "saldo_retido", "ludopatia"],
     label: "A casa devolveu parte do valor (reconhecimento implícito)",
   },
+  {
+    id: "cond_precedentes_autoexclusao",
+    perfis: ["autoexclusao"],
+    label: "Citar decisões de outros tribunais sobre autoexclusão (a título ilustrativo)",
+  },
+  {
+    id: "cond_precedentes_ludopatia",
+    perfis: ["ludopatia"],
+    label: "Citar decisão de outro tribunal sobre ludopatia (a título ilustrativo)",
+  },
 ];
+
+/** Canais onde o consumidor já tentou resolver (alimenta o "desvio produtivo"). */
+export const CANAIS_META = [
+  { id: "suporte", label: "Suporte da casa (chat/e-mail)", texto: "o suporte da Requerida" },
+  { id: "reclame_aqui", label: "Reclame Aqui", texto: "o Reclame Aqui" },
+  { id: "consumidor_gov", label: "Consumidor.gov.br", texto: "o Consumidor.gov.br" },
+  { id: "procon", label: "Procon", texto: "o Procon" },
+  { id: "ouvidoria_fazenda", label: "Ouvidoria do Ministério da Fazenda", texto: "a Ouvidoria do Ministério da Fazenda" },
+  { id: "spa", label: "Secretaria de Prêmios e Apostas (SPA/MF)", texto: "a Secretaria de Prêmios e Apostas (SPA/MF)" },
+] as const;
+export type CanalId = (typeof CANAIS_META)[number]["id"];
+
+export const SITUACOES_DECISAO = [
+  { id: "recurso_pendente", label: "Há recurso pendente" },
+  { id: "prazo_aberto", label: "Prazo de recurso ainda aberto" },
+  { id: "transitada", label: "Já transitou em julgado" },
+] as const;
+export type SituacaoDecisao = (typeof SITUACOES_DECISAO)[number]["id"];
 
 export interface ProvaMeta {
   id: string;
@@ -167,6 +211,8 @@ export const PROVAS_META: ProvaMeta[] = [
   { id: "comunicado_mp", perfis: ["saldo_retido"], texto: "Comunicado da casa sobre encerramento e devolução de saldo (e-mail/app)", anexo: "Comunicado da ré sobre encerramento e restituição de saldo" },
   { id: "email_bloqueio", texto: "E-mail da empresa informando bloqueio/encerramento (com data e hora)", anexo: "E-mail da ré informando bloqueio/encerramento da conta" },
   { id: "chat", texto: "Print do chat/suporte com a negativa ou resposta evasiva (com protocolo)", anexo: "Registro de atendimento (chat/suporte) com protocolo" },
+  { id: "reclame_aqui", texto: "Reclamação no Reclame Aqui (PDF com a resposta da empresa)", anexo: "Reclamação registrada no Reclame Aqui, com a resposta da ré" },
+  { id: "ouvidoria", texto: "Protocolo da Ouvidoria do Ministério da Fazenda / SPA", anexo: "Protocolo de manifestação na Ouvidoria do Ministério da Fazenda/SPA" },
   { id: "consumidor_gov", texto: "Reclamação no Consumidor.gov.br ou Procon", anexo: "Reclamação registrada em canal de defesa do consumidor" },
   { id: "laudo", perfis: ["ludopatia"], texto: "Laudo de profissional de saúde mental (CID-10 F63.0 / CID-11 6C50), ex.: CAPS/SUS", anexo: "Laudo de profissional de saúde mental" },
   { id: "emprestimos", perfis: ["ludopatia"], texto: "Comprovantes de empréstimos ou uso recorrente de cartão para apostar", anexo: "Comprovantes de empréstimos/uso recorrente de crédito para apostar" },

@@ -3,7 +3,9 @@
  *
  * ⚠ REVISÃO JURÍDICA: os textos abaixo são modelos de redação, não parecer.
  * VERIFICADO em 23/10/2026 (fontes secundárias): art. 26, VI e § 1º da Lei 14.790/2023 (redação original; revogado pela MP 1.394/2026, art. 29);
- * IN SPA/MF 31/2025: 30 dias para o Sigap (fim em 10/12/2025), bloqueio em 72h, consulta no cadastro, no 1º login do dia e a cada 15 dias.
+ * IN SPA/MF 31/2025 (fonte secundária: imprensa especializada; o texto oficial no DOU não foi aberto): 30 dias para implementação (fim em 10/12/2025),
+ * consulta ao Sigap no cadastro, no 1º login do dia e a cada 15 dias para a base, e bloqueio em até 3 dias APÓS a consulta.
+ * Números de artigo da IN NÃO foram confirmados; por isso os textos não os citam. Confira no DOU antes de citar artigo.
  */
 import { fmtBRL } from "../calc";
 
@@ -12,6 +14,8 @@ export interface CtxArg {
   dataAutoexclusao?: string; // dd/mm/aaaa
   valor: number;
   devolvido?: number;
+  valorBonus?: number;
+  valorRollover?: number;
   perfil?: "autoexclusao" | "ludopatia" | "saldo_retido" | "premio_nao_pago" | "conta_bloqueada" | "bonus_rollover" | "publicidade_enganosa";
 }
 
@@ -42,10 +46,10 @@ export const TEXTOS: Record<string, (c: CtxArg) => string> = {
     DIREITO_INTERTEMPORAL,
 
   sigap_prazo: (c) =>
-    `Desde 10/12/2025 as operadoras estavam obrigadas a consultar o Sistema Nacional de Autoexclusão (Sigap) no cadastro, no primeiro acesso de cada dia e periodicamente, e a bloquear o acesso do usuário autoexcluído em até 72 horas, nos termos da Instrução Normativa SPA/MF nº 31/2025 (art. 4º e art. 15). ` +
-    `O prazo de 30 (trinta) dias concedido para essa integração encerrou-se em 10/12/2025. O fato narrado (${d(c.dataFato)}) é posterior a esse termo, e a autoexclusão da parte Autora (${d(c.dataAutoexclusao)}) já constava do sistema.\n\n` +
+    `A Instrução Normativa SPA/MF nº 31/2025 obriga as operadoras a consultar o Sistema Nacional de Autoexclusão (Sigap) na abertura de cadastro, no primeiro acesso de cada dia do usuário e periodicamente quanto à base já cadastrada, devendo negar de imediato o cadastro de quem consta como impedido e bloquear novas apostas e iniciar o encerramento da conta em até 3 (três) dias após a consulta. ` +
+    `O prazo de 30 (trinta) dias concedido para a implementação desses procedimentos encerrou-se em 10/12/2025. O fato narrado (${d(c.dataFato)}) é posterior a esse termo, e a autoexclusão da parte Autora (${d(c.dataAutoexclusao)}) já constava do sistema.\n\n` +
     "Não prospera eventual alegação de prazo de adequação mais amplo previsto em outros atos normativos: a obrigação específica de consultar o Sigap e de bloquear usuários autoexcluídos é a da Instrução Normativa, cujo prazo já havia se esgotado. " +
-    "A Requerida, ademais, não demonstrou ter realizado nenhuma consulta ou bloqueio, ônus que lhe cabe (art. 6º, VIII, do CDC).",
+    "Caberá à Requerida demonstrar, com seus registros, quando consultou o Sigap e que providências adotou, ônus que lhe incumbe (art. 6º, VIII, do CDC).",
 
   deposito_pos_bloqueio: (c) =>
     `A parte Ré bloqueou/excluiu a conta da parte Autora e, ainda assim, voltou a aceitar depósito(s) posteriormente${c.dataFato ? ` (fato ocorrido em ${c.dataFato})` : ""}. ` +
@@ -107,7 +111,8 @@ export const TEXTOS: Record<string, (c: CtxArg) => string> = {
     "viola o dever de informação e a função social do contrato (arts. 6º, III, e 51 do CDC). O bloqueio unilateral e injustificado configura falha grave na prestação do serviço.",
 
   rollover_abusivo: (c) =>
-    `As cláusulas de rollover desproporcionais exigidas pela Requerida para a liberação do bônus (exigência de apostar múltiplas vezes o valor recebido) ` +
+    `As cláusulas de rollover desproporcionais exigidas pela Requerida para a liberação do bônus${c.valorBonus && c.valorBonus > 0 ? ` de ${fmtBRL(c.valorBonus)}` : ""}` +
+    `${c.valorRollover && c.valorRollover > 0 ? ` (exigindo apostas no total de ${fmtBRL(c.valorRollover)})` : " (exigência de apostar múltiplas vezes o valor recebido)"} ` +
     "são abusivas e nulas de pleno direito (art. 51, IV, do CDC), pois colocam o consumidor em desvantagem exagerada e impedem o saque dos valores.",
 
   publicidade_enganosa: () =>
@@ -116,23 +121,33 @@ export const TEXTOS: Record<string, (c: CtxArg) => string> = {
 
   // condicionais
   cond_precedentes_autoexclusao: () => {
-    const sp = "No processo nº 4000778-26.2026.8.26.0248 (TJSP), condenou-se a operadora a restituir R$ 81.000,00 por não bloquear usuário autoexcluído, por violação do dever de segurança e de jogo responsável. ";
+    const sp = "No processo nº 4000778-26.2026.8.26.0248 (TJSP), em primeiro grau e sujeita a recurso, condenou-se a operadora a restituir R$ 81.000,00 por não bloquear usuário autoexcluído, por violação do dever de segurança e de jogo responsável. ";
     const sc = "No processo nº 5005803-28.2025.8.24.0075 (1ª Vara Cível de Tubarão/SC), condenou-se a operadora à restituição de valores e a R$ 10.000,00 de dano moral, com fundamento no Código de Defesa do Consumidor e na falha do dever de jogo responsável. ";
     return (
-      "A título ilustrativo, sem efeito vinculante, a matéria tem sido enfrentada pela jurisprudência de primeiro grau. " +
+      "A título ilustrativo, sem efeito vinculante, a matéria tem sido enfrentada pela jurisprudência, que não é uniforme. " +
       sp + sc +
       "Requer-se a juntada das respectivas decisões."
     );
   },
 
   cond_precedentes_ludopatia: () => {
+    const df = "No processo nº 0707743-74.2025.8.07.0001 (TJDFT, 3ª Turma Cível), o acórdão condenou a operadora à restituição de R$ 180.963,12 e ao pagamento de R$ 4.000,00 a título de danos morais, em caso de apostador com transtorno do jogo. ";
     const sc = "No processo nº 5005803-28.2025.8.24.0075 (1ª Vara Cível de Tubarão/SC), condenou-se a operadora à restituição de valores e a R$ 10.000,00 de dano moral, com fundamento no Código de Defesa do Consumidor e na falha do dever de jogo responsável. ";
     return (
-      "A título ilustrativo, sem efeito vinculante, a matéria tem sido enfrentada pela jurisprudência de primeiro grau. " +
-      sc +
-      "Requer-se a juntada da respectiva decisão."
+      "A título ilustrativo, sem efeito vinculante, a matéria tem sido enfrentada pela jurisprudência, que não é uniforme. " +
+      df + sc +
+      "Requer-se a juntada das respectivas decisões."
     );
   },
+
+  cond_novo_cadastro: (c) =>
+    `Após a autoexclusão centralizada${c.dataAutoexclusao ? ` de ${c.dataAutoexclusao}` : ""}, a Requerida aceitou novo cadastro da parte Autora e permitiu depósitos${c.dataFato ? ` (${c.dataFato})` : ""}. ` +
+    "A consulta ao Sigap no momento do cadastro é obrigatória e, constando o usuário como impedido, o cadastro deve ser negado de imediato. " +
+    "Aceitar a abertura de nova conta de pessoa autoexcluída indica que a verificação não foi realizada ou foi ineficaz, o que afasta qualquer alegação de que a casa estaria dentro de prazo para bloquear o acesso.",
+
+  cond_autoexclusao_saude: () =>
+    "O comprovante da autoexclusão centralizada, vigente e por prazo indeterminado, registra como motivo a perda de controle sobre o jogo. " +
+    "A informação é inequívoca quanto à situação de vulnerabilidade da parte Autora e reforça o dever de cuidado da Requerida, que, ao aceitar novos depósitos, reexpôs ao risco justamente quem pediu para ser protegido.",
 
   cond_email: (c) =>
     `Consta dos autos que, em ${d(c.dataFato)}, a Requerida encaminhou comunicação formal informando que a conta havia sido bloqueada. ` +
@@ -168,4 +183,6 @@ export const TITULOS: Record<string, string> = {
   cond_devolucao: "DA DEVOLUÇÃO PARCIAL",
   cond_precedentes_autoexclusao: "DE DECISÕES SOBRE A MATÉRIA",
   cond_precedentes_ludopatia: "DE DECISÕES SOBRE A MATÉRIA",
+  cond_novo_cadastro: "DA ACEITAÇÃO DE NOVO CADASTRO",
+  cond_autoexclusao_saude: "DO MOTIVO REGISTRADO NA AUTOEXCLUSÃO",
 };

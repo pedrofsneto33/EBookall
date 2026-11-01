@@ -9,8 +9,9 @@ import {
 import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda, PERFIL_LABEL } from "../lib/config";
 import type { Perfil } from "../lib/config";
-import { argumentosDoPerfil } from "../lib/argumentos-meta";
+import { argumentosDoPerfil, argumentosPadrao, condicionaisDoPerfil, provasDoPerfil, CANAIS_META, SITUACOES_DECISAO } from "../lib/argumentos-meta";
 import type { ArgumentoMeta } from "../lib/argumentos-meta";
+import { jecDaUF, JEC_DATA_LEVANTAMENTO } from "../lib/jec";
 import { trackEvent } from "../lib/analytics";
 import { toast } from "sonner";
 
@@ -19,19 +20,20 @@ async function authFetch(url: string, init: RequestInit = {}) {
 }
 
 const pdfStyles = StyleSheet.create({
-  page: { padding: 50, fontFamily: "Times-Roman", fontSize: 12, lineHeight: 1.5 },
-  header: { textAlign: "center", marginBottom: 20, fontSize: 12, fontWeight: "bold", textTransform: "uppercase" },
-  sectionTitle: { fontSize: 12, fontWeight: "bold", marginTop: 15, marginBottom: 8, textTransform: "uppercase" },
-  paragraph: { textAlign: "justify", marginBottom: 10, textIndent: 25 },
-  footer: { marginTop: 40, textAlign: "center" },
-  signatureView: { marginTop: 50, alignItems: "center", justifyContent: "center" },
+  page: { paddingTop: 56, paddingBottom: 64, paddingHorizontal: 60, fontFamily: "Times-Roman", fontSize: 12, lineHeight: 1.55 },
+  header: { textAlign: "center", marginBottom: 18, fontSize: 12, fontFamily: "Times-Bold", textTransform: "uppercase" },
+  sectionTitle: { fontSize: 12, fontFamily: "Times-Bold", marginTop: 14, marginBottom: 6, textTransform: "uppercase" },
+  paragraph: { textAlign: "justify", marginBottom: 9, textIndent: 30 },
+  item: { textAlign: "justify", marginBottom: 6, marginLeft: 20 },
+  footer: { marginTop: 24, textAlign: "center" },
+  signatureView: { marginTop: 46, alignItems: "center", justifyContent: "center" },
   signatureText: { textAlign: "center" },
 });
 
 const PeticaoPDF = ({ texto }: { texto: string }) => {
   const blocos = texto.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
   return (
-    <Document>
+    <Document title="Petição inicial — Juizado Especial Cível" author="RecuperaJogo">
       <Page size="A4" style={pdfStyles.page}>
         {blocos.map((b, i) => {
           if (b.startsWith("[[CENTRO]]")) {
@@ -40,7 +42,8 @@ const PeticaoPDF = ({ texto }: { texto: string }) => {
           if (b.startsWith("[[ASSINATURA]]")) {
             const linhas = b.replace("[[ASSINATURA]]", "").split("\n");
             return (
-              <View key={i} style={pdfStyles.signatureView}>
+              <View key={i} style={pdfStyles.signatureView} wrap={false}>
+                <Text style={pdfStyles.signatureText}>_______________________________________</Text>
                 {linhas.map((l, j) => (
                   <Text key={j} style={pdfStyles.signatureText}>{l}</Text>
                 ))}
@@ -51,6 +54,7 @@ const PeticaoPDF = ({ texto }: { texto: string }) => {
           if (b.startsWith("Nestes termos") || b.startsWith("Dá-se à causa") || b.startsWith("Da-se a causa")) {
             return <Text key={i} style={pdfStyles.footer}>{b}</Text>;
           }
+          if (/^([a-z]\)|Doc\. \d{2} —)/.test(b)) return <Text key={i} style={pdfStyles.item}>{b}</Text>;
           return <Text key={i} style={pdfStyles.paragraph}>{b}</Text>;
         })}
       </Page>
@@ -84,6 +88,38 @@ function Field({ label, value, onChange, full, type = "text", placeholder, hint 
   );
 }
 
+function OndeProtocolar({ uf }: { uf: string }) {
+  const j = jecDaUF(uf);
+  return (
+    <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm text-white/80 space-y-2">
+      <p className="font-semibold text-emerald-300">Onde protocolar {j ? `(${j.tribunal})` : ""}</p>
+      {!j ? (
+        <p>Não reconheci a UF informada. Procure no site do Tribunal de Justiça do seu estado: “Juizados Especiais” → “atermação / peticionamento”.</p>
+      ) : (
+        <>
+          {j.online && (
+            <p>
+              <strong>Online:</strong>{" "}
+              <a className="underline text-emerald-300" href={j.online.url} target="_blank" rel="noopener noreferrer">{j.online.nome}</a>
+              {j.online.obs ? ` — ${j.online.obs}` : ""}
+            </p>
+          )}
+          {j.presencial && <p><strong>Presencial / atermação:</strong> {j.presencial}</p>}
+          {j.whatsapp && <p><strong>WhatsApp:</strong> {j.whatsapp.numero} — {j.whatsapp.obs}</p>}
+          {j.email && <p><strong>E-mail:</strong> {j.email}</p>}
+          {!j.online && !j.presencial && !j.whatsapp && !j.email && <p>Procure “Juizados Especiais” no site do tribunal.</p>}
+          <p className="text-xs text-white/50">
+            {j.nivel === "confirmado" ? "Canal lido em página oficial do tribunal" : "Dados levantados, mas não consegui confirmar todos em página oficial"} em {JEC_DATA_LEVANTAMENTO}.
+            Esses canais mudam: confirme em{" "}
+            <a className="underline" href={j.site} target="_blank" rel="noopener noreferrer">{j.site.replace("https://www.", "")}</a> antes de ir.
+          </p>
+        </>
+      )}
+      <p className="text-xs text-white/50">Leve a petição, documento com foto, CPF, comprovante de residência e as provas impressas ou em arquivo (PDF/imagem), na ordem da lista de documentos.</p>
+    </div>
+  );
+}
+
 export default function GeradorPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -97,7 +133,7 @@ export default function GeradorPage() {
   const [tab, setTab] = useState("perfil");
   const [ack, setAck] = useState(false);
   const [perfil, setPerfil] = useState<Perfil>("autoexclusao");
-  const [argsSel, setArgsSel] = useState<string[]>([]);
+  const [argsSel, setArgsSel] = useState<string[]>(() => argumentosPadrao("autoexclusao"));
   
   const [valorPerdido, setValorPerdido] = useState("");
   const [valorDevolvido, setValorDevolvido] = useState("");
@@ -109,6 +145,14 @@ export default function GeradorPage() {
   const [valorBonus, setValorBonus] = useState("");
   const [valorRollover, setValorRollover] = useState("");
   const [autor, setAutor] = useState({ nome: "", cpf: "", endereco: "", comarca: "", uf: "" });
+  const [condSel, setCondSel] = useState<string[]>([]);
+  const [provasSel, setProvasSel] = useState<string[]>([]);
+  const [tent, setTent] = useState<Record<string, { on: boolean; protocolo: string }>>({});
+  const [semAcesso, setSemAcesso] = useState(false);
+  const [valorEstimado, setValorEstimado] = useState(false);
+  const [demora, setDemora] = useState("");
+  const [dec, setDec] = useState({ numero: "", juizo: "", resumo: "", situacao: "" });
+  const [ufResultado, setUfResultado] = useState("");
   const [reu, setReu] = useState({ nome: "", cnpj: "" });
   const [relato, setRelato] = useState("");
   
@@ -143,8 +187,20 @@ export default function GeradorPage() {
     return { base, comDobro, dm, restituicao, total: restituicao + dm };
   }, [valorPerdido, valorDevolvido, dobro, danoMoral, valorDM]);
 
+  // ao trocar o tipo de caso: marca os argumentos padrão e limpa o que era do tipo anterior
+  function escolherPerfil(id: Perfil) {
+    setPerfil(id);
+    setArgsSel(argumentosPadrao(id));
+    setCondSel([]);
+    setProvasSel([]);
+  }
+
   const acimaLimiteJEC = calc.total > LIMITE_JUS_POSTULANDI;
   const disponiveis = argumentosDoPerfil(perfil);
+  const condDisponiveis = condicionaisDoPerfil(perfil);
+  const provasDisponiveis = provasDoPerfil(perfil);
+  const toggle = (set: React.Dispatch<React.SetStateAction<string[]>>, id: string) =>
+    set((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
   const restantes = Math.max(0, MAX_PETICOES - usadas);
 
   async function gerar() {
@@ -155,6 +211,7 @@ export default function GeradorPage() {
     if (relato.trim().length < 60) return toast.error("O relato está curto demais. Conte com detalhes (mínimo 60 caracteres).");
     if (!autor.nome || !reu.nome) return toast.error("Preencha o nome do autor e da casa ré.");
     if (!dataFato) return toast.error("Preencha a data do fato.");
+    if (perfil === "autoexclusao" && !dataAuto) return toast.error("Preencha a data da autoexclusão.");
     
     setGenerating(true);
     try {
@@ -167,18 +224,21 @@ export default function GeradorPage() {
           reu,
           relato,
           dataFato,
-          dataAutoexclusao: dataAuto || dataFato,
+          dataAutoexclusao: perfil === "autoexclusao" ? dataAuto : "",
           valorPerdido,
           valorDevolvido: valorDevolvido || "0",
           dobro,
           danoMoral,
           valorDanoMoral: valorDM,
           argumentos: argsSel,
-          condicionais: [],
-          provas: [],
-          tentativaChat: false,
-          tentativaConsumidorGov: false,
-          pedirExibicao: false,
+          condicionais: condSel,
+          provas: provasSel,
+          tentativas: CANAIS_META.filter((c) => tent[c.id]?.on).map((c) => ({ canal: c.id, protocolo: tent[c.id].protocolo })),
+          pedirExibicao: semAcesso,
+          semAcessoConta: semAcesso,
+          valorEstimado,
+          justificativaDemora: demora,
+          decisao: dec.numero || dec.resumo ? dec : undefined,
           caso_token: casoToken,
           valorBonus,
           valorRollover
@@ -204,6 +264,7 @@ export default function GeradorPage() {
       setLimitReached(data.usadas >= MAX_PETICOES);
       setCasoToken(data.caso_token || "");
       setAvisos(data.avisos ?? []);
+      setUfResultado(autor.uf.trim().toUpperCase());
       setTab("resultado");
     } catch (e) {
       console.error(e);
@@ -303,7 +364,7 @@ export default function GeradorPage() {
                   <button
                     key={id}
                     type="button"
-                    onClick={() => setPerfil(id)}
+                    onClick={() => escolherPerfil(id)}
                     className={`text-left flex gap-3 p-4 rounded-xl border transition-colors w-full ${
                       perfil === id
                         ? "border-emerald-500/30 bg-emerald-500/10"
@@ -366,8 +427,8 @@ export default function GeradorPage() {
               <Field label="Comarca" value={autor.comarca} onChange={(v) => setAutor({ ...autor, comarca: v })} placeholder="Ex: Teresina" />
               <Field label="UF" value={autor.uf} onChange={(v) => setAutor({ ...autor, uf: v })} placeholder="Ex: PI" />
               
-              <Field label="Casa ré" value={reu.nome} onChange={(v) => setReu({ ...reu, nome: v })} placeholder="Nome da casa de apostas" />
-              <Field label="CNPJ ré" value={reu.cnpj} onChange={(v) => setReu({ ...reu, cnpj: v })} placeholder="00.000.000/0000-00" />
+              <Field label="Empresa ré (razão social)" value={reu.nome} onChange={(v) => setReu({ ...reu, nome: v })} placeholder="Ex.: Lucky Gaming Ltda." hint="Use a razão social da OPERADORA (Termos de Uso / rodapé do site), não o nome do site." />
+              <Field label="CNPJ da ré" value={reu.cnpj} onChange={(v) => setReu({ ...reu, cnpj: v })} placeholder="00.000.000/0000-00" hint="Conferimos na Receita ao gerar. Evite processar a empresa errada." />
               
               {perfil === "autoexclusao" && (
                 <Field label="Data da autoexclusão" type="date" value={dataAuto} onChange={setDataAuto} />
@@ -400,6 +461,14 @@ export default function GeradorPage() {
                 Pedir restituição em dobro (CDC art. 42)
               </label>
               <label className="flex items-center gap-3 text-sm text-white cursor-pointer p-2 -m-2">
+                <input type="checkbox" checked={valorEstimado} onChange={(e) => setValorEstimado(e.target.checked)} className="accent-emerald-500 w-5 h-5" />
+                O valor é aproximado (não tenho o comprovante em mãos)
+              </label>
+              <label className="flex items-center gap-3 text-sm text-white cursor-pointer p-2 -m-2">
+                <input type="checkbox" checked={semAcesso} onChange={(e) => setSemAcesso(e.target.checked)} className="accent-emerald-500 w-5 h-5" />
+                Não tenho mais acesso à conta (pedir que a casa exiba os registros)
+              </label>
+              <label className="flex items-center gap-3 text-sm text-white cursor-pointer p-2 -m-2">
                 <input type="checkbox" checked={danoMoral} onChange={(e) => setDanoMoral(e.target.checked)} className="accent-emerald-500 w-5 h-5" /> 
                 Incluir pedido de danos morais
               </label>
@@ -417,6 +486,18 @@ export default function GeradorPage() {
               <span className="block text-xs mt-1 text-white/40">{relato.length} caracteres</span>
             </label>
             
+            <label className="block text-sm text-white pt-2">
+              <span className="block mb-1 font-medium text-white/60">Por que só está entrando agora? (opcional, mas recomendado se passou muito tempo)</span>
+              <textarea
+                value={demora}
+                onChange={(e) => setDemora(e.target.value)}
+                rows={2}
+                maxLength={900}
+                className="w-full px-3 py-2 rounded-lg border bg-black/40 border-white/10 text-base text-white placeholder:text-white/30 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
+                placeholder="Ex.: tentei resolver com a casa e pelo Reclame Aqui, e só depois reuni as provas e procurei o Juizado."
+              />
+            </label>
+
             <button
               type="button"
               onClick={() => setTab("argumentos")}
@@ -454,6 +535,67 @@ export default function GeradorPage() {
               </label>
             ))}
             
+            {condDisponiveis.length > 0 && (
+              <div className="pt-3 space-y-2">
+                <h3 className="font-semibold text-white text-sm">Se for o seu caso, marque também:</h3>
+                {condDisponiveis.map((c) => (
+                  <label key={c.id} className={`flex gap-3 text-sm p-3 rounded-xl border cursor-pointer ${condSel.includes(c.id) ? "border-emerald-500/30 bg-emerald-500/10" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
+                    <input type="checkbox" checked={condSel.includes(c.id)} onChange={() => toggle(setCondSel, c.id)} className="accent-emerald-500 mt-0.5 w-5 h-5 shrink-0" />
+                    <span className="text-white">{c.label}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+
+            <div className="pt-3 space-y-2">
+              <h3 className="font-semibold text-white text-sm">Quais provas você TEM? (entram na lista de documentos)</h3>
+              {provasDisponiveis.map((pv) => (
+                <label key={pv.id} className={`flex gap-3 text-sm p-3 rounded-xl border cursor-pointer ${provasSel.includes(pv.id) ? "border-emerald-500/30 bg-emerald-500/10" : "border-white/10 bg-white/5 hover:bg-white/10"}`}>
+                  <input type="checkbox" checked={provasSel.includes(pv.id)} onChange={() => toggle(setProvasSel, pv.id)} className="accent-emerald-500 mt-0.5 w-5 h-5 shrink-0" />
+                  <span className="text-white">{pv.texto}</span>
+                </label>
+              ))}
+            </div>
+
+            <div className="pt-3 space-y-2">
+              <h3 className="font-semibold text-white text-sm">Onde você já tentou resolver?</h3>
+              <p className="text-xs text-white/50">Cada canal marcado entra no tópico de desvio produtivo. Coloque o protocolo, se tiver.</p>
+              {CANAIS_META.map((c) => (
+                <div key={c.id} className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm">
+                  <label className="flex items-center gap-3 text-white cursor-pointer sm:w-72">
+                    <input type="checkbox" checked={!!tent[c.id]?.on} onChange={(e) => setTent((p) => ({ ...p, [c.id]: { on: e.target.checked, protocolo: p[c.id]?.protocolo ?? "" } }))} className="accent-emerald-500 w-5 h-5" />
+                    {c.label}
+                  </label>
+                  {tent[c.id]?.on && (
+                    <input
+                      value={tent[c.id].protocolo}
+                      onChange={(e) => setTent((p) => ({ ...p, [c.id]: { on: true, protocolo: e.target.value } }))}
+                      placeholder="Nº do protocolo (opcional)"
+                      maxLength={60}
+                      className="flex-1 px-3 py-2 rounded-lg border bg-black/40 border-white/10 text-white placeholder:text-white/30 outline-none focus:border-emerald-500"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <details className="pt-3">
+              <summary className="cursor-pointer text-sm font-semibold text-white">Quer citar uma decisão sua em caso parecido? (opcional)</summary>
+              <div className="grid sm:grid-cols-2 gap-3 mt-3">
+                <Field label="Nº do processo (padrão CNJ)" value={dec.numero} onChange={(v) => setDec({ ...dec, numero: v })} placeholder="0000000-00.0000.0.00.0000" />
+                <Field label="Juízo" value={dec.juizo} onChange={(v) => setDec({ ...dec, juizo: v })} placeholder="Ex.: 4º Juizado Especial Cível de Teresina" />
+                <Field full label="O que foi decidido" value={dec.resumo} onChange={(v) => setDec({ ...dec, resumo: v })} placeholder="Ex.: condenou a ré a pagar R$ 3.000,00 de danos morais por não bloquear usuário autoexcluído" />
+                <label className="text-sm sm:col-span-2">
+                  <span className="block mb-1 font-medium text-white/60">Situação da decisão</span>
+                  <select value={dec.situacao} onChange={(e) => setDec({ ...dec, situacao: e.target.value })} className="w-full px-3 py-2 rounded-lg border bg-black/40 border-white/10 text-white">
+                    <option value="">Selecione</option>
+                    {SITUACOES_DECISAO.map((x) => <option key={x.id} value={x.id}>{x.label}</option>)}
+                  </select>
+                  <span className="block text-xs mt-1 text-white/40">Só diga que transitou em julgado se tiver a certidão.</span>
+                </label>
+              </div>
+            </details>
+
             <div className="bg-blue-500/10 border border-blue-500/20 text-blue-400 p-4 rounded-xl text-sm mt-4">
               <p className="font-semibold mb-1 text-blue-300">Lembrete de Provas e Documentos:</p>
               {perfil === "autoexclusao" && <p>Anexe o comprovante do Gov.br e o print do depósito posterior.</p>}
@@ -504,7 +646,7 @@ export default function GeradorPage() {
             
             <div className="bg-[#0d1117] border border-white/10 rounded-lg p-6 max-h-[500px] overflow-auto font-serif text-sm leading-relaxed text-gray-300">
               {texto.split(/\n{2,}/).map((b, i) => {
-                let content = b.trim();
+                const content = b.trim();
                 if (!content) return null;
                 
                 if (content.startsWith("[[CENTRO]]")) {
@@ -526,6 +668,8 @@ export default function GeradorPage() {
               })}
             </div>
             
+            <OndeProtocolar uf={ufResultado} />
+
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <button
                 type="button"
@@ -547,13 +691,18 @@ export default function GeradorPage() {
                   onClick={() => { 
                     setTab("perfil"); 
                     setTexto(""); 
-                    setArgsSel([]); 
+                    setArgsSel(argumentosPadrao(perfil)); 
                     setCasoToken("");
                     setRelato("");
                     setValorPerdido("");
                     setValorDevolvido("");
                     setDataFato("");
                     setDataAuto("");
+                    setTent({});
+                    setSemAcesso(false);
+                    setValorEstimado(false);
+                    setDemora("");
+                    setDec({ numero: "", juizo: "", resumo: "", situacao: "" });
                   }}
                   className="w-full sm:w-auto px-5 py-3.5 rounded-xl text-sm font-semibold border border-white/10 bg-white/5 text-white hover:bg-white/10 transition-colors"
                 >

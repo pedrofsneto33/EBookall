@@ -1,8 +1,11 @@
 ﻿import { calcularCausa, fmtBRL, parseBRL } from "../calc";
 import { LIMITE_JEC, LIMITE_JUS_POSTULANDI, PERFIS, type Perfil, SALARIO_MINIMO } from "../config";
-import { ARGUMENTOS_META, CONDICIONAIS_META, PROVAS_META } from "../argumentos-meta";
+import { ARGUMENTOS_META, CANAIS_META, CONDICIONAIS_META, PROVAS_META, SITUACOES_DECISAO, type CanalId, type SituacaoDecisao } from "../argumentos-meta";
 import { isCNPJ, isCPF, onlyDigits, UFS } from "../validators";
 import { TEXTOS, TITULOS, type CtxArg } from "./argumentos";
+
+export interface Tentativa { canal: CanalId; protocolo?: string }
+export interface DecisaoCitada { numero: string; juizo: string; resumo: string; situacao: SituacaoDecisao }
 
 export interface PeticaoInput {
   perfil: Perfil;
@@ -19,11 +22,18 @@ export interface PeticaoInput {
   valorDanoMoral: number;
   argumentos: string[];
   condicionais: string[];
-  tentativaChat: boolean;
-  protocoloChat?: string;
-  tentativaConsumidorGov: boolean;
-  protocoloConsumidorGov?: string;
+  tentativas: Tentativa[];
   pedirExibicao: boolean;
+  /** Perdeu o acesso à conta: o extrato só virá pela exibição da ré. */
+  semAcessoConta: boolean;
+  /** O valor é aproximado (sem comprovante em mãos). */
+  valorEstimado: boolean;
+  /** Por que a ação só é proposta agora (texto livre do autor). */
+  justificativaDemora: string;
+  /** Decisão própria que o autor quer juntar (ex.: sentença de outro processo dele). */
+  decisao?: DecisaoCitada;
+  valorBonus: number;
+  valorRollover: number;
   provas: string[];
 }
 
@@ -94,6 +104,31 @@ export function validarEntrada(raw: unknown): { ok: true; data: PeticaoInput } |
   const idsProva = new Set(PROVAS_META.map((p) => p.id));
   const provas = (Array.isArray(r.provas) ? r.provas : []).filter((x: unknown): x is string => typeof x === "string" && idsProva.has(x));
 
+  // tentativas prévias (aceita o formato antigo tentativaChat / tentativaConsumidorGov)
+  const idsCanal = new Set<string>(CANAIS_META.map((c) => c.id));
+  const tentativas: Tentativa[] = [];
+  for (const t of Array.isArray(r.tentativas) ? r.tentativas.slice(0, 8) : []) {
+    const o = (t ?? {}) as Record<string, unknown>;
+    const canal = str(o.canal, 30);
+    if (idsCanal.has(canal) && !tentativas.some((x) => x.canal === canal)) tentativas.push({ canal: canal as CanalId, protocolo: str(o.protocolo, 60) });
+  }
+  if (bool(r.tentativaChat) && !tentativas.some((x) => x.canal === "suporte")) tentativas.push({ canal: "suporte", protocolo: str(r.protocoloChat, 60) });
+  if (bool(r.tentativaConsumidorGov) && !tentativas.some((x) => x.canal === "consumidor_gov")) tentativas.push({ canal: "consumidor_gov", protocolo: str(r.protocoloConsumidorGov, 60) });
+
+  let decisao: DecisaoCitada | undefined;
+  const dd = (r.decisao ?? null) as Record<string, unknown> | null;
+  if (dd && (str(dd.numero, 40) || str(dd.resumo, 500))) {
+    const numero = str(dd.numero, 40);
+    const juizo = str(dd.juizo, 120);
+    const resumo = str(dd.resumo, 500);
+    const situacao = SITUACOES_DECISAO.find((x) => x.id === dd.situacao)?.id;
+    if (!/^\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}$/.test(numero)) erros.push("Decisão citada: número do processo fora do padrão CNJ (0000000-00.0000.0.00.0000).");
+    if (juizo.length < 5) erros.push("Decisão citada: informe o órgão/juízo (ex.: 4º Juizado Especial Cível de Teresina).");
+    if (resumo.length < 15) erros.push("Decisão citada: descreva o que foi decidido (ex.: condenou a ré a pagar R$ 3.000,00 de danos morais).");
+    if (!situacao) erros.push("Decisão citada: informe se há recurso pendente, se o prazo está aberto ou se já transitou em julgado. Não afirme trânsito em julgado sem certidão.");
+    if (numero && juizo && resumo && situacao) decisao = { numero, juizo, resumo, situacao };
+  }
+
   if (erros.length || !perfil) return { ok: false, erros };
 
   return {
@@ -113,11 +148,14 @@ export function validarEntrada(raw: unknown): { ok: true; data: PeticaoInput } |
       valorDanoMoral: parseBRL(r.valorDanoMoral as string | number | null),
       argumentos,
       condicionais,
-      tentativaChat: bool(r.tentativaChat),
-      protocoloChat: str(r.protocoloChat, 60),
-      tentativaConsumidorGov: bool(r.tentativaConsumidorGov),
-      protocoloConsumidorGov: str(r.protocoloConsumidorGov, 60),
-      pedirExibicao: bool(r.pedirExibicao),
+      tentativas,
+      pedirExibicao: bool(r.pedirExibicao) || bool(r.semAcessoConta),
+      semAcessoConta: bool(r.semAcessoConta),
+      valorEstimado: bool(r.valorEstimado),
+      justificativaDemora: str(r.justificativaDemora, 900),
+      decisao,
+      valorBonus: parseBRL(r.valorBonus as string | number | null),
+      valorRollover: parseBRL(r.valorRollover as string | number | null),
       provas,
     },
   };
@@ -143,8 +181,15 @@ export function montarPeticao(i: PeticaoInput): PeticaoResultado {
   if (i.perfil === "autoexclusao" && !i.provas.includes("autoexclusao"))
     avisos.push("Anexe o comprovante da autoexclusão: sem ele o argumento central fica sem prova.");
   if (!i.provas.includes("comprovante")) avisos.push("Anexe o comprovante bancário do valor (Pix/cartão/boleto).");
-  if (i.perfil === "autoexclusao" && i.dataAutoexclusao && Date.parse(i.dataFato) - Date.parse(i.dataAutoexclusao) < 3 * 86_400_000)
-    avisos.push("O fato ocorreu em menos de 72h da autoexclusão. A casa tem esse prazo para bloquear o acesso (IN SPA/MF 31/2025), então a tese fica fraca. Só siga se houver outro fundamento forte.");
+  if (i.perfil === "autoexclusao" && i.dataAutoexclusao) {
+    const dias = (Date.parse(i.dataFato) - Date.parse(i.dataAutoexclusao)) / 86_400_000;
+    if (dias < 3)
+      avisos.push("O fato ocorreu em menos de 3 dias da autoexclusão. A IN SPA/MF 31/2025 dá à casa até 3 dias, contados da consulta ao Sigap, para bloquear. A tese fica fraca. Só siga se houver outro fundamento forte.");
+    else if (dias < 18 && !i.condicionais.includes("cond_novo_cadastro"))
+      avisos.push("A casa pode alegar que consulta o Sigap a cada 15 dias e bloqueia até 3 dias depois (janela de até ~18 dias). Seu melhor argumento é a consulta obrigatória no 1º login do dia. Se você abriu um NOVO cadastro depois da autoexclusão, marque essa opção: ali a consulta tinha de ser imediata.");
+  }
+  if (i.argumentos.includes("sigap_prazo") || i.argumentos.includes("autoexclusao_descumprida"))
+    avisos.push("Os prazos da IN SPA/MF 31/2025 foram conferidos em fontes secundárias (imprensa especializada). A petição não cita números de artigo; se você for citar algum, confira no Diário Oficial.");
   if (i.argumentos.includes("sigap_prazo") && Date.parse(i.dataFato) < Date.parse("2025-12-11"))
     avisos.push("O argumento do prazo de 30 dias do Sigap só vale para fatos a partir de 11/12/2025 (o prazo terminou em 10/12/2025). Desmarque-o para esta data.");
   if (i.argumentos.includes("sigap_prazo"))
@@ -153,10 +198,21 @@ export function montarPeticao(i: PeticaoInput): PeticaoResultado {
     avisos.push("O fato tem mais de 3 anos. A restituição por enriquecimento sem causa prescreve em 3 anos (art. 206, § 3º, IV, do Código Civil), e a casa pode alegar isso. Explique na petição por que o prazo não correu ou se aplica outro prazo.");
   if (i.valorDevolvido > 0)
     avisos.push("Você informou valor já devolvido: a petição pede só o saldo e reforça o dano moral. Se tudo foi devolvido, o foco do pedido passa a ser o dano moral.");
-  if (i.dobro) avisos.push("Restituição em dobro (art. 42, parágrafo único, do CDC) exige cobrança indevida e má-fé/engano injustificável: pedido mais difícil. Considere desmarcar se o valor já foi devolvido.");
+  if (i.danoMoral && i.valorDanoMoral > 5000 && i.valorPerdido < 1000)
+    avisos.push(`Dano moral de ${fmtBRL(i.valorDanoMoral)} para um valor material de ${fmtBRL(i.valorPerdido)}: pedidos assim tendem a ser reduzidos no juizado. O pedido pode ficar mais defensável perto de R$ 3.000 a R$ 5.000; a escolha é sua.`);
+  if (i.reu.nome && !/\b(ltda|s\.?\/?a\.?|sa|eireli|limitada|sociedade|me|epp|mei|holding|gaming|brazil|brasil)\b/i.test(i.reu.nome))
+    avisos.push("O nome da ré parece nome de marca (ex.: o nome do site). Processe a EMPRESA OPERADORA: use a razão social e o CNPJ que constam nos Termos de Uso/rodapé do site e confira o CNPJ na Receita. Erro de ré atrasa o processo.");
+  if (i.tentativas.length === 0)
+    avisos.push("Você não registrou nenhuma tentativa prévia de resolver (suporte, Reclame Aqui, Ouvidoria...). Sem isso a petição não traz o tópico de desvio produtivo, e o juiz pode estranhar a falta de contato prévio.");
+  if (i.decisao?.situacao === "transitada")
+    avisos.push("Você informou que a decisão citada já transitou em julgado. Só mantenha isso se tiver a certidão de trânsito: afirmar trânsito sem prova prejudica sua credibilidade.");
+  if (i.semAcessoConta && !i.provas.includes("comprovante"))
+    avisos.push("Sem acesso à conta, procure o extrato bancário (banco/Pix) do depósito: é a prova do valor e da data, e a exibição pela ré confirma o resto.");
+  if (i.dobro)
+    avisos.push(`Restituição em dobro (art. 42, parágrafo único, do CDC) exige cobrança indevida e engano injustificável: pedido mais difícil de conseguir.${i.valorDevolvido > 0 ? " Como a casa já devolveu parte do valor, considere desmarcar." : ""} O dano moral costuma ser o pedido principal nesses casos.`);
 
   const dataFatoBR = br(i.dataFato);
-  const ctx: CtxArg = { dataFato: dataFatoBR, dataAutoexclusao: br(i.dataAutoexclusao), valor: i.valorPerdido, devolvido: i.valorDevolvido, perfil: i.perfil };
+  const ctx: CtxArg = { dataFato: dataFatoBR, dataAutoexclusao: br(i.dataAutoexclusao), valor: i.valorPerdido, devolvido: i.valorDevolvido, perfil: i.perfil, valorBonus: i.valorBonus, valorRollover: i.valorRollover };
   const blocos: string[] = [];
   let n = 0;
   const titulo = (t: string) => `${ROMANOS[n++] ?? n} — ${t}`;
@@ -176,8 +232,10 @@ export function montarPeticao(i: PeticaoInput): PeticaoResultado {
   const fatoCab: string[] = [];
   if (i.dataAutoexclusao && i.perfil === "autoexclusao") fatoCab.push(`autoexclusão centralizada formalizada em ${br(i.dataAutoexclusao)}`);
   fatoCab.push(`fato principal em ${dataFatoBR}${i.horaFato ? `, às ${i.horaFato}` : ""}`);
-  fatoCab.push(`valor envolvido de ${fmtBRL(i.valorPerdido)}`);
+  fatoCab.push(`valor envolvido de ${fmtBRL(i.valorPerdido)}${i.valorEstimado ? " (valor aproximado, a ser confirmado pelos registros da Requerida)" : ""}`);
   fatos = `${fatos}\n\nResumo cronológico: ${fatoCab.join("; ")}.`;
+  if (i.semAcessoConta)
+    fatos += "\n\nA parte Autora não possui mais acesso à conta na plataforma da Requerida, o que a impede de extrair o extrato completo da movimentação. Por essa razão, requer a exibição dos registros pela própria Requerida, que os detém.";
   blocos.push(titulo("DOS FATOS"), fatos);
 
   // Competência
@@ -196,11 +254,15 @@ export function montarPeticao(i: PeticaoInput): PeticaoResultado {
       "Presentes a verossimilhança das alegações e a hipossuficiência técnica do consumidor, requer-se a inversão do ônus da prova (art. 6º, VIII, do CDC), cabendo à Requerida exibir os registros de acesso, autoexclusão e movimentação financeira.",
   );
 
-  if (i.perfil === "autoexclusao")
-    blocos.push(
-      titulo("DA TEMPESTIVIDADE"),
-      "A pretensão decorre de falha na prestação de serviço (fato do serviço) e a presente ação é proposta dentro do prazo prescricional de 5 (cinco) anos previsto no art. 27 do Código de Defesa do Consumidor, contado do conhecimento do dano e de sua autoria.",
-    );
+  if (i.perfil === "autoexclusao" || i.justificativaDemora) {
+    const base = i.perfil === "autoexclusao"
+      ? "A pretensão decorre de falha na prestação de serviço (fato do serviço) e a presente ação é proposta dentro do prazo prescricional de 5 (cinco) anos previsto no art. 27 do Código de Defesa do Consumidor, contado do conhecimento do dano e de sua autoria."
+      : "A presente ação é proposta dentro do prazo prescricional aplicável à pretensão deduzida.";
+    const just = i.justificativaDemora
+      ? `\n\nQuanto ao momento do ajuizamento, registra-se que a ação é proposta nesta data porque ${i.justificativaDemora.replace(/^porque\s+/i, "").replace(/[.\s]+$/, "")}. O tempo decorrido não importa renúncia ao direito nem afasta a pretensão.`
+      : "";
+    blocos.push(titulo("DA TEMPESTIVIDADE"), base + just);
+  }
 
   // Argumentos em ordem lógica
   const ORDEM = [
@@ -210,18 +272,38 @@ export function montarPeticao(i: PeticaoInput): PeticaoResultado {
   ];
   const pos = (id: string) => (ORDEM.includes(id) ? ORDEM.indexOf(id) : ORDEM.length);
   const principais = i.argumentos.filter((id) => id !== "dano_moral_falha").sort((a, b) => pos(a) - pos(b));
-  const finais = [...i.condicionais, ...i.argumentos.filter((id) => id === "dano_moral_falha")];
+  const PREC = (id: string) => id.startsWith("cond_precedentes");
+  const finais = [
+    ...i.condicionais.filter((id) => !PREC(id)),
+    ...i.argumentos.filter((id) => id === "dano_moral_falha"),
+    ...i.condicionais.filter(PREC),
+  ];
   for (const id of [...principais, ...finais]) {
     const fn = TEXTOS[id];
     if (fn) blocos.push(titulo(TITULOS[id] ?? id.toUpperCase()), fn(ctx));
   }
 
+  // Decisão própria juntada pelo autor
+  if (i.decisao) {
+    const sit: Record<SituacaoDecisao, string> = {
+      recurso_pendente: "A decisão ainda não transitou em julgado, pois pende recurso, e é invocada a título ilustrativo, sem efeito vinculante.",
+      prazo_aberto: "A decisão ainda não transitou em julgado, estando em curso o prazo recursal, e é invocada a título ilustrativo, sem efeito vinculante.",
+      transitada: "A decisão transitou em julgado, conforme certidão que se junta, e é invocada a título ilustrativo.",
+    };
+    blocos.push(
+      titulo("DE DECISÃO EM CASO SEMELHANTE"),
+      `No processo nº ${i.decisao.numero} (${i.decisao.juizo}), foi proferida decisão que ${i.decisao.resumo.replace(/^que\s+/i, "").replace(/[.\s]+$/, "")}. ${sit[i.decisao.situacao]} Requer-se a juntada de cópia.`,
+    );
+  }
+
   // Desvio produtivo
-  if (i.tentativaChat || i.tentativaConsumidorGov) {
-    let t = "A parte Autora tentou resolver a questão administrativamente antes de acionar o Judiciário. ";
-    if (i.tentativaChat) t += `Contatou o suporte da Requerida sob o protocolo ${i.protocoloChat || "[NÚMERO]"}. `;
-    if (i.tentativaConsumidorGov) t += `Registrou reclamação em canal de defesa do consumidor sob o nº ${i.protocoloConsumidorGov || "[NÚMERO]"}. `;
-    t += "A Requerida ofereceu respostas evasivas ou nenhuma solução, obrigando o consumidor a desperdiçar tempo e recursos que deveriam ser dedicados a atividades existenciais, o que configura desvio produtivo do consumidor e reforça o dever de indenizar.";
+  if (i.tentativas.length > 0) {
+    const txt = (c: CanalId) => CANAIS_META.find((x) => x.id === c)?.texto ?? c;
+    const partes = i.tentativas.map((t) => `${txt(t.canal)}${t.protocolo ? ` (protocolo ${t.protocolo})` : ""}`);
+    const lista = partes.length === 1 ? partes[0] : `${partes.slice(0, -1).join(", ")} e ${partes[partes.length - 1]}`;
+    const t =
+      `A parte Autora tentou resolver a questão administrativamente antes de acionar o Judiciário, acionando ${lista}. ` +
+      "Não obteve solução, obrigando o consumidor a desperdiçar tempo e recursos que deveriam ser dedicados a atividades existenciais, o que configura desvio produtivo do consumidor e reforça o dever de indenizar.";
     blocos.push(titulo("DO DESVIO PRODUTIVO E DA TENTATIVA PRÉVIA DE SOLUÇÃO"), t);
   }
 
@@ -241,7 +323,7 @@ export function montarPeticao(i: PeticaoInput): PeticaoResultado {
     itens.push(`${letra()}) a condenação da Requerida ao pagamento de indenização por danos morais no valor de ${fmtBRL(i.valorDanoMoral)}, ou outro valor que Vossa Excelência entender justo, com correção monetária a partir do arbitramento (Súmula 362 do STJ) e juros de mora legais desde a citação;`);
   itens.push(`${letra()}) a inversão do ônus da prova, na forma do art. 6º, VIII, do CDC;`);
   if (i.pedirExibicao)
-    itens.push(`${letra()}) a determinação para que a Requerida exiba, no prazo que for fixado, os registros de autoexclusão, bloqueio, acesso, depósitos e movimentações da conta vinculada ao CPF da parte Autora (arts. 396 e seguintes do CPC);`);
+    itens.push(`${letra()}) a determinação para que a Requerida exiba, no prazo que for fixado, os registros de cadastro, autoexclusão, consultas ao Sigap, bloqueio, acesso, depósitos e movimentações da conta vinculada ao CPF da parte Autora (arts. 396 e seguintes do CPC);`);
   itens.push(`${letra()}) a produção de todas as provas em direito admitidas, em especial a documental.`);
 
   blocos.push(titulo("DOS PEDIDOS"), "Diante do exposto, requer:", ...itens);
@@ -250,6 +332,7 @@ export function montarPeticao(i: PeticaoInput): PeticaoResultado {
   // Documentos
   const anexosTexto: string[] = PROVAS_META.filter((p) => i.provas.includes(p.id)).map((p) => p.anexo);
 
+  if (i.decisao) anexosTexto.push(`Cópia da decisão proferida no processo nº ${i.decisao.numero}${i.decisao.situacao === "transitada" ? " e certidão de trânsito em julgado" : ""}`);
   if (i.perfil === "autoexclusao" || i.perfil === "saldo_retido" || i.perfil === "ludopatia") {
     anexosTexto.push("Cópia das normativas da Secretaria de Prêmios e Apostas (SPA/MF) aplicáveis ao caso (Portaria SPA/MF nº 1.231/2024 e IN SPA/MF nº 31/2025)");
   } else if (i.perfil === "bonus_rollover" || i.perfil === "publicidade_enganosa") {

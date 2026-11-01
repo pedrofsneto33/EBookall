@@ -3,6 +3,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { getSession } from "../../lib/auth";
 import { rateLimit } from "../../lib/rate-limit";
 import { validarEntrada, montarPeticao, chaveCaso } from "../../lib/server/peticao";
+import { avisosCnpj, consultarCnpj } from "../../lib/server/cnpj";
 import { hasPaidAccess, incrementPeticoes, MAX_PETICOES } from "../../lib/users";
 import { ensureDb } from "../../lib/db"; // Movido para cá para usar no bloqueio de regeração
 
@@ -51,6 +52,9 @@ export async function POST(req: NextRequest) {
     const resultado = montarPeticao(valid.data);
     if (resultado.avisos.some((a) => a.includes("fora da competência")))
       return NextResponse.json({ error: resultado.avisos[0] }, { status: 422 });
+
+    // Confere o CNPJ da ré na Receita (best-effort, nunca bloqueia a geração)
+    resultado.avisos.push(...avisosCnpj(valid.data.reu.nome, await consultarCnpj(valid.data.reu.cnpj)));
 
     const key = chaveCaso(valid.data);
     const isRegeneracao = await verificarCaso(body.caso_token, session.email, key);
