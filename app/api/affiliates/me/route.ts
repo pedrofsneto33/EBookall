@@ -9,6 +9,13 @@ function toTextLocal(value: unknown): string {
   return String(value);
 }
 
+function mascararEmail(email: string): string {
+  const [usuario, dominio] = email.split("@");
+  if (!usuario || !dominio) return email;
+  const mascarado = usuario.length > 2 ? usuario.slice(0, 2) + "***" : usuario[0] + "***";
+  return `${mascarado}@${dominio}`;
+}
+
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest) {
@@ -40,7 +47,7 @@ export async function GET(request: NextRequest) {
     const referrals = referralsRes.rows.map((row) => ({
       id: toTextLocal(row.id),
       affiliateCode: toTextLocal(row.affiliate_code),
-      buyerEmail: toTextLocal(row.buyer_email),
+      buyerEmail: mascararEmail(toTextLocal(row.buyer_email)),
       status: toTextLocal(row.status),
       comissaoValor: row.comissao_valor,
       createdAt: toTextLocal(row.created_at),

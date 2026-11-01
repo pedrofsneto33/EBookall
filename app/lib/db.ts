@@ -23,6 +23,7 @@ const SCHEMA_STATEMENTS = [
      stripe_session_id TEXT,
      grant_reason TEXT,
      granted_at TEXT,
+     referred_by TEXT DEFAULT NULL,
      created_at TEXT NOT NULL DEFAULT (datetime('now')),
      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
    )`,
@@ -46,7 +47,7 @@ const SCHEMA_STATEMENTS = [
   `CREATE TABLE IF NOT EXISTS referrals (
      id TEXT PRIMARY KEY,
      affiliate_code TEXT NOT NULL,
-     buyer_email TEXT NOT NULL,
+     buyer_email TEXT NOT NULL UNIQUE,
      status TEXT DEFAULT 'pendente',
      valor_venda REAL,
      comissao_valor REAL,

@@ -29,7 +29,7 @@ export function userIdFromEmail(email: string): string {
 }
 
 export async function createSessionToken(user: SessionUser): Promise<string> {
-  return new SignJWT({ email: user.email })
+  return new SignJWT({ email: user.email, tipo: "sessao" })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(user.id)
     .setIssuedAt()
@@ -39,7 +39,7 @@ export async function createSessionToken(user: SessionUser): Promise<string> {
 
 export async function createMagicToken(email: string): Promise<string> {
   const id = userIdFromEmail(email);
-  return new SignJWT({ email: email.toLowerCase().trim(), purpose: "magic" })
+  return new SignJWT({ email: email.toLowerCase().trim(), purpose: "magic", tipo: "magic" })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(id)
     .setIssuedAt()
@@ -50,6 +50,7 @@ export async function createMagicToken(email: string): Promise<string> {
 export async function verifySessionToken(token: string): Promise<SessionUser | null> {
   try {
     const { payload } = await jwtVerify(token, getSecret());
+    if (payload.tipo !== "sessao") return null;
     const id = payload.sub;
     const email = typeof payload.email === "string" ? payload.email : "";
     if (!id || !email) return null;
@@ -63,6 +64,7 @@ export async function verifyMagicToken(token: string): Promise<SessionUser | nul
   try {
     const { payload } = await jwtVerify(token, getSecret());
     if (payload.purpose !== "magic") return null;
+    if (payload.tipo !== "magic") return null;
     const id = payload.sub;
     const email = typeof payload.email === "string" ? payload.email : "";
     if (!id || !email) return null;

@@ -26,23 +26,17 @@ export async function GET(request: NextRequest) {
 
   const sessionToken = await createSessionToken(user);
 
-  // Registro de afiliado (não bloqueia o login)
+  // Registra quem indicou o cliente (somente na primeira indicação)
   const affiliateCode = request.cookies.get("affiliate_ref")?.value;
   if (affiliateCode) {
     try {
       const db = await ensureDb();
-      const exists = await db.execute({
-        sql: "SELECT code FROM affiliates WHERE code = ?",
-        args: [affiliateCode],
+      await db.execute({
+        sql: "UPDATE users SET referred_by = ? WHERE email = ? AND referred_by IS NULL",
+        args: [affiliateCode, user.email],
       });
-      if (exists.rows.length > 0) {
-        await db.execute({
-          sql: "INSERT INTO referrals (id, affiliate_code, buyer_email, status) VALUES (?, ?, ?, ?)",
-          args: [crypto.randomUUID(), affiliateCode, user.email, "pendente"],
-        });
-      }
     } catch (err) {
-      console.error("Erro ao registrar referral de afiliado:", err);
+      console.error("Erro ao registrar indicacao de afiliado:", err);
     }
   }
 

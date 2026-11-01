@@ -28,6 +28,41 @@ export async function POST(req: NextRequest) {
 
   if (action === "grant") {
     await grantAccessByEmail(email, "admin");
+
+    try {
+      const db = await ensureDb();
+      const userRes = await db.execute({
+        sql: "SELECT referred_by FROM users WHERE email = ?",
+        args: [email],
+      });
+      const referredBy = userRes.rows[0]?.referred_by as string | undefined;
+      if (referredBy) {
+        const exists = await db.execute({
+          sql: "SELECT code, email FROM affiliates WHERE code = ?",
+          args: [referredBy],
+        });
+        if (exists.rows.length > 0) {
+          const affiliateEmail = exists.rows[0]?.email as string | undefined;
+          if (
+            affiliateEmail &&
+            affiliateEmail.toLowerCase().trim() !== email.toLowerCase().trim()
+          ) {
+            const existing = await db.execute({
+              sql: "SELECT id FROM referrals WHERE buyer_email = ?",
+              args: [email],
+            });
+            if (existing.rows.length === 0) {
+              await db.execute({
+                sql: "INSERT OR IGNORE INTO referrals (id, affiliate_code, buyer_email, status) VALUES (?, ?, ?, ?)",
+                args: [crypto.randomUUID(), referredBy, email, "pendente"],
+              });
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao registrar referral de afiliado no grant:", err);
+    }
   } else {
     const db = await ensureDb();
     await db.execute({

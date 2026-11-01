@@ -58,13 +58,13 @@ export async function POST(req: NextRequest) {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Erro Brevo:", errorText);
-      return NextResponse.json({ error: "Erro ao enviar e-mail. Tente novamente." }, { status: 500 });
+      return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
     }
 
     return NextResponse.json({ ok: true, message: "Link enviado com sucesso!" });
 
   } catch (e) {
     console.error("Erro no request-link:", e);
-    return NextResponse.json({ error: "Erro interno." }, { status: 500 });
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
   }
 }

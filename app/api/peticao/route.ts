@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     } else {
       // Se for um caso novo, gasta a petição normalmente.
       const inc = await incrementPeticoes(session.email);
-      if (!inc.ok) return NextResponse.json({ error: inc.error || "Erro ao registrar" }, { status: 500 });
+      if (!inc.ok) return NextResponse.json({ error: inc.error || "Erro ao registrar" }, { status: 403 });
       usadas = inc.peticoes_usadas;
     }
 
