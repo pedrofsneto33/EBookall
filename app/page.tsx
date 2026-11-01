@@ -306,6 +306,7 @@ export default function LandingPage() {
             <p className="text-sm font-bold text-white mb-2">Links Úteis</p>
             <Link href="/politica-privacidade" className="block text-sm text-white/60 hover:text-white">Política de Privacidade</Link>
             <Link href="/termos" className="block text-sm text-white/60 hover:text-white">Termos de Uso</Link>
+            <Link href="/seja-afiliado" className="block text-sm text-white/60 hover:text-white">Seja um Afiliado</Link>
             <Link href="/apoio" className="flex items-center gap-2 text-sm text-white/60 hover:text-emerald-400 transition-colors"><HeartPulse size={14} /> Apoio Emocional e Jogo Responsável</Link>
             <Link href="/login" className="block text-sm text-white/60 hover:text-white">Área do Cliente</Link>
           </div>

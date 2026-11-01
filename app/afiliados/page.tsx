@@ -69,7 +69,7 @@ export default function AfiliadosPage() {
 
   const pendingTotal = referrals
     .filter((r) => r.status === "pendente")
-    .reduce((sum, r) => sum + (r.comissaoValor ?? 27.4), 0);
+    .reduce((sum, r) => sum + (r.comissaoValor ?? 41.1), 0);
 
   if (loading) {
     return (
@@ -97,8 +97,8 @@ export default function AfiliadosPage() {
         <div>
           <h1 className="text-3xl font-black mb-2">Programa de Afiliados</h1>
           <p className="text-white/60">
-            Ganhe <span className="text-emerald-400 font-semibold">20%</span> de comissão
-            (R$ 27,40) por cada venda realizada através do seu link exclusivo.
+            Ganhe <span className="text-emerald-400 font-semibold">30%</span> de comissão
+            (R$ 41,10) por cada venda realizada através do seu link exclusivo.
           </p>
         </div>
 
@@ -168,7 +168,7 @@ export default function AfiliadosPage() {
                         {r.status === "pago" ? "Pago" : "Pendente"}
                       </span>
                     </td>
-                    <td className="px-6 py-3 text-emerald-400 font-semibold">R$ 27,40</td>
+                    <td className="px-6 py-3 text-emerald-400 font-semibold">R$ 41,10</td>
                     <td className="px-6 py-3 text-white/60">{r.createdAt}</td>
                   </tr>
                 ))}

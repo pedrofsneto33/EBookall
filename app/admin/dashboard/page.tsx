@@ -266,7 +266,7 @@ export default async function AdminDashboardPage() {
                     <td className="px-6 py-3 text-white/60">{r.createdAt}</td>
                     <td className="px-6 py-3 text-white">{r.buyerEmail}</td>
                     <td className="px-6 py-3 text-white/80">{r.affiliateCode}</td>
-                    <td className="px-6 py-3 text-emerald-400 font-semibold">R$ 27,40</td>
+                    <td className="px-6 py-3 text-emerald-400 font-semibold">R$ 41,10</td>
                     <td className="px-6 py-3">
                       <PayReferralButton id={r.id} />
                     </td>
@@ -291,7 +291,7 @@ export default async function AdminDashboardPage() {
                   <p className="text-sm text-white/60">E-mail do Cliente</p>
                   <p className="font-bold text-white">{r.buyerEmail}</p>
                   <p className="text-xs text-white/60 mt-1">Código: {r.affiliateCode}</p>
-                  <p className="text-emerald-400 font-semibold mt-2">R$ 27,40</p>
+                  <p className="text-emerald-400 font-semibold mt-2">R$ 41,10</p>
                   <PayReferralButton id={r.id} className="w-full mt-3" />
                 </div>
               ))

@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     const db = await ensureDb();
     await db.execute({
       sql: `UPDATE referrals SET status = 'pago', comissao_valor = ? WHERE id = ?`,
-      args: [27.4, id],
+      args: [41.1, id],
     });
     return NextResponse.json({ ok: true });
   } catch (err) {
