@@ -6,7 +6,6 @@ export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Rate Limit
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
     if (!rateLimit(`login:${ip}`, 5, 10 * 60 * 1000)) {
       return NextResponse.json({ error: "Muitas tentativas. Tente novamente mais tarde." }, { status: 429 });
@@ -24,12 +23,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Serviço de e-mail indisponível." }, { status: 503 });
     }
 
-    // 2. Gera o token
     const token = await createMagicToken(email);
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
     const link = `${siteUrl}/api/auth/verify?token=${encodeURIComponent(token)}`;
 
-    // 3. HTML do e-mail
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; color: #0F1C2E;">
         <h2 style="color: #1B6B4A;">Acesse sua conta no RecuperaJogo</h2>
@@ -39,7 +36,6 @@ export async function POST(req: NextRequest) {
       </div>
     `;
 
-    // 4. Envio via API HTTP do Brevo
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {

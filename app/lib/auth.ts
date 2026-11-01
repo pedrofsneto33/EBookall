@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
@@ -42,7 +43,7 @@ export async function createMagicToken(email: string): Promise<string> {
   return new SignJWT({ email: email.toLowerCase().trim(), purpose: "magic", tipo: "magic" })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(id)
-    .setJti(crypto.randomUUID())
+    .setJti(randomUUID())
     .setIssuedAt()
     .setExpirationTime(`${LINK_MAX_AGE}s`)
     .sign(getSecret());

@@ -3,7 +3,6 @@
 import { useState, Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
-import { isAdmin } from "../../lib/admin";
 
 const INK = "#0F1C2E";
 const INK_SOFT = "#4A5B6E";
@@ -12,9 +11,13 @@ const SEAL = "#1B6B4A";
 const AMBER_BG = "#FBF1DD";
 const AMBER_BORDER = "#D8B368";
 
+// Definimos o e-mail do admin diretamente aqui para evitar imports que quebram o Client Component
+const ADMIN_EMAIL = "pedrofsneto33@gmail.com";
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  
   // Nunca manda direto pro gerador após login — só /pagamento (ou gerador se já pagou)
   const redirectAfterPay = searchParams.get("redirect") || searchParams.get("next") || "/gerador";
 
@@ -54,7 +57,8 @@ function LoginForm() {
       if (res.ok) {
         const d = await res.json();
         if (d?.status === "active" && d?.user?.email) {
-          if (isAdmin(d.user.email)) {
+          // Verifica se é admin fazendo a comparação direta
+          if (d.user.email === ADMIN_EMAIL) {
             router.replace("/admin/dashboard");
           } else {
             router.replace("/gerador");
@@ -174,14 +178,14 @@ function LoginForm() {
             </>
           ) : (
             <>
-              Continuar para o pagamento <ArrowRight size={18} />
+              Entrar <ArrowRight size={18} />
             </>
           )}
         </button>
       </form>
 
       <p className="text-xs text-center mt-6 text-white/60">
-        O gerador só abre depois do pagamento de R$ 137 (Pix ou cartão).
+        O gerador só abre depois do pagamento.
       </p>
 
       <div className="text-center mt-4">
