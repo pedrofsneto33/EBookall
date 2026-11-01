@@ -18,6 +18,20 @@ function LoginForm() {
   // Nunca manda direto pro gerador após login — só /pagamento (ou gerador se já pagou)
   const redirectAfterPay = searchParams.get("redirect") || searchParams.get("next") || "/gerador";
 
+  // Define mensagens do cabeçalho com base no contexto de redirecionamento
+  let pageTitle = "Acesse sua conta";
+  let pageSubtitle = "Entre para gerar sua petição.";
+  if (redirectAfterPay.includes("/afiliados")) {
+    pageTitle = "Acesse seu Painel de Afiliado";
+    pageSubtitle = "Entre para pegar seu link exclusivo e acompanhar suas comissões.";
+  } else if (redirectAfterPay.includes("/admin")) {
+    pageTitle = "Acesso Administrativo";
+    pageSubtitle = "Entre com seu e-mail de administrador para gerenciar o sistema.";
+  } else if (redirectAfterPay.includes("/gerador")) {
+    pageTitle = "Acesse sua conta";
+    pageSubtitle = "Entre para gerar sua petição.";
+  }
+
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -106,10 +120,10 @@ function LoginForm() {
           RJ
         </div>
         <h1 className="text-xl font-bold text-white">
-          Entrar / Criar conta
+          {pageTitle}
         </h1>
         <p className="text-sm mt-1 text-white/60">
-          Informe o e-mail. Depois você paga R$ 137 para liberar o gerador.
+          {pageSubtitle}
         </p>
       </div>
 
