@@ -7,6 +7,7 @@ import ActionButton from "./ActionButton";
 import PayReferralButton from "./PayReferralButton";
 import AffiliateForm from "./AffiliateForm";
 import LogoutButton from "./LogoutButton";
+import ApproveAffiliateButton from "./ApproveAffiliateButton";
 
 type UserRow = {
   email: string;
@@ -27,6 +28,14 @@ type AffiliateRow = {
   id: string;
   email: string;
   code: string;
+  createdAt: string;
+};
+
+type AffiliateRequestRow = {
+  id: string;
+  nome: string;
+  email: string;
+  whatsapp: string;
   createdAt: string;
 };
 
@@ -100,6 +109,17 @@ export default async function AdminDashboardPage() {
     createdAt: toText(row.created_at),
   }));
 
+  const requestsRes = await db.execute(
+    "SELECT id, nome, email, whatsapp, created_at FROM affiliate_requests WHERE status = 'pendente' ORDER BY created_at DESC"
+  );
+  const affiliateRequests: AffiliateRequestRow[] = requestsRes.rows.map((row) => ({
+    id: toText(row.id),
+    nome: toText(row.nome),
+    email: toText(row.email),
+    whatsapp: toText(row.whatsapp),
+    createdAt: toText(row.created_at),
+  }));
+
   return (
     <div className="min-h-screen bg-[#05080C] text-white w-full overflow-x-hidden">
       <header className="border-b border-white/10 bg-white/5 backdrop-blur-lg">
@@ -126,6 +146,63 @@ export default async function AdminDashboardPage() {
         </div>
 
         <AffiliateForm />
+
+        {/* Solicitações de Afiliados (Pendentes) */}
+        <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
+          <div className="px-6 py-4 border-b border-white/10">
+            <h2 className="font-semibold text-white">Solicitações de Afiliados (Pendentes)</h2>
+          </div>
+          <div className="overflow-x-auto hidden md:block">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-white/60 border-b border-white/10">
+                  <th className="px-6 py-3 font-medium">Nome</th>
+                  <th className="px-6 py-3 font-medium">E-mail</th>
+                  <th className="px-6 py-3 font-medium">WhatsApp</th>
+                  <th className="px-6 py-3 font-medium">Data</th>
+                  <th className="px-6 py-3 font-medium">Ação</th>
+                </tr>
+              </thead>
+              <tbody>
+                {affiliateRequests.map((r) => (
+                  <tr key={r.id} className="border-b border-white/5">
+                    <td className="px-6 py-3 text-white">{r.nome}</td>
+                    <td className="px-6 py-3 text-white/80">{r.email}</td>
+                    <td className="px-6 py-3 text-white/60">{r.whatsapp || "-"}</td>
+                    <td className="px-6 py-3 text-white/60">{r.createdAt}</td>
+                    <td className="px-6 py-3">
+                      <ApproveAffiliateButton id={r.id} />
+                    </td>
+                  </tr>
+                ))}
+                {affiliateRequests.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-6 text-center text-white/40">
+                      Nenhuma solicitação pendente.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          <div className="px-6 py-4 md:hidden space-y-3">
+            {affiliateRequests.length === 0 ? (
+              <p className="text-white/40 text-center text-sm">Nenhuma solicitação pendente.</p>
+            ) : (
+              affiliateRequests.map((r) => (
+                <div key={r.id} className="bg-white/5 border border-white/10 rounded-xl p-4">
+                  <p className="font-bold text-white">{r.nome}</p>
+                  <p className="text-sm text-white/80 mt-1">{r.email}</p>
+                  <p className="text-xs text-white/60 mt-1">{r.whatsapp || "-"}</p>
+                  <p className="text-xs text-white/60 mt-1">{r.createdAt}</p>
+                  <div className="mt-3">
+                    <ApproveAffiliateButton id={r.id} className="w-full text-xs py-2" />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
 
         <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
           <div className="px-6 py-4 border-b border-white/10">

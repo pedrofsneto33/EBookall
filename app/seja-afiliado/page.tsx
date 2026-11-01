@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, DollarSign, HandCoins, Smartphone, Users } from "lucide-react";
+import AffiliateRequestForm from "./AffiliateRequestForm";
 
 export default function SejaAfiliadoPage() {
   const whatsappUrl =
@@ -44,14 +45,9 @@ export default function SejaAfiliadoPage() {
               Transforme cada indicação em renda. Ajude pessoas a recuperarem dinheiro
               perdido em casas de apostas e ganhe <span className="text-white font-semibold">R$ 41,10 por venda</span>.
             </p>
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 bg-emerald-500 text-[#05080C] font-black text-lg rounded-xl hover:bg-emerald-400 transition-all shadow-[0_0_30px_rgba(16,185,129,0.4)]"
-            >
-              <ArrowRight size={20} /> Quero ser um Afiliado
-            </a>
+            <div className="max-w-md mx-auto mt-8">
+              <AffiliateRequestForm />
+            </div>
           </div>
         </section>
 

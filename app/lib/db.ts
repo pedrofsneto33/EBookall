@@ -57,6 +57,14 @@ const SCHEMA_STATEMENTS = [
      jti TEXT PRIMARY KEY,
      used_at DATETIME DEFAULT CURRENT_TIMESTAMP
    )`,
+  `CREATE TABLE IF NOT EXISTS affiliate_requests (
+     id TEXT PRIMARY KEY,
+     nome TEXT NOT NULL,
+     email TEXT UNIQUE NOT NULL,
+     whatsapp TEXT,
+     status TEXT DEFAULT 'pendente',
+     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+   )`,
 ];
 
 function resolveUrl(): string {
