@@ -6,6 +6,7 @@ import {
 } from "../../../lib/auth";
 import { hasPaidAccess } from "../../../lib/users";
 import { ensureDb } from "../../../lib/db";
+import { isAdmin } from "../../../lib/admin";
 
 export const runtime = "nodejs";
 
@@ -45,14 +46,36 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  let paid = false;
-  try {
-    paid = await hasPaidAccess(user.email);
-  } catch {
-    paid = false;
+  let dest: string;
+
+  if (isAdmin(user.email)) {
+    dest = `${origin}/admin/dashboard`;
+  } else {
+    let isAffiliate = false;
+    try {
+      const db = await ensureDb();
+      const aff = await db.execute({
+        sql: "SELECT code FROM affiliates WHERE email = ?",
+        args: [user.email],
+      });
+      isAffiliate = aff.rows.length > 0;
+    } catch {
+      isAffiliate = false;
+    }
+
+    if (isAffiliate) {
+      dest = `${origin}/afiliados`;
+    } else {
+      let paid = false;
+      try {
+        paid = await hasPaidAccess(user.email);
+      } catch {
+        paid = false;
+      }
+      dest = paid ? `${origin}/gerador` : `${origin}/pagamento`;
+    }
   }
 
-  const dest = paid ? `${origin}/gerador` : `${origin}/pagamento`;
   const res = NextResponse.redirect(dest);
   setSessionCookie(res, sessionToken);
   return res;
