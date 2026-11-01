@@ -255,44 +255,30 @@ export default function LandingPage() {
       {/* RECURSOS DO GERADOR */}
       <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 border-t border-white/5">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter text-center mb-4">
-            Recursos do Gerador
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter text-center mb-10 sm:mb-16">
+            Tudo o que o gerador faz por você
           </h2>
-          <p className="text-center text-white/60 mb-8 sm:mb-12 max-w-2xl mx-auto text-sm sm:text-base">
-            Ferramentas que deixam sua petição mais forte e pronta para protocolar.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {[
-              {
-                Icon: MapPin,
-                title: "Guia de Protocolo por Estado",
-                desc: "Saiba exatamente onde protocolar no Juizado Especial da sua UF (links oficiais, e-mail ou WhatsApp).",
-              },
-              {
-                Icon: ShieldCheck,
-                title: "Verificação de CNPJ",
-                desc: "O sistema confere o CNPJ da casa de apostas na Receita Federal para você não processar a empresa errada.",
-              },
-              {
-                Icon: ClipboardList,
-                title: "Checklist de Provas",
-                desc: "Marque as provas que você tem e o sistema monta a lista de documentos anexos automaticamente.",
-              },
-              {
-                Icon: Scale,
-                title: "Jurisprudência e Decisões",
-                desc: "Insira decisões de casos semelhantes e argumentos condicionais para fortalecer o seu pedido.",
-              },
-            ].map(({ Icon, title, desc }) => (
-              <div
-                key={title}
-                className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 flex flex-col gap-3 hover:bg-white/10 transition-colors"
-              >
-                <Icon className="text-emerald-400 shrink-0" size={28} />
-                <span className="font-semibold text-white text-sm sm:text-base">{title}</span>
-                <p className="text-white/60 text-sm leading-relaxed">{desc}</p>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col gap-3">
+              <MapPin className="text-emerald-400 shrink-0" size={28} />
+              <span className="font-semibold text-white text-sm sm:text-base">Guia de Protocolo por Estado</span>
+              <p className="text-white/60 text-sm leading-relaxed">Saiba exatamente onde protocolar no Juizado Especial da sua UF, com links oficiais, e-mail ou WhatsApp.</p>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col gap-3">
+              <ShieldCheck className="text-emerald-400 shrink-0" size={28} />
+              <span className="font-semibold text-white text-sm sm:text-base">Verificação de CNPJ</span>
+              <p className="text-white/60 text-sm leading-relaxed">O sistema confere o CNPJ da casa de apostas na Receita Federal para você não processar a empresa errada.</p>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col gap-3">
+              <ClipboardList className="text-emerald-400 shrink-0" size={28} />
+              <span className="font-semibold text-white text-sm sm:text-base">Checklist de Provas</span>
+              <p className="text-white/60 text-sm leading-relaxed">Marque as provas que você tem e o sistema monta a lista de documentos anexos automaticamente.</p>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col gap-3">
+              <Scale className="text-emerald-400 shrink-0" size={28} />
+              <span className="font-semibold text-white text-sm sm:text-base">Jurisprudência e Decisões</span>
+              <p className="text-white/60 text-sm leading-relaxed">Insira decisões de casos semelhantes e argumentos condicionais para fortalecer o seu pedido.</p>
+            </div>
           </div>
         </div>
       </section>
