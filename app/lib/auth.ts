@@ -42,6 +42,7 @@ export async function createMagicToken(email: string): Promise<string> {
   return new SignJWT({ email: email.toLowerCase().trim(), purpose: "magic", tipo: "magic" })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(id)
+    .setJti(crypto.randomUUID())
     .setIssuedAt()
     .setExpirationTime(`${LINK_MAX_AGE}s`)
     .sign(getSecret());
@@ -60,15 +61,21 @@ export async function verifySessionToken(token: string): Promise<SessionUser | n
   }
 }
 
-export async function verifyMagicToken(token: string): Promise<SessionUser | null> {
+export type MagicTokenResult = {
+  user: SessionUser;
+  jti: string;
+} | null;
+
+export async function verifyMagicToken(token: string): Promise<MagicTokenResult> {
   try {
     const { payload } = await jwtVerify(token, getSecret());
     if (payload.purpose !== "magic") return null;
     if (payload.tipo !== "magic") return null;
     const id = payload.sub;
     const email = typeof payload.email === "string" ? payload.email : "";
-    if (!id || !email) return null;
-    return { id, email };
+    const jti = typeof payload.jti === "string" ? payload.jti : "";
+    if (!id || !email || !jti) return null;
+    return { user: { id, email }, jti };
   } catch {
     return null;
   }

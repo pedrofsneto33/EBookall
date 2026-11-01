@@ -53,6 +53,10 @@ const SCHEMA_STATEMENTS = [
      comissao_valor REAL,
      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
    )`,
+  `CREATE TABLE IF NOT EXISTS used_tokens (
+     jti TEXT PRIMARY KEY,
+     used_at DATETIME DEFAULT CURRENT_TIMESTAMP
+   )`,
 ];
 
 function resolveUrl(): string {
