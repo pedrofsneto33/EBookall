@@ -31,8 +31,7 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json({ ok: true });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Erro";
-    console.error("admin/affiliates/pay:", message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("admin/affiliates/pay:", err);
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
   }
 }

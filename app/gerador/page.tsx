@@ -126,6 +126,8 @@ export default function GeradorPage() {
           const used = Number(d?.peticoes_usadas) || 0;
           setUsadas(used);
           setLimitReached(used >= MAX_PETICOES);
+        } else if (r.status === 401) {
+          router.replace("/login");
         }
       } catch {}
       setLoading(false);

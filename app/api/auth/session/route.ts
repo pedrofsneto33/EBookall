@@ -23,9 +23,8 @@ export async function GET() {
       restantes: Math.max(0, MAX_PETICOES - usadas),
     });
   } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : "Erro ao ler sessão";
-    console.error("session:get:", message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("session:get:", e);
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
   }
 }
 

@@ -48,8 +48,7 @@ export async function POST(request: NextRequest) {
     await grantAccessByEmail(target, "admin_grant");
     return NextResponse.json({ ok: true, email: target });
   } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : "Erro";
-    console.error("admin/grant:", message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("admin/grant:", e);
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
   }
 }

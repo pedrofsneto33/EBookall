@@ -28,7 +28,7 @@ export async function GET() {
       peticoes_max: MAX_PETICOES,
     });
   } catch (e: unknown) {
-    const message = e instanceof Error ? e.message : "Erro";
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("auth/me:", e);
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
   }
 }

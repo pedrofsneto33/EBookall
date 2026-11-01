@@ -55,8 +55,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ code, referrals });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Erro";
-    console.error("affiliates/me:", message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("affiliates/me:", err);
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
   }
 }

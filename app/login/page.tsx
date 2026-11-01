@@ -3,6 +3,7 @@
 import { useState, Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
+import { isAdmin } from "../../lib/admin";
 
 const INK = "#0F1C2E";
 const INK_SOFT = "#4A5B6E";
@@ -37,7 +38,24 @@ function LoginForm() {
         credentials: "include",
       });
       if (res.ok) {
-        router.replace("/gerador");
+        const d = await res.json();
+        if (d?.status === "active" && d?.user?.email) {
+          if (isAdmin(d.user.email)) {
+            router.replace("/admin/dashboard");
+          } else {
+            router.replace("/gerador");
+          }
+        } else {
+          const affRes = await fetch("/api/affiliates/me", {
+            method: "GET",
+            credentials: "include",
+          });
+          if (affRes.ok) {
+            router.replace("/afiliados");
+          } else {
+            router.replace("/pagamento");
+          }
+        }
       }
     };
     checkSession();

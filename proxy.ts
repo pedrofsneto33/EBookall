@@ -10,12 +10,14 @@ export function proxy(request: NextRequest) {
 
   // Se tem o código na URL e o usuário ainda não tem o cookie salvo
   if (ref && !request.cookies.has(REF_COOKIE)) {
-    response.cookies.set(REF_COOKIE, ref, {
-      maxAge: 60 * 60 * 24 * 30, // Dura 30 dias
-      httpOnly: true, // Segurança: o JS do navegador não pode ler
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production', // Só HTTPS em produção
-    });
+    if (/^[A-Z0-9_-]{3,20}$/i.test(ref)) {
+      response.cookies.set(REF_COOKIE, ref, {
+        maxAge: 60 * 60 * 24 * 30, // Dura 30 dias
+        httpOnly: true, // Segurança: o JS do navegador não pode ler
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production', // Só HTTPS em produção
+      });
+    }
   }
   
   return response;
