@@ -30,6 +30,19 @@ function LoginForm() {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    const checkSession = async () => {
+      const res = await fetch("/api/auth/me", {
+        method: "GET",
+        credentials: "include",
+      });
+      if (res.ok) {
+        router.replace("/gerador");
+      }
+    };
+    checkSession();
+  }, [router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
