@@ -60,25 +60,23 @@ function LoginForm() {
       if (res.status === 429 || res.status === 503) {
         setMessage("Erro: " + (data.error || "Serviço indisponível. Tente novamente mais tarde."));
         setMessageType("error");
-        setLoading(false);
         return;
       }
 
       if (!res.ok) {
         setMessage("Erro: " + (data.error || "Falha ao enviar o link"));
         setMessageType("error");
-        setLoading(false);
         return;
       }
 
       setMessage("Link enviado! Verifique sua caixa de entrada e o spam.");
       setMessageType("success");
-      setLoading(false);
       return;
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Erro de rede";
       setMessage("Erro: " + msg);
       setMessageType("error");
+    } finally {
       setLoading(false);
     }
   };
