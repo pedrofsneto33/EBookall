@@ -147,10 +147,11 @@ export default async function AdminDashboardPage() {
 
         <AffiliateForm />
 
-        {/* Solicitações de Afiliados (Pendentes) */}
+        {/* Novos Afiliados (Aguardando Aprovação) */}
         <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
           <div className="px-6 py-4 border-b border-white/10">
-            <h2 className="font-semibold text-white">Solicitações de Afiliados (Pendentes)</h2>
+            <h2 className="font-semibold text-white">Novos Afiliados (Aguardando Aprovação)</h2>
+            <p className="text-xs text-white/60 mt-1">Pessoas que se candidataram para divulgar o RecuperaJogo.</p>
           </div>
           <div className="overflow-x-auto hidden md:block">
             <table className="w-full text-sm">
@@ -324,7 +325,8 @@ export default async function AdminDashboardPage() {
 
         <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
           <div className="px-6 py-4 border-b border-white/10">
-            <h2 className="font-semibold text-white">Indicações de Afiliados (Pendentes)</h2>
+            <h2 className="font-semibold text-white">Comissões a Pagar (Vendas Pendentes)</h2>
+            <p className="text-xs text-white/60 mt-1">Vendas realizadas por afiliados que precisam do seu pagamento via Pix.</p>
           </div>
           <div className="overflow-x-auto hidden md:block">
             <table className="w-full text-sm">
