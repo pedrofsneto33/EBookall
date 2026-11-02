@@ -43,7 +43,14 @@ function LoginForm() {
   useEffect(() => {
     const err = searchParams.get("error");
     if (err) {
-      setMessage("Sessão expirada. Entre de novo com seu e-mail.");
+      const errorMap: Record<string, string> = {
+        link_used: "Este link já foi utilizado. Solicite um novo.",
+        link_expirado: "Este link expirou. Solicite um novo.",
+        link_invalido: "Link inválido.",
+        rate_limited: "Muitas tentativas. Tente novamente em 10 minutos.",
+        erro_interno: "Erro interno. Tente novamente.",
+      };
+      setMessage(errorMap[err] ?? "Sessão expirada. Entre novamente.");
       setMessageType("error");
     }
   }, [searchParams]);
