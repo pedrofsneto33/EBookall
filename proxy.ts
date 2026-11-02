@@ -3,6 +3,22 @@ import { NextRequest, NextResponse } from 'next/server';
 const REF_COOKIE = 'affiliate_ref';
 
 export function proxy(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  const adminToken = request.cookies.get("admin_session")?.value;
+
+  // 1. Proteção da área de admin (não bloqueia a própria página de login)
+  if (pathname.startsWith("/admin") && pathname !== "/admin-login") {
+    if (!adminToken) {
+      return NextResponse.redirect(new URL("/admin-login", request.url));
+    }
+  }
+
+  // 2. Se já está logado como admin, não precisa ver a tela de login
+  if (pathname === "/admin-login" && adminToken) {
+    return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+  }
+
+  // 3. Lógica de Afiliados
   const response = NextResponse.next();
   
   // Pega o ?ref= da URL (ex: site.com/?ref=JOAO10)
@@ -26,4 +42,4 @@ export function proxy(request: NextRequest) {
 // Configura para rodar em todas as páginas, exceto APIs e arquivos estáticos
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico|api).*)'],
-}
+};
