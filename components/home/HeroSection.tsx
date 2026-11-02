@@ -19,7 +19,7 @@ export default function HeroSection() {
         }}
       />
       <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] bg-emerald-500/15 blur-[180px] rounded-full" />
-      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 blur-[120px] rounded-full animate-pulse" />
+      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 blur-[120px] rounded-full motion-safe:animate-pulse" />
 
       {/* Tigre de fundo */}
       <motion.div
@@ -27,7 +27,7 @@ export default function HeroSection() {
         transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
         className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.12]"
       >
-        <svg width="600" height="600" viewBox="0 0 200 200" fill="none">
+        <svg width="600" height="600" viewBox="0 0 200 200" fill="none" aria-hidden="true">
           <circle cx="100" cy="100" r="90" stroke="#34D399" strokeWidth="2" />
           <circle cx="100" cy="100" r="70" stroke="#34D399" strokeWidth="1" />
           <path
@@ -82,7 +82,7 @@ export default function HeroSection() {
             <motion.div whileHover={{ scale: 1.05 }}>
               <Link
                 href="/login"
-                className="clip-custom inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-black font-black text-lg px-8 py-4 transition-colors shadow-[0_0_40px_rgba(16,185,129,0.4)]"
+                className="clip-custom inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-black font-black text-lg px-8 py-4 transition-colors shadow-[0_0_40px_rgba(16,185,129,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#05080C]"
               >
                 Recuperar Meu Dinheiro
                 <ArrowRight size={20} />
@@ -126,7 +126,7 @@ export default function HeroSection() {
             <div className="flex flex-col items-center justify-center h-full p-6 text-center">
               <h3 className="text-2xl font-black text-white mb-2">RecuperaJogo</h3>
               <p className="text-zinc-300 text-sm mb-8">Sua petição está pronta!</p>
-              <button className="bg-emerald-500 text-[#05080C] font-bold py-3 px-8 rounded-xl hover:bg-emerald-400 transition-colors shadow-[0_0_20px_rgba(16,185,129,0.5)]">
+              <button className="bg-emerald-500 text-[#05080C] font-bold py-3 px-8 rounded-xl hover:bg-emerald-400 transition-colors shadow-[0_0_20px_rgba(16,185,129,0.5)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#05080C]">
                 Baixar PDF
               </button>
             </div>

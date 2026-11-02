@@ -121,9 +121,9 @@ export default function LandingPage() {
             ].map(({ title, Icon }) => (
               <div
                 key={title}
-                className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 flex items-center gap-4 group hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(16,185,129,0.3)] hover:border-emerald-500/40"
+                className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 flex items-center gap-4 group hover:bg-white/10 transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(16,185,129,0.3)] hover:border-emerald-500/40"
               >
-                <Icon className="text-emerald-400 shrink-0 size={24} group-hover:text-emerald-300 group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.6)] transition-all duration-300" />
+                <Icon className="text-emerald-400 shrink-0 size={24} group-hover:text-emerald-300 group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.6)] transition-colors duration-300" />
                 <span className="font-semibold text-white text-sm sm:text-base">{title}</span>
               </div>
             ))}
@@ -144,7 +144,7 @@ export default function LandingPage() {
             <p className="text-sm sm:text-base text-white/70 leading-relaxed mb-4">
               Pelo princípio da irretroatividade, a lei nova não apaga os fatos que já aconteceram. Se você sofreu um golpe (saque negado, autoexclusão ignorada, prêmio não pago) antes da proibição, você ainda tem o direito de cobrar na Justiça.
             </p>
-            <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors">
+            <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#05080C]">
               Quero recuperar o que é meu
             </Link>
           </div>
@@ -158,9 +158,6 @@ export default function LandingPage() {
         <section className="border-y border-white/5 bg-gradient-to-b from-zinc-950 to-[#05080C] py-16 sm:py-20 md:py-24 px-4 sm:px-6">
         <div className="mx-auto max-w-6xl">
           <div className="text-center mb-10 sm:mb-14">
-            <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-4">
-              Autoridade
-            </p>
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter">
               A Justiça já mandou as bets pagarem.
             </h2>
@@ -171,9 +168,9 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {DECISOES.map((c) => (
-              <div key={c.proc} className="bg-zinc-900 border border-white/10 rounded-2xl p-6 sm:p-8 group flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(16,185,129,0.3)] hover:border-emerald-500/40">
+              <div key={c.proc} className="bg-zinc-900 border border-white/10 rounded-2xl p-6 sm:p-8 group flex flex-col justify-between transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(16,185,129,0.3)] hover:border-emerald-500/40">
                 <div>
-                  <p className="text-[11px] font-mono text-emerald-400/80 mb-3">{c.uf} · proc. {c.proc}</p>
+                  <p className="text-[11px] text-emerald-400/80 mb-3">{c.uf} · proc. {c.proc}</p>
                   <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{c.t}</h3>
                   <p className="text-3xl sm:text-4xl font-black text-emerald-400 mb-2">{c.v}</p>
                   
