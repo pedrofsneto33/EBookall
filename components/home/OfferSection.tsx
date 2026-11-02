@@ -6,7 +6,7 @@ import { CheckCircle2, ShieldCheck } from "lucide-react";
 const BENEFITS = [
   "Até 3 petições geradas",
   "Checklist de Provas Automatizado",
-  "Acesso imediato ao sistema",
+  "Acesso após confirmação do Pix",
   "Suporte via WhatsApp",
 ];
 
@@ -22,12 +22,10 @@ export default function OfferSection() {
           Quanto custa recuperar o seu dinheiro?
         </h2>
         <p className="mt-3 text-zinc-400 text-lg">
-          Menos que uma pizza. E pode te devolver milhares de reais.
+          Gere a petição e peça de volta o valor cobrado, mais indenização quando couber.
         </p>
 
-        <p className="mt-6 text-sm text-zinc-500">
-          Um advogado cobraria de R$ 1.500 a R$ 3.000. Aqui você resolve por R$ 137.
-        </p>
+
 
         <div className="mt-10 mx-auto max-w-lg">
           <div className="clip-custom bg-zinc-950 border border-emerald-500/50 p-8 shadow-[0_0_60px_rgba(16,185,129,0.15)]">
