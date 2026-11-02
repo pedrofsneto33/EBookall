@@ -129,6 +129,25 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section className="py-8 px-4 sm:px-6 relative z-10">
+        <div className="max-w-5xl mx-auto bg-gradient-to-r from-emerald-500/15 to-transparent border-2 border-emerald-500/40 rounded-3xl p-6 sm:p-10 flex flex-col md:flex-row items-center gap-6 shadow-[0_0_30px_rgba(16,185,129,0.15)]">
+          <div className="shrink-0">
+            <Scale size={48} className="text-emerald-400" />
+          </div>
+          <div className="flex-1 text-center md:text-left">
+            <h2 className="text-xl sm:text-2xl font-black text-white mb-2">
+              A MP 1.394/2026 proibiu as bets. Mas o seu prejuízo do passado não foi apagado.
+            </h2>
+            <p className="text-sm sm:text-base text-white/70 leading-relaxed mb-4">
+              Pelo princípio da irretroatividade, a lei nova não apaga os fatos que já aconteceram. Se você sofreu um golpe (saque negado, autoexclusão ignorada, prêmio não pago) antes da proibição, você ainda tem o direito de cobrar na Justiça.
+            </p>
+            <Link href="/login" className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400 transition-colors">
+              Quero recuperar o que é meu
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <CourtWinSection />
 
       {/* PROVA (AGORA COM AS DECISÕES REAIS) */}
