@@ -25,10 +25,27 @@ export async function POST(request: NextRequest) {
 
   try {
     const db = await ensureDb();
-    await db.execute({
-      sql: `UPDATE referrals SET status = 'pago', comissao_valor = ? WHERE id = ?`,
-      args: [41.1, id],
+    // Só paga indicação pendente, de comprador com acesso ativo, e uma única vez.
+    const rs = await db.execute({
+      sql: `UPDATE referrals SET status = 'pago', comissao_valor = ?
+            WHERE id = ? 
+              AND status = 'pendente'
+              AND EXISTS (
+                SELECT 1 FROM users u 
+                WHERE u.email = referrals.buyer_email 
+                AND u.status = 'active'
+              )`,
+      args: [41.10, id],
     });
+
+    // Se nenhuma linha foi alterada, a indicação não existe, já foi paga ou o comprador não está ativo
+    if (rs.rowsAffected === 0) {
+      return NextResponse.json(
+        { error: "Indicação não encontrada, já paga, ou o comprador ainda não tem acesso liberado." },
+        { status: 409 }
+      );
+    }
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("admin/affiliates/pay:", err);
