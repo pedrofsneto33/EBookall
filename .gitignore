@@ -60,7 +60,6 @@ demo-video/
 pp/
 
 # Arquivos/pastas removidos (limpeza final)
-auth/
 app/page.tsx.bak
 .claude/
 .agents/
