@@ -13,12 +13,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "E-mail inválido" }, { status: 400 });
     }
 
-    // Rate limit no banco (4 por e-mail a cada 15 min, 250 global por hora)
-    if (!(await dbRateLimit(`login-email:${email}`, 4, 15 * 60 * 1000))) {
-      return NextResponse.json({ error: "Muitas tentativas. Tente novamente em 15 minutos." }, { status: 429 });
+    // Pega o IP do cliente (com fallback seguro)
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
+
+    // 1. Limite por IP: máximo 10 tentativas a cada 10 minutos
+    if (!(await dbRateLimit(`login-ip:${ip}`, 10, 10 * 60 * 1000))) {
+      return NextResponse.json({ error: "Muitas tentativas. Tente novamente em 10 minutos." }, { status: 429 });
     }
-    if (!(await dbRateLimit("login-global", 250, 60 * 60 * 1000))) {
-      return NextResponse.json({ error: "Muitas tentativas. Tente novamente mais tarde." }, { status: 429 });
+
+    // 2. Limite por e-mail: máximo 3 tentativas a cada 10 minutos
+    if (!(await dbRateLimit(`login-email:${email}`, 3, 10 * 60 * 1000))) {
+      return NextResponse.json({ error: "Muitas tentativas para este e-mail. Tente novamente em 10 minutos." }, { status: 429 });
+    }
+
+    // 3. Limite global: protege a cota do Brevo (máximo 500 e-mails por hora)
+    if (!(await dbRateLimit("login-global", 500, 60 * 60 * 1000))) {
+      return NextResponse.json({ error: "Serviço temporariamente indisponível. Tente novamente mais tarde." }, { status: 429 });
+    }
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+    if (!siteUrl) {
+      console.error("ERRO CRÍTICO: NEXT_PUBLIC_SITE_URL não configurada");
+      return NextResponse.json({ error: "Erro de configuração do servidor." }, { status: 500 });
     }
 
     const brevoKey = process.env.BREVO_API_KEY?.trim();
@@ -27,8 +43,7 @@ export async function POST(req: NextRequest) {
     }
 
     const token = await createMagicToken(email);
-    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
-    const link = `${siteUrl}/api/auth/verify?token=${encodeURIComponent(token)}`;
+    const link = `${siteUrl.replace(/\/$/, "")}/api/auth/verify?token=${encodeURIComponent(token)}`;
 
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; color: #0F1C2E;">
