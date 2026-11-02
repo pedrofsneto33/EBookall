@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Document, Page, Text, View, StyleSheet, pdf } from "@react-pdf/renderer";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda, PERFIL_LABEL } from "../lib/config";
+import { parseBRL } from "../lib/calc";
 import type { Perfil } from "../lib/config";
 import { argumentosDoPerfil, argumentosPadrao, condicionaisDoPerfil, provasDoPerfil, CANAIS_META, SITUACOES_DECISAO } from "../lib/argumentos-meta";
 import type { ArgumentoMeta } from "../lib/argumentos-meta";
@@ -196,10 +197,10 @@ export default function GeradorPage() {
   }, [router]);
 
   const calc = useMemo(() => {
-    const base = parseFloat(valorPerdido) || 0;
-    const devolvido = parseFloat(valorDevolvido) || 0;
+    const base = parseBRL(valorPerdido);
+    const devolvido = parseBRL(valorDevolvido);
     const comDobro = dobro ? base * 2 : base;
-    const dm = danoMoral ? parseFloat(valorDM) || 0 : 0;
+    const dm = danoMoral ? parseBRL(valorDM) : 0;
     const restituicao = Math.max(0, comDobro - devolvido);
     return { base, comDobro, dm, restituicao, total: restituicao + dm };
   }, [valorPerdido, valorDevolvido, dobro, danoMoral, valorDM]);
