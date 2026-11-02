@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useState } from "react";
 import Link from "next/link";
 import HeroSection from "@/components/home/HeroSection";
@@ -98,7 +99,8 @@ export default function LandingPage() {
       <HeroSection />
 
       {/* CASOS QUE RESOLVEMOS */}
-      <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6">
+      <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: "easeOut" }} viewport={{ once: true, margin: "-100px" }}>
+        <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6">
         <div className="mx-auto max-w-6xl">
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter text-center mb-4">
             Não importa o que a bet fez.
@@ -119,15 +121,16 @@ export default function LandingPage() {
             ].map(({ title, Icon }) => (
               <div
                 key={title}
-                className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 flex items-center gap-4 hover:bg-white/10 transition-colors"
+                className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 flex items-center gap-4 group hover:bg-white/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(16,185,129,0.3)] hover:border-emerald-500/40"
               >
-                <Icon className="text-emerald-400 shrink-0" size={24} />
+                <Icon className="text-emerald-400 shrink-0 size={24} group-hover:text-emerald-300 group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.6)] transition-all duration-300" />
                 <span className="font-semibold text-white text-sm sm:text-base">{title}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
+      </motion.div>
 
       <section className="py-8 px-4 sm:px-6 relative z-10">
         <div className="max-w-5xl mx-auto bg-gradient-to-r from-emerald-500/15 to-transparent border-2 border-emerald-500/40 rounded-3xl p-6 sm:p-10 flex flex-col md:flex-row items-center gap-6 shadow-[0_0_30px_rgba(16,185,129,0.15)]">
@@ -151,7 +154,8 @@ export default function LandingPage() {
       <CourtWinSection />
 
       {/* PROVA (AGORA COM AS DECISÕES REAIS) */}
-      <section className="border-y border-white/5 bg-gradient-to-b from-zinc-950 to-[#05080C] py-16 sm:py-20 md:py-24 px-4 sm:px-6">
+      <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: "easeOut" }} viewport={{ once: true, margin: "-100px" }}>
+        <section className="border-y border-white/5 bg-gradient-to-b from-zinc-950 to-[#05080C] py-16 sm:py-20 md:py-24 px-4 sm:px-6">
         <div className="mx-auto max-w-6xl">
           <div className="text-center mb-10 sm:mb-14">
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-4">
@@ -167,7 +171,7 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {DECISOES.map((c) => (
-              <div key={c.proc} className="bg-zinc-900 border border-white/10 rounded-2xl p-6 sm:p-8 hover:border-emerald-500/30 transition-colors flex flex-col justify-between">
+              <div key={c.proc} className="bg-zinc-900 border border-white/10 rounded-2xl p-6 sm:p-8 group flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(16,185,129,0.3)] hover:border-emerald-500/40">
                 <div>
                   <p className="text-[11px] font-mono text-emerald-400/80 mb-3">{c.uf} · proc. {c.proc}</p>
                   <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{c.t}</h3>
@@ -197,9 +201,11 @@ export default function LandingPage() {
           </p>
         </div>
       </section>
+      </motion.div>
 
       {/* COMO FUNCIONA */}
-      <section id="como-funciona" className="py-16 sm:py-20 md:py-24 px-4 sm:px-6">
+      <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: "easeOut" }} viewport={{ once: true, margin: "-100px" }}>
+        <section id="como-funciona" className="py-16 sm:py-20 md:py-24 px-4 sm:px-6">
         <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter text-center mb-10 sm:mb-16">
           Como funciona
         </h2>
@@ -279,6 +285,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      </motion.div>
 
       {/* RECURSOS DO GERADOR */}
       <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 border-t border-white/5">
