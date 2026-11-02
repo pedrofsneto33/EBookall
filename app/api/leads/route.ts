@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { rateLimit } from "../../lib/rate-limit";
+import { ensureDb } from "../../lib/db";
+import { dbRateLimit } from "../../lib/rate-limit-db";
 
 function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (char) => {
@@ -26,29 +27,71 @@ export async function POST(request: NextRequest) {
     const ip =
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
 
-    if (!rateLimit(`lead:${ip}`, 8, 10 * 60 * 1000)) {
+    // Rate limit por IP: máximo 10 por hora
+    if (!(await dbRateLimit(`leads:${ip}`, 10, 60 * 60 * 1000))) {
       return NextResponse.json(
-        { error: "Muitas tentativas. Aguarde" },
+        { error: "Muitas tentativas. Tente novamente em 1 hora." },
         { status: 429 }
       );
     }
 
     const body = await request.json();
-    const email = String(body.email ?? "").trim().toLowerCase();
     const nome = String(body.nome ?? "").trim();
+    const email = String(body.email ?? "").trim().toLowerCase();
     const whatsapp = String(body.whatsapp ?? "").trim();
-    const origem = String(body.origem ?? "site").trim();
+    const origem = String(body.origem ?? "guia").trim();
 
-const safeNome = escapeHtml(nome);
-const safeEmail = escapeHtml(email);
-const safeWhatsapp = escapeHtml(whatsapp);
-const safeOrigem = escapeHtml(origem);
-
-    if (!email || !email.includes("@")) {
-      return NextResponse.json({ error: "E-mail inválido" }, { status: 400 });
+    // Validações de tamanho
+    if (!nome || nome.length > 100) {
+      return NextResponse.json(
+        { error: "Nome deve ter no máximo 100 caracteres." },
+        { status: 400 }
+      );
+    }
+    if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json(
+        { error: "E-mail inválido ou excede 254 caracteres." },
+        { status: 400 }
+      );
+    }
+    if (whatsapp && whatsapp.length > 13) {
+      return NextResponse.json(
+        { error: "WhatsApp deve ter no máximo 13 caracteres." },
+        { status: 400 }
+      );
     }
 
-    // Sem Supabase: notifica por e-mail (Resend). Lead não bloqueia se o mail falhar.
+    // Meta: se for objeto, limita o tamanho total para 500 caracteres
+    let safeMeta: string | null = null;
+    if (body.meta !== undefined && body.meta !== null) {
+      const metaStr = typeof body.meta === "string" ? body.meta : JSON.stringify(body.meta);
+      if (metaStr.length > 500) {
+        return NextResponse.json(
+          { error: "Meta excede o limite de 500 caracteres." },
+          { status: 400 }
+        );
+      }
+      safeMeta = metaStr;
+    }
+
+    const safeNome = escapeHtml(nome);
+    const safeEmail = escapeHtml(email);
+    const safeWhatsapp = escapeHtml(whatsapp);
+    const safeOrigem = escapeHtml(origem);
+
+    // 1. PRIMEIRO: grava o lead no Turso (INSERT OR IGNORE evita duplicar e-mail)
+    const db = await ensureDb();
+    try {
+      await db.execute({
+        sql: `INSERT OR IGNORE INTO leads (id, email, nome, whatsapp, origem, meta) VALUES (?, ?, ?, ?, ?, ?)`,
+        args: [crypto.randomUUID(), email, nome || null, whatsapp || null, origem || "guia", safeMeta],
+      });
+    } catch (dbErr) {
+      console.error("Erro ao gravar lead no banco:", dbErr);
+      return NextResponse.json({ error: "Erro ao salvar lead." }, { status: 500 });
+    }
+
+    // 2. DEPOIS: tenta enviar o e-mail via Resend. Sem RESEND_API_KEY, o lead não se perde.
     const resendApiKey = process.env.RESEND_API_KEY ?? "";
     const notifyTo = process.env.LEADS_NOTIFY_EMAIL || "pedrofsneto33@gmail.com";
 
@@ -76,8 +119,6 @@ const safeOrigem = escapeHtml(origem);
       } catch (mailErr) {
         console.error("Resend falhou:", mailErr);
       }
-    } else {
-      // Lead registrado apenas em log do servidor (sem Resend configurado).
     }
 
     return NextResponse.json({ success: true });

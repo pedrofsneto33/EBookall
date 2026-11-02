@@ -70,6 +70,15 @@ const SCHEMA_STATEMENTS = [
      status TEXT DEFAULT 'pendente',
      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
    )`,
+   `CREATE TABLE IF NOT EXISTS leads (
+      id TEXT PRIMARY KEY,
+      email TEXT UNIQUE NOT NULL,
+      nome TEXT,
+      whatsapp TEXT,
+      origem TEXT DEFAULT 'guia',
+      meta TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+   )`,
 ];
 
 function resolveUrl(): string {
