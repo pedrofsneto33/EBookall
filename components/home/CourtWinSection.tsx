@@ -45,7 +45,7 @@ export default function CourtWinSection() {
             A Justiça já reconheceu.
           </h2>
           <p className="mt-3 text-zinc-400 text-lg">
-            Não é promessa. É sentença com trânsito em julgado.
+            Não é promessa. É sentença de 1º grau, já publicada (cabe recurso).
           </p>
 
           <div className="mt-8 space-y-4">
@@ -57,7 +57,7 @@ export default function CourtWinSection() {
             </div>
             <div className="clip-custom bg-zinc-900 border border-white/10 p-6">
               <p className="text-5xl font-black text-white">R$ 380,00</p>
-              <p className="text-zinc-400 mt-1">Restituição do valor apostado</p>
+              <p className="text-zinc-400 mt-1 text-sm">A ré devolveu os R$ 380 durante o processo. A sentença condenou a empresa a pagar R$ 3.000,00 de dano moral por ignorar a autoexclusão.</p>
             </div>
           </div>
 
