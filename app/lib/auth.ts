@@ -84,9 +84,28 @@ export async function verifyMagicToken(token: string): Promise<MagicTokenResult>
 
 export async function getSession(): Promise<SessionUser | null> {
   const jar = await cookies();
+
+  // 1. Tenta a sessão normal de cliente (rj_session)
   const token = jar.get(SESSION_COOKIE)?.value;
-  if (!token) return null;
-  return verifySessionToken(token);
+  if (token) {
+    const user = await verifySessionToken(token);
+    if (user) return user;
+  }
+
+  // 2. Tenta a sessão exclusiva de admin (admin_session)
+  const adminToken = jar.get("admin_session")?.value;
+  if (adminToken) {
+    try {
+      const { payload } = await jwtVerify(adminToken, getSecret());
+      if (payload.role === "admin" && typeof payload.email === "string") {
+        return { id: userIdFromEmail(payload.email), email: payload.email };
+      }
+    } catch {
+      // Token de admin inválido/expirado, ignora e segue
+    }
+  }
+
+  return null;
 }
 
 export function setSessionCookie(res: NextResponse, token: string) {
