@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -23,7 +23,8 @@ export default function PaginaPagamento() {
         }
         const data = await r.json();
         if (!data.email) {
-          router.replace('/login?next=/pagamento');
+          setError('Não foi possível identificar seu e-mail. Faça login novamente.');
+          setLoading(false);
           return;
         }
         if (data.status === 'active') {
@@ -31,12 +32,14 @@ export default function PaginaPagamento() {
           return;
         }
         setEmail(data.email);
+        setLoading(false);
         fetchPix();
       })
       .catch(() => router.replace('/login?next=/pagamento'));
   }, [router]);
 
   const fetchPix = async () => {
+    if (!email) return;
     setLoadingPix(true);
     try {
       const res = await fetch('/api/pagamento/pix', {
@@ -49,7 +52,7 @@ export default function PaginaPagamento() {
       if (res.ok && data.qr_code_base64) {
         setQrCode(data.qr_code_base64);
       } else {
-        setError('Falha ao gerar Pix. Tente novamente.');
+        setError(data.error || 'Falha ao gerar Pix. Tente novamente.');
       }
     } catch (err) {
       setError('Erro ao conectar ao serviço de pagamento.');
@@ -59,7 +62,9 @@ export default function PaginaPagamento() {
   };
 
   useEffect(() => {
-    fetchPix();
+    if (email) {
+      fetchPix();
+    }
   }, [email]);
 
   if (loading) {
