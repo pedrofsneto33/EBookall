@@ -106,11 +106,30 @@ export default function HeroSection() {
           {/* Brilho verde atrás do celular */}
           <div className="absolute inset-0 bg-emerald-500/20 blur-[100px] rounded-full" />
 
-          <img
-            src="/images/hero-phone.webp"
-            alt="Pessoa usando o app RecuperaJogo"
-            className="w-[300px] h-auto object-cover rounded-[2rem] shadow-2xl border border-white/10 relative z-10"
-          />
+          <div className="relative z-10 border-[8px] border-zinc-800 rounded-[2.5rem] w-[300px] h-[600px] bg-[#0B1018] shadow-2xl overflow-hidden">
+            {/* Barra de status fake */}
+            <div className="flex justify-between items-center px-6 py-4 text-zinc-400 text-xs font-mono">
+              <div className="flex gap-1">
+                <div className="w-1 h-4 rounded bg-zinc-500" />
+                <div className="w-1 h-3 rounded bg-zinc-500" />
+                <div className="w-1 h-2 rounded bg-zinc-500" />
+              </div>
+              <span className="text-center flex-1">9:41</span>
+              <div className="flex gap-1">
+                <div className="w-4 h-1 rounded-full bg-zinc-500" />
+                <div className="w-2 h-3 rounded bg-zinc-500" />
+                <div className="w-3 h-2 rounded bg-zinc-500" />
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center justify-center h-full p-6 text-center">
+              <h3 className="text-2xl font-black text-white mb-2">RecuperaJogo</h3>
+              <p className="text-zinc-300 text-sm mb-8">Sua petição está pronta!</p>
+              <button className="bg-emerald-500 text-[#05080C] font-bold py-3 px-8 rounded-xl hover:bg-emerald-400 transition-colors shadow-[0_0_20px_rgba(16,185,129,0.5)]">
+                Baixar PDF
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
