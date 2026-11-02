@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       .setProtectedHeader({ alg: "HS256" })
       .setSubject(adminEmail)
       .setIssuedAt()
-      .setExpirationTime("7d")
+      .setExpirationTime("8h")
       .sign(secret);
 
     (await cookies()).set("admin_session", token, {
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 60 * 60 * 8,
     });
 
     return NextResponse.json({ ok: true });

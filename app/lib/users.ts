@@ -1,5 +1,7 @@
 import { ensureDb, normalizeEmail } from "./db";
 import { MAX_PETICOES } from "./config";
+import { emailKey } from "./email-key";
+import { randomUUID } from "crypto";
 
 /**
  * Regras de acesso e limite de petições agora vivem na tabela `users`
@@ -164,6 +166,47 @@ export async function grantAccessByEmail(email: string, reason = "manual"): Prom
             updated_at = datetime('now')`,
     args: [target, reason, new Date().toISOString()],
   });
+
+  // Cria a indicação de afiliado automaticamente após ativar o usuário
+  try {
+    // Busca quem indicou este usuário
+    const userRes = await db.execute({
+      sql: "SELECT referred_by FROM users WHERE email = ?",
+      args: [target],
+    });
+
+    const referredBy = userRes.rows[0]?.referred_by as string | undefined;
+
+    if (referredBy) {
+      const exists = await db.execute({
+        sql: "SELECT code, email FROM affiliates WHERE code = ?",
+        args: [referredBy],
+      });
+
+      if (exists.rows.length > 0) {
+        const affiliateEmail = exists.rows[0]?.email as string | undefined;
+
+        // Verifica auto-indicação usando emailKey (ignora pontos e +tags do Gmail)
+        if (affiliateEmail && emailKey(affiliateEmail) !== emailKey(target)) {
+          // Verifica se este comprador já gerou comissão
+          const existing = await db.execute({
+            sql: "SELECT id FROM referrals WHERE buyer_email = ?",
+            args: [target],
+          });
+
+          if (existing.rows.length === 0) {
+            await db.execute({
+              sql: "INSERT OR IGNORE INTO referrals (id, affiliate_code, buyer_email, status) VALUES (?, ?, ?, ?)",
+              args: [randomUUID(), referredBy, target, "pendente"],
+            });
+          }
+        }
+      }
+    }
+  } catch (err) {
+    // Não bloqueia o grant em caso de erro no referral
+    console.error("Erro ao criar indicação de afiliado:", err);
+  }
 }
 
 
