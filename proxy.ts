@@ -1,26 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 
 const REF_COOKIE = 'affiliate_ref';
 
 export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  const adminToken = request.cookies.get("admin_session")?.value;
+  const adminToken = request.cookies.get('admin_session')?.value;
 
   // 1. Proteção da área de admin (não bloqueia a própria página de login)
-  if (pathname.startsWith("/admin") && pathname !== "/admin-login") {
+  if (pathname.startsWith('/admin') && pathname !== '/admin-login') {
     if (!adminToken) {
-      return NextResponse.redirect(new URL("/admin-login", request.url));
+      return NextResponse.redirect(new URL('/admin-login', request.url));
     }
   }
 
   // 2. Se já está logado como admin, não precisa ver a tela de login
-  if (pathname === "/admin-login" && adminToken) {
-    return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+  if (pathname === '/admin-login' && adminToken) {
+    return NextResponse.redirect(new URL('/admin/dashboard', request.url));
   }
 
-  // 3. Lógica de Afiliados
+  // 3. Lógica de Afiliados - redirecionar para tela de login dedicada
+  if (pathname.startsWith('/afiliados') && pathname !== '/afiliados/login') {
+    return NextResponse.redirect(new URL('/afiliados/login', request.url));
+  }
+
+  // 4. Lógica de Afiliados (continua após o redirecionamento)
   const response = NextResponse.next();
-  
+
   // Pega o ?ref= da URL (ex: site.com/?ref=JOAO10)
   const ref = request.nextUrl.searchParams.get('ref');
 
@@ -35,7 +40,7 @@ export function proxy(request: NextRequest) {
       });
     }
   }
-  
+
   return response;
 }
 

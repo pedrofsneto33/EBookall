@@ -53,7 +53,13 @@ function LoginForm() {
       setMessage(errorMap[err] ?? "Sessão expirada. Entre novamente.");
       setMessageType("error");
     }
-  }, [searchParams]);
+    
+    // Se redirect for /afiliados, ir para a tela específica de afiliado
+    const redirect = searchParams.get("redirect");
+    if (redirect === "/afiliados") {
+      router.replace("/afiliados/login");
+    }
+  }, [searchParams, router]);
 
   useEffect(() => {
     const checkSession = async () => {
