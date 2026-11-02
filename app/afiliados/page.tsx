@@ -33,7 +33,7 @@ export default function AfiliadosPage() {
       try {
         const res = await fetch("/api/affiliates/me");
         if (res.status === 401) {
-          router.replace("/login?redirect=/afiliados");
+          router.push("/afiliados/login");
           return;
         }
         if (res.status === 404) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -10,18 +10,6 @@ export default function AfiliadosLoginPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    (async () => {
-      const res = await fetch("/api/affiliates/me", { credentials: "include" });
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.code) {
-          router.replace("/afiliados");
-        }
-      }
-    })();
-  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
