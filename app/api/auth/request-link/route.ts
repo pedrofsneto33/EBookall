@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
         <h2 style="color: #1B6B4A;">Acesse sua conta no RecuperaJogo</h2>
         <p>Clique no botão abaixo para entrar. Este link é único e expira em 30 minutos.</p>
         <a href="${link}" style="display: inline-block; padding: 12px 24px; background-color: #1B6B4A; color: white; text-decoration: none; border-radius: 8px; margin-top: 16px; font-weight: bold;">Entrar na minha conta</a>
+        <p style="margin-top: 16px; font-size: 13px; color: #555;"><strong>Importante:</strong> Após clicar no botão, você ficará logado por 30 dias no seu dispositivo. Só será necessário pedir um novo link se você clicar em "Sair" ou após esse período.</p>
         <p style="margin-top: 24px; font-size: 12px; color: #666;">Se você não solicitou este e-mail, pode ignorá-lo. Dica: verifique sua pasta de spam.</p>
       </div>
     `;

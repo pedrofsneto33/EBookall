@@ -105,7 +105,7 @@ function LoginForm() {
         return;
       }
 
-      setMessage("Link enviado! Verifique sua caixa de entrada e o spam.");
+      setMessage("Link enviado! Ao clicar nele, você ficará logado por 30 dias. Verifique seu e-mail e o spam.");
       setMessageType("success");
       return;
     } catch (err) {
@@ -183,6 +183,8 @@ function LoginForm() {
           )}
         </button>
       </form>
+
+      <p className="text-xs text-center mt-2 text-emerald-400/80"><strong>Dica:</strong> Ao clicar no link enviado por e-mail, você ficará logado por 30 dias neste dispositivo.</p>
 
       <p className="text-xs text-center mt-6 text-white/60">
         O gerador só abre depois do pagamento.
