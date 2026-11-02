@@ -35,6 +35,15 @@ const FAQS: FaqItem[] = [
 ];
 
 const DECISOES = [
+  {
+    uf: "TJPI · Teresina",
+    proc: "Caso do Criador (Gerado pelo RecuperaJogo)",
+    t: "A Justiça já reconheceu.",
+    v: "R$ 3.000,00 (Dano moral) + R$ 760,00 (Restituição em dobro)",
+    d: "O usuário tinha autoexclusão ativa. A bet ignorou o sistema e permitiu novos depósitos. A petição gerada pelo RecuperaJogo foi protocolada no Juizado Especial de Teresina/PI, que deu ganho de causa ao apostador, condenando a casa a devolver o valor em dobro e pagar danos morais.",
+    aviso: "Resultado de um caso específico em Teresina/PI. Cada juiz decide com base nas provas. O RecuperaJogo não garante resultados.",
+    badge: "Caso do Criador"
+  },
   { 
     uf: "TJSC · Tubarão", 
     proc: "5005803-28.2025.8.24.0075", 
