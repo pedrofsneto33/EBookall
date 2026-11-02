@@ -1,21 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createMagicToken } from "../../../lib/auth";
-import { rateLimit } from "../../../lib/rate-limit";
+import { dbRateLimit } from "../../../lib/rate-limit-db";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "unknown";
-    if (!rateLimit(`login:${ip}`, 5, 10 * 60 * 1000)) {
-      return NextResponse.json({ error: "Muitas tentativas. Tente novamente mais tarde." }, { status: 429 });
-    }
-
     const body = await req.json().catch(() => ({}));
     const email = String(body.email ?? "").trim().toLowerCase();
-    
-    if (!email || !email.includes("@")) {
+
+    if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: "E-mail inválido" }, { status: 400 });
+    }
+
+    // Rate limit no banco (4 por e-mail a cada 15 min, 250 global por hora)
+    if (!(await dbRateLimit(`login-email:${email}`, 4, 15 * 60 * 1000))) {
+      return NextResponse.json({ error: "Muitas tentativas. Tente novamente em 15 minutos." }, { status: 429 });
+    }
+    if (!(await dbRateLimit("login-global", 250, 60 * 60 * 1000))) {
+      return NextResponse.json({ error: "Muitas tentativas. Tente novamente mais tarde." }, { status: 429 });
     }
 
     const brevoKey = process.env.BREVO_API_KEY?.trim();
@@ -39,15 +42,15 @@ export async function POST(req: NextRequest) {
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
-        "accept": "application/json",
+        accept: "application/json",
         "api-key": brevoKey,
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        sender: { name: "RecuperaJogo", email: "pedrofsneto33@gmail.com" },
-        to: [{ email: email }],
+        sender: { name: "RecuperaJogo", email: process.env.MAIL_FROM_EMAIL?.trim() || "pedrofsneto33@gmail.com" },
+        to: [{ email }],
         subject: "Seu link de acesso ao RecuperaJogo",
-        htmlContent: htmlContent,
+        htmlContent,
       }),
     });
 
@@ -58,7 +61,6 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ ok: true, message: "Link enviado com sucesso!" });
-
   } catch (e) {
     console.error("Erro no request-link:", e);
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });

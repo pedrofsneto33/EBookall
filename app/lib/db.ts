@@ -15,6 +15,11 @@ import path from "node:path";
 const DEFAULT_LOCAL_URL = "file:./data/app.db";
 
 const SCHEMA_STATEMENTS = [
+  `CREATE TABLE IF NOT EXISTS rate_hits (
+     k TEXT NOT NULL,
+     t INTEGER NOT NULL
+   )`,
+  `CREATE INDEX IF NOT EXISTS idx_rate_hits ON rate_hits(k, t)`,
   `CREATE TABLE IF NOT EXISTS users (
      email TEXT PRIMARY KEY,
      status TEXT NOT NULL DEFAULT 'pending',
