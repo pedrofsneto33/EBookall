@@ -8,7 +8,7 @@ import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
 import OfferSection from "@/components/home/OfferSection";
 
-import { ArrowRight, X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, ExternalLink, MapPin, ShieldCheck, ClipboardList, Scale } from "lucide-react";
+import { ArrowRight, X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, ExternalLink, MapPin, ShieldCheck, ClipboardList, Scale, ShieldAlert, RotateCw } from "lucide-react";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "./lib/config";
 
 interface FaqItem {
@@ -239,10 +239,22 @@ export default function LandingPage() {
                 <div className="relative w-full max-w-[320px] md:max-w-[400px] bg-[#0B1018] border border-white/10 rounded-2xl p-5 md:p-8 shadow-2xl">
                   <div className="absolute inset-0 bg-emerald-500/10 blur-2xl rounded-2xl pointer-events-none" />
                   <div className="relative z-10 grid grid-cols-2 gap-3">
-                    <div className="bg-black/40 border border-emerald-500 bg-emerald-500/10 rounded-lg p-3 text-xs text-center" />
-                    <div className="bg-black/40 border border-white/10 rounded-lg p-3 text-xs text-center" />
-                    <div className="bg-black/40 border border-white/10 rounded-lg p-3 text-xs text-center" />
-                    <div className="bg-black/40 border border-white/10 rounded-lg p-3 text-xs text-center" />
+                    <div className="bg-emerald-500/10 border border-emerald-500 rounded-lg p-3 flex flex-col items-center justify-center gap-1.5">
+                      <ShieldAlert size={18} className="text-emerald-400" />
+                      <span className="text-[10px] font-medium text-white text-center leading-tight">Autoexclusão</span>
+                    </div>
+                    <div className="bg-black/40 border border-white/10 rounded-lg p-3 flex flex-col items-center justify-center gap-1.5">
+                      <Wallet size={18} className="text-white/60" />
+                      <span className="text-[10px] font-medium text-white/60 text-center leading-tight">Saldo retido</span>
+                    </div>
+                    <div className="bg-black/40 border border-white/10 rounded-lg p-3 flex flex-col items-center justify-center gap-1.5">
+                      <HeartPulse size={18} className="text-white/60" />
+                      <span className="text-[10px] font-medium text-white/60 text-center leading-tight">Ludopatia</span>
+                    </div>
+                    <div className="bg-black/40 border border-white/10 rounded-lg p-3 flex flex-col items-center justify-center gap-1.5">
+                      <RotateCw size={18} className="text-white/60" />
+                      <span className="text-[10px] font-medium text-white/60 text-center leading-tight">Rollover</span>
+                    </div>
                   </div>
                 </div>
               </div>
