@@ -7,6 +7,7 @@ import {
 import { hasPaidAccess } from "../../../lib/users";
 import { ensureDb } from "../../../lib/db";
 import { isAdmin } from "../../../lib/admin";
+import { emailKey } from "../../../lib/email-key";
 
 export const runtime = "nodejs";
 
@@ -62,13 +63,33 @@ export async function GET(request: NextRequest) {
   const affiliateCode = request.cookies.get("affiliate_ref")?.value;
   if (affiliateCode) {
     try {
-      await db.execute({
-        sql: "UPDATE users SET referred_by = ? WHERE email = ? AND referred_by IS NULL",
-        args: [affiliateCode, user.email],
+      const db = await ensureDb();
+      
+      // 1. Busca o e-mail do afiliado dono desse código
+      const affRes = await db.execute({
+        sql: "SELECT email FROM affiliates WHERE code = ?",
+        args: [affiliateCode],
       });
+      const affiliateEmail = affRes.rows[0]?.email as string | undefined;
+
+      // 2. Só registra se o afiliado existir e NÃO for o próprio cliente (anti-fraude)
+      if (affiliateEmail && emailKey(affiliateEmail) !== emailKey(user.email)) {
+        
+        // 3. INSERT ON CONFLICT: Se o cliente for novo, cria a linha. Se já existir, atualiza apenas se referred_by estiver vazio.
+        await db.execute({
+          sql: `
+            INSERT INTO users (email, status, peticoes_usadas, referred_by) 
+            VALUES (?, 'pending', 0, ?) 
+            ON CONFLICT(email) DO UPDATE SET 
+              referred_by = excluded.referred_by
+            WHERE users.referred_by IS NULL AND users.status != 'active'
+          `,
+          args: [user.email, affiliateCode],
+        });
+      }
     } catch (err) {
-      // Não bloqueia o login se der erro ao salvar o afiliado
-      console.error("Erro ao registrar indicacao de afiliado:", err);
+      // Não bloqueia o login em caso de erro no afiliado
+      console.error("Erro ao registrar afiliado:", err);
     }
   }
 
