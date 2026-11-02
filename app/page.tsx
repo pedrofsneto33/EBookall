@@ -151,6 +151,39 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* QUEM SOMOS / AUTORIDADE */}
+      <section className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 bg-[#05080C]">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <img
+                src="/images/quem-somos.webp"
+                alt="Equipe RecuperaJogo trabalhando"
+                className="w-full h-auto rounded-2xl shadow-2xl border border-white/10"
+              />
+            </div>
+            <div className="space-y-6">
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-white">
+                Quem Somos
+              </h2>
+              <p className="text-lg text-zinc-300 leading-relaxed font-semibold">
+                Feito por quem já passou por isso...
+              </p>
+              <p className="text-zinc-400 leading-relaxed">
+                O RecuperaJogo nasceu da frustração de ver casas de apostas
+                ignorarem autoexclusão e negarem saques. Construímos a ferramenta
+                que a gente gostaria de ter tido quando precisou recuperar seu
+                dinheiro — sem juridiquês, sem depender de advogado para causas de
+                pequeno valor.
+              </p>
+              <div className="pt-4 flex items-center gap-3 text-emerald-400 font-bold">
+                <ShieldCheck size={20} />
+                <span>Centenas de petições geradas com base em decisões reais.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       <CourtWinSection />
 
       {/* PROVA (AGORA COM AS DECISÕES REAIS) */}
@@ -167,9 +200,24 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-            {DECISOES.map((c) => (
-              <div key={c.proc} className="bg-zinc-900 border border-white/10 rounded-2xl p-6 sm:p-8 group flex flex-col justify-between transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(16,185,129,0.3)] hover:border-emerald-500/40">
-                <div>
+            {DECISOES.map((c) => {
+              const isCriador = c.badge === 'Caso do Criador';
+              return (
+                <div
+                  key={c.proc}
+                  className={`bg-zinc-900 border border-white/10 rounded-2xl p-6 sm:p-8 group flex flex-col justify-between transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(16,185,129,0.3)] hover:border-emerald-500/40 ${isCriador ? 'relative overflow-hidden' : ''}`}
+                  style={{
+                    ...(isCriador
+                      ? {
+                          backgroundImage: 'url(/images/success-bg.webp)',
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        }
+                      : {}),
+                  }}
+                >
+                  {isCriador && <div className="absolute inset-0 bg-[#05080C]/80" />}
+                  <div className={isCriador ? 'relative z-10' : ''}>
                   <p className="text-[11px] text-emerald-400/80 mb-3">{c.uf} · proc. {c.proc}</p>
                   <h3 className="text-lg sm:text-xl font-bold text-white mb-2">{c.t}</h3>
                   <p className="text-3xl sm:text-4xl font-black text-emerald-400 mb-2">{c.v}</p>
@@ -181,16 +229,17 @@ export default function LandingPage() {
 
                   <p className="text-sm text-zinc-400 leading-relaxed mb-6">{c.d}</p>
                 </div>
-                <a 
-                  href={c.href} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-white/50 hover:text-white transition-colors mt-auto"
+                <a
+                  href={c.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${isCriador ? 'relative z-10 ' : ''}inline-flex items-center gap-1.5 text-xs font-semibold text-white/50 hover:text-white transition-colors mt-auto`}
                 >
                   Fonte: {c.fonte} <ExternalLink size={12} />
                 </a>
               </div>
-            ))}
+            );
+            })}
           </div>
           
           <p className="text-center text-xs text-white/30 mt-8 max-w-2xl mx-auto">
