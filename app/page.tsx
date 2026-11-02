@@ -8,7 +8,7 @@ import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
 import OfferSection from "@/components/home/OfferSection";
 
-import { X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, ExternalLink, MapPin, ShieldCheck, ClipboardList, Scale } from "lucide-react";
+import { ArrowRight, X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, ExternalLink, MapPin, ShieldCheck, ClipboardList, Scale } from "lucide-react";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "./lib/config";
 
 interface FaqItem {
@@ -202,86 +202,121 @@ export default function LandingPage() {
 
       {/* COMO FUNCIONA */}
       <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: "easeOut" }} viewport={{ once: true, margin: "-100px" }}>
-        <section id="como-funciona" className="py-16 sm:py-20 md:py-24 px-4 sm:px-6">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter text-center mb-10 sm:mb-16">
-          Como funciona
-        </h2>
+        <section id="como-funciona" className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 relative">
+          {/* Linha vertical central luminosa (desktop) */}
+          <div className="hidden md:block absolute left-1/2 top-20 bottom-20 w-px bg-gradient-to-b from-emerald-500/0 via-emerald-500/50 to-emerald-500/0 -translate-x-1/2" />
 
-        <div className="max-w-5xl mx-auto space-y-10 sm:space-y-16">
-          <div className="grid md:grid-cols-2 gap-6 sm:gap-10 items-center">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-4xl sm:text-5xl md:text-6xl font-black text-zinc-800">01</span>
-                <Upload className="text-emerald-400" size={28} />
-              </div>
-              <h3 className="text-2xl sm:text-3xl font-black tracking-tight mb-3">
-                Escolha seu caso
-              </h3>
-              <p className="text-zinc-400 text-base sm:text-lg leading-relaxed">
-                Autoexclusão, ludopatia, saldo retido, rollover e mais. Selecione a tese que se encaixa na sua situação.
+          <div className="mx-auto max-w-5xl px-4 relative">
+            <div className="text-center mb-12 sm:mb-16">
+              <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-white mb-4">
+                Como funciona na prática
+              </h2>
+              <p className="text-zinc-400 text-sm md:text-base max-w-2xl mx-auto">
+                Três passos simples para montar sua petição e recuperar seu dinheiro das bets.
               </p>
             </div>
-            <div className="clip-custom bg-zinc-900 border border-white/10 p-6 sm:p-8 h-auto min-h-[180px] sm:h-48 flex items-center justify-center rounded-2xl">
-              <div className="grid grid-cols-2 gap-3 w-full">
-                {["Autoexclusão", "Ludopatia", "Saldo retido", "Rollover"].map((t) => (
-                  <div
-                    key={t}
-                    className="rounded bg-zinc-800 border border-zinc-700 p-3 text-center text-xs text-zinc-300"
-                  >
-                    {t}
-                  </div>
-                ))}
+            {/* PASSO 1 — Escolha seu caso */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="flex flex-col md:flex-row items-center gap-8 md:gap-16 mb-16"
+            >
+              <div className="w-full md:w-1/2 order-2 md:order-1 text-center md:text-left">
+                <div className="flex items-center gap-3 mb-4 justify-center md:justify-start">
+                  <span className="text-5xl font-black text-emerald-400">01</span>
+                  <Upload className="text-emerald-400" size={28} />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-black tracking-tight text-white mb-4">Escolha seu caso</h3>
+                <p className="text-sm md:text-base text-white/60 leading-relaxed mb-8">
+                  Autoexclusão, ludopatia, saldo retido, rollover e mais. Selecione a tese que se encaixa na sua situação.
+                </p>
+                <button className="inline-flex items-center gap-2 bg-emerald-500 text-[#05080C] font-bold text-sm px-6 py-3 rounded-xl hover:bg-emerald-400 transition-colors shadow-[0_0_20px_rgba(16,185,129,0.4)] justify-center md:justify-start w-full md:w-auto">
+                  Selecionar caso <ArrowRight size={16} />
+                </button>
               </div>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6 sm:gap-10 items-center">
-            <div className="order-2 md:order-1 clip-custom bg-zinc-900 border border-white/10 p-6 sm:p-8 h-auto min-h-[180px] sm:h-48 flex items-center justify-center rounded-2xl">
-              <div className="space-y-3 w-full">
-                <div className="h-3 rounded bg-zinc-800 w-3/4" />
-                <div className="h-3 rounded bg-emerald-500/40 w-1/2" />
-                <div className="h-3 rounded bg-zinc-800 w-2/3" />
-                <div className="mt-4 text-center text-emerald-400 font-bold">
-                  Valor da causa calculado
+              <div className="w-full md:w-1/2 order-1 md:order-2 flex justify-center">
+                <div className="relative w-full max-w-[320px] md:max-w-[400px] bg-[#0B1018] border border-white/10 rounded-2xl p-5 md:p-8 shadow-2xl">
+                  <div className="absolute inset-0 bg-emerald-500/10 blur-2xl rounded-2xl pointer-events-none" />
+                  <div className="relative z-10 grid grid-cols-2 gap-3">
+                    <div className="bg-black/40 border border-emerald-500 bg-emerald-500/10 rounded-lg p-3 text-xs text-center" />
+                    <div className="bg-black/40 border border-white/10 rounded-lg p-3 text-xs text-center" />
+                    <div className="bg-black/40 border border-white/10 rounded-lg p-3 text-xs text-center" />
+                    <div className="bg-black/40 border border-white/10 rounded-lg p-3 text-xs text-center" />
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="order-1 md:order-2">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-4xl sm:text-5xl md:text-6xl font-black text-zinc-800">02</span>
-                <Cpu className="text-emerald-400" size={28} />
-              </div>
-              <h3 className="text-2xl sm:text-3xl font-black tracking-tight mb-3">
-                Preencha a história
-              </h3>
-              <p className="text-zinc-400 text-base sm:text-lg leading-relaxed">
-                O sistema calcula o valor e gera a peça jurídica automaticamente. Sem juridiquês.
-              </p>
-            </div>
-          </div>
+            </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-6 sm:gap-10 items-center">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-4xl sm:text-5xl md:text-6xl font-black text-zinc-800">03</span>
-                <FileCheck2 className="text-emerald-400" size={28} />
+            {/* PASSO 2 — Preencha a história */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="flex flex-col md:flex-row-reverse items-center gap-8 md:gap-16 mb-16"
+            >
+              <div className="w-full md:w-1/2 order-2 md:order-1 text-center md:text-left">
+                <div className="flex items-center gap-3 mb-4 justify-center md:justify-start">
+                  <span className="text-5xl font-black text-emerald-400">02</span>
+                  <Cpu className="text-emerald-400" size={28} />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-black tracking-tight text-white mb-4">Preencha a história</h3>
+                <p className="text-sm md:text-base text-white/60 leading-relaxed mb-8">
+                  O sistema calcula o valor e gera a peça jurídica automaticamente. Sem juridiquês.
+                </p>
+                <button className="inline-flex items-center gap-2 bg-emerald-500 text-[#05080C] font-bold text-sm px-6 py-3 rounded-xl hover:bg-emerald-400 transition-colors shadow-[0_0_20px_rgba(16,185,129,0.4)] justify-center md:justify-start w-full md:w-auto">
+                  Começar agora <ArrowRight size={16} />
+                </button>
               </div>
-              <h3 className="text-2xl sm:text-3xl font-black tracking-tight mb-3">
-                Baixe e protocole
-              </h3>
-              <p className="text-zinc-400 text-base sm:text-lg leading-relaxed">
-                Pelo celular, no site do Juizado. Assine, envie e anexe a petição. Pronto.
-              </p>
-            </div>
-            <div className="clip-custom bg-zinc-900 border border-emerald-500/30 p-6 sm:p-8 h-auto min-h-[180px] sm:h-48 flex items-center justify-center rounded-2xl">
-              <div className="text-center">
-                <FileCheck2 className="text-emerald-400 mx-auto mb-3" size={40} />
-                <p className="text-sm text-zinc-400">petição.pdf</p>
+              <div className="w-full md:w-1/2 order-1 md:order-2 flex justify-center">
+                <div className="relative w-full max-w-[320px] md:max-w-[400px] bg-[#0B1018] border border-white/10 rounded-2xl p-5 md:p-8 shadow-2xl">
+                  <div className="absolute inset-0 bg-emerald-500/10 blur-2xl rounded-2xl pointer-events-none" />
+                  <div className="relative z-10 space-y-3">
+                    <div className="h-10 rounded-lg bg-black/40 border border-white/10" />
+                    <div className="h-10 rounded-lg bg-black/40 border border-white/10" />
+                    <div className="flex items-center gap-2 h-10 rounded-lg bg-black/40 border border-white/10">
+                      <input type="text" className="flex-1 bg-transparent border-none outline-none text-white placeholder-zinc-500 px-3" placeholder="Valor da causa" />
+                      <button className="bg-emerald-500 text-black font-bold text-center py-2 rounded-lg text-sm px-4">Gerar Petição</button>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </motion.div>
+
+            {/* PASSO 3 — Baixe e protocole */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="flex flex-col md:flex-row items-center gap-8 md:gap-16"
+            >
+              <div className="w-full md:w-1/2 order-2 md:order-1 text-center md:text-left">
+                <div className="flex items-center gap-3 mb-4 justify-center md:justify-start">
+                  <span className="text-5xl font-black text-emerald-400">03</span>
+                  <FileCheck2 className="text-emerald-400" size={28} />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-black tracking-tight text-white mb-4">Baixe e protocole</h3>
+                <p className="text-sm md:text-base text-white/60 leading-relaxed mb-8">
+                  Pelo celular, no site do Juizado. Assine, envie e anexe a petição. Pronto.
+                </p>
+                <button className="inline-flex items-center gap-2 bg-emerald-500 text-[#05080C] font-bold text-sm px-6 py-3 rounded-xl hover:bg-emerald-400 transition-colors shadow-[0_0_20px_rgba(16,185,129,0.4)] justify-center md:justify-start w-full md:w-auto">
+                  Baixar PDF <ArrowRight size={16} />
+                </button>
+              </div>
+              <div className="w-full md:w-1/2 order-1 md:order-2 flex justify-center">
+                <div className="relative w-full max-w-[320px] md:max-w-[400px] bg-[#0B1018] border border-white/10 rounded-2xl p-5 md:p-8 shadow-2xl flex flex-col items-center justify-center text-center">
+                  <div className="absolute inset-0 bg-emerald-500/10 blur-2xl rounded-2xl pointer-events-none" />
+                  <div className="relative z-10">
+                    <FileCheck2 size={48} className="text-emerald-400 mx-auto mb-4" />
+                    <button className="bg-emerald-500 text-black font-bold text-center py-2 rounded-lg text-sm px-6 w-full">
+                      Baixar PDF
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      </section>
+        </section>
       </motion.div>
 
       {/* RECURSOS DO GERADOR */}
