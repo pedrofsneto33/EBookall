@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Calculator, Heart, ArrowRight, CheckCircle2, Home, AlertTriangle } from "lucide-react";
-import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "../lib/config";
+import { LIMITE_JUS_POSTULANDI, formatarMoeda, PRECO_INT } from "../lib/config";
 
 const INK = "#0F1C2E";
 const INK_SOFT = "#4A5B6E";
@@ -196,7 +196,7 @@ export default function CalculadoraPage() {
                   {formData.fezAutoexclusao === "sim" ? " · autoexclusão" : ""}. Perfil para Juizado Especial (jus postulandi).
                 </p>
                 <a href="/login" className="block w-full py-3.5 rounded-xl text-white text-[15px] font-semibold" style={{ backgroundColor: SEAL }}>
-                  Gerar minha petição · R$ 137
+                  Gerar minha petição · R$ {PRECO_INT}
                 </a>
                 <p className="text-xs mt-3" style={{ color: INK_SOFT }}>Plano também em {formData.email || "seu e-mail"}.</p>
               </div>

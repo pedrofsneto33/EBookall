@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Scale, ArrowLeft, FileText, AlertTriangle, CreditCard, Ban } from "lucide-react";
+import { PRECO_INT } from "../lib/config";
 
 export default function TermosPage() {
   return (
@@ -56,7 +57,7 @@ export default function TermosPage() {
                 <CreditCard size={20} className="text-emerald-400" /> 3. Pagamento
               </h2>
               <p>
-                O acesso é liberado mediante pagamento de R$ 137 via Pix. Você tem direito de
+                O acesso é liberado mediante pagamento de R$ {PRECO_INT} via Pix. Você tem direito de
                 arrependimento (reembolso) em até 7 dias, conforme o Código de Defesa do Consumidor
                 (CDC).
               </p>

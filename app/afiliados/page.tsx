@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Copy, Check, Users, DollarSign, Link2 } from "lucide-react";
-import { COMISSAO_AFILIADO } from "../lib/config";
+import { COMISSAO_AFILIADO, COMISSAO_AFILIADO_TXT } from "../lib/config";
 
 type Referral = {
   id: string;
@@ -99,7 +99,7 @@ export default function AfiliadosPage() {
           <h1 className="text-3xl font-black mb-2">Programa de Afiliados</h1>
           <p className="text-white/60">
             Ganhe <span className="text-emerald-400 font-semibold">30%</span> de comissão
-            (R$ 41,10) por cada venda realizada através do seu link exclusivo.
+            (R$ {COMISSAO_AFILIADO_TXT}) por cada venda realizada através do seu link exclusivo.
           </p>
         </div>
 
@@ -169,7 +169,7 @@ export default function AfiliadosPage() {
                         {r.status === "pago" ? "Pago" : "Pendente"}
                       </span>
                     </td>
-                    <td className="px-6 py-3 text-emerald-400 font-semibold">R$ 41,10</td>
+                    <td className="px-6 py-3 text-emerald-400 font-semibold">R$ {COMISSAO_AFILIADO_TXT}</td>
                     <td className="px-6 py-3 text-white/60">{r.createdAt}</td>
                   </tr>
                 ))}

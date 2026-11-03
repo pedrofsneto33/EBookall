@@ -2,10 +2,9 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "../lib/config";
+import { LIMITE_JUS_POSTULANDI, formatarMoeda, PRECO_INT } from "../lib/config";
 
 const CNPJ = "55.536.885/0001-30";
-const PRECO = "137";
 
 const ITEMS = [
   {
@@ -18,7 +17,7 @@ const ITEMS = [
   },
   {
     q: "Como pago?",
-    a: `R$ ${PRECO} no PIX direto da Primex (CNPJ ${CNPJ}). Você copia a chave, paga e manda o comprovante no WhatsApp — liberamos o gerador em seguida. Pagamento exclusivamente via Pix.`,
+    a: `R$ ${PRECO_INT} no PIX direto da Primex (CNPJ ${CNPJ}). Você copia a chave, paga e manda o comprovante no WhatsApp — liberamos o gerador em seguida. Pagamento exclusivamente via Pix.`,
   },
   {
     q: "Tem reembolso?",

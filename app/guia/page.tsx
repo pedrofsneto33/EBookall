@@ -1,7 +1,7 @@
 ﻿import Link from "next/link";
 import { BookOpen, ArrowRight, AlertTriangle } from "lucide-react";
 import CapturaLead from "../components/CapturaLead";
-import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "../lib/config";
+import { LIMITE_JUS_POSTULANDI, formatarMoeda, PRECO_INT } from "../lib/config";
 
 export default function GuiaPage() {
   return (
@@ -62,10 +62,10 @@ export default function GuiaPage() {
             <div className="max-w-md mx-auto mb-6 p-4 rounded-xl text-left text-sm bg-white/5 border border-white/10 text-white/70">
               <p className="mb-2"><strong className="text-white">Comparação:</strong></p>
               <p className="mb-1">Advogado por êxito: 20–40% do recuperado.</p>
-              <p>RecuperaJogo: <strong className="text-white">R$ 137</strong> uma vez. Você fica com 100% do que recuperar.</p>
+              <p>RecuperaJogo: <strong className="text-white">R$ {PRECO_INT}</strong> uma vez. Você fica com 100% do que recuperar.</p>
             </div>
             <a href="/login" className="inline-flex items-center gap-2 text-[15px] font-semibold px-8 py-3.5 rounded-xl text-white bg-emerald-500 hover:bg-emerald-600 transition-colors">
-              Gerar minha petição · R$ 137 <ArrowRight size={18} />
+              Gerar minha petição · R$ {PRECO_INT} <ArrowRight size={18} />
             </a>
             <p className="text-xs mt-3 text-white/60">3 petições · Stripe</p>
           </div>

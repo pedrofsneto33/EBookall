@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, DollarSign, HandCoins, Smartphone, Users } from "lucide-react";
 import AffiliateRequestForm from "./AffiliateRequestForm";
+import { COMISSAO_AFILIADO_TXT } from "../lib/config";
 
 export default function SejaAfiliadoPage() {
   const whatsappUrl =
@@ -43,7 +44,7 @@ export default function SejaAfiliadoPage() {
             </h1>
             <p className="text-lg text-white/60 mb-8 max-w-2xl mx-auto leading-relaxed">
               Transforme cada indicação em renda. Ajude pessoas a recuperarem dinheiro
-              perdido em casas de apostas e ganhe <span className="text-white font-semibold">R$ 41,10 por venda</span>.
+              perdido em casas de apostas e ganhe <span className="text-white font-semibold">R$ {COMISSAO_AFILIADO_TXT} por venda</span>.
             </p>
             <div className="max-w-md mx-auto mt-8">
               <AffiliateRequestForm />
@@ -95,7 +96,7 @@ export default function SejaAfiliadoPage() {
                   <h3 className="text-xl font-bold">30% de comissão</h3>
                 </div>
                 <p className="text-white/60 text-sm leading-relaxed">
-                  Ganhe <span className="text-white font-semibold">R$ 41,10 por cada venda</span>
+                  Ganhe <span className="text-white font-semibold">R$ {COMISSAO_AFILIADO_TXT} por cada venda</span>
                   realizada através do seu link de indicação.
                 </p>
               </div>

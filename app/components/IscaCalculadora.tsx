@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { Calculator, Loader2, ArrowRight } from "lucide-react";
+import { PRECO_INT } from "../lib/config";
 
 type Step = "form" | "loading" | "result";
 
@@ -80,7 +81,7 @@ export default function IscaCalculadora() {
           href="/login"
           className="btn-press inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold bg-emerald-500 text-[#05080C] hover:bg-emerald-400"
         >
-          Gerar minha petição · R$ 137
+          Gerar minha petição · R$ {PRECO_INT}
           <ArrowRight size={16} />
         </Link>
       </div>

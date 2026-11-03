@@ -4,6 +4,8 @@ export const alt = "RecuperaJogo - Cobre a bet no Juizado. Sem advogado.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
+import { PRECO_TXT } from "./lib/config";
+
 export default async function Image() {
   return new ImageResponse(
     (
@@ -41,7 +43,7 @@ export default async function Image() {
             Cobre a bet no Juizado. Sem advogado.
           </div>
           <div style={{ fontSize: "32px", color: "#A1A1AA", textAlign: "center", marginTop: "32px", display: "flex" }}>
-            Software de petição por R$ 137.
+            Software de petição por R$ {PRECO_TXT}.
           </div>
         </div>
       </div>

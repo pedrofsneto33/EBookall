@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getSession } from "../../lib/auth";
 import { ensureDb } from "../../lib/db";
 import { isAdmin } from "../../lib/admin";
+import { PRECO_CENTAVOS, COMISSAO_AFILIADO_TXT } from "../../lib/config";
 import ActionButton from "./ActionButton";
 import PayReferralButton from "./PayReferralButton";
 import AffiliateForm from "./AffiliateForm";
@@ -70,7 +71,7 @@ export default async function AdminDashboardPage() {
   const totalUsers = toInt(totalUsersRes.rows[0]?.total);
   const activeUsers = toInt(activeUsersRes.rows[0]?.total);
   const totalPeticoes = toInt(totalPeticoesRes.rows[0]?.total);
-  const receita = activeUsers * 137;
+  const receita = activeUsers * (PRECO_CENTAVOS / 100);
 
   const usersRes = await db.execute(
     "SELECT email, status, peticoes_usadas, created_at FROM users ORDER BY created_at DESC"
@@ -345,7 +346,7 @@ export default async function AdminDashboardPage() {
                     <td className="px-6 py-3 text-white/60">{r.createdAt}</td>
                     <td className="px-6 py-3 text-white">{r.buyerEmail}</td>
                     <td className="px-6 py-3 text-white/80">{r.affiliateCode}</td>
-                    <td className="px-6 py-3 text-emerald-400 font-semibold">R$ 41,10</td>
+                    <td className="px-6 py-3 text-emerald-400 font-semibold">R$ {COMISSAO_AFILIADO_TXT}</td>
                     <td className="px-6 py-3">
                       <PayReferralButton id={r.id} />
                     </td>
@@ -370,7 +371,7 @@ export default async function AdminDashboardPage() {
                   <p className="text-sm text-white/60">E-mail do Cliente</p>
                   <p className="font-bold text-white">{r.buyerEmail}</p>
                   <p className="text-xs text-white/60 mt-1">Código: {r.affiliateCode}</p>
-                  <p className="text-emerald-400 font-semibold mt-2">R$ 41,10</p>
+                  <p className="text-emerald-400 font-semibold mt-2">R$ {COMISSAO_AFILIADO_TXT}</p>
                   <PayReferralButton id={r.id} className="w-full mt-3" />
                 </div>
               ))

@@ -4,14 +4,14 @@ import "./globals.css";
 import { Footer } from "@/components/shared/Footer";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Toaster } from "sonner";
-import { SITE_URL } from "./lib/config";
+import { SITE_URL, PRECO_TXT, PRECO_INT } from "./lib/config";
 
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", weight: ["300", "400", "500", "600", "700"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "RecuperaJogo | Recupere seu dinheiro das bets sem advogado",
-  description: "Gerador de petição para o Juizado Especial em minutos. Sem advogado. Apenas R$ 137.",
+  description: `Gerador de petição para o Juizado Especial em minutos. Sem advogado. Apenas R$ ${PRECO_TXT}.`,
   keywords: ["recuperar dinheiro bet", "bet injusta", "petição juizado especial", "autoexclusão bet", "processo contra bet"],
   authors: [{ name: "RecuperaJogo" }],
   openGraph: {
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: "RecuperaJogo",
     title: "RecuperaJogo | Recupere seu dinheiro das bets",
-    description: "As bets levaram seu dinheiro? Cobre na Justiça sem precisar de advogado. O RecuperaJogo monta sua petição por R$ 137.",
+    description: `As bets levaram seu dinheiro? Cobre na Justiça sem precisar de advogado. O RecuperaJogo monta sua petição por R$ ${PRECO_TXT}.`,
     images: ["/opengraph-image"],
   },
   twitter: {
@@ -54,7 +54,7 @@ const jsonLd = {
       brand: { "@type": "Brand", name: "RecuperaJogo" },
       offers: {
         "@type": "Offer",
-        price: "137.00",
+        price: `${PRECO_INT}.00`,
         priceCurrency: "BRL",
         availability: "https://schema.org/InStock",
         url: SITE_URL,
