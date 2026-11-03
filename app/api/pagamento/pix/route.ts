@@ -35,7 +35,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ qr_code_base64: qrCode, id: result.id });
   } catch (error: any) {
-    console.error("[PIX] Erro ao gerar cobrança:", error?.message || error);
-    return NextResponse.json({ error: "Falha ao gerar cobrança" }, { status: 500 });
+    // Pega a mensagem de erro detalhada do Mercado Pago
+    const detalhe = error?.cause || error?.message || JSON.stringify(error);
+    console.error("[PIX] Erro detalhado:", detalhe);
+    
+    return NextResponse.json(
+      { error: "Falha ao gerar cobrança", detalhe: String(detalhe) }, 
+      { status: 500 }
+    );
   }
 }

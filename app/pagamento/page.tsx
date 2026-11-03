@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { trackEvent } from '../lib/analytics';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Clock } from 'lucide-react';
 
 export default function PaginaPagamento() {
   const router = useRouter();
@@ -52,7 +52,8 @@ export default function PaginaPagamento() {
       if (res.ok && data.qr_code_base64) {
         setQrCode(data.qr_code_base64);
       } else {
-        setError(data.error || 'Falha ao gerar Pix. Tente novamente.');
+        const msgErro = data.detalhe ? `${data.error}: ${data.detalhe}` : (data.error || 'Falha ao gerar Pix.');
+        setError(msgErro);
       }
     } catch (err) {
       setError('Erro ao conectar ao serviço de pagamento.');
@@ -78,9 +79,15 @@ export default function PaginaPagamento() {
   return (
     <div className='min-h-screen flex items-center justify-center px-4 py-6 sm:py-10 bg-[#05080C]'>
       <div className='w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur-lg shadow-xl p-5 sm:p-7 text-center'>
-        <div className='inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold mb-4 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'>
-          <Loader2 size={14} className='animate-spin' /> Gerando seu Pix...
-        </div>
+        {loadingPix ? (
+          <div className='inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold mb-4 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'>
+            <Loader2 size={14} className='animate-spin' /> Gerando seu Pix...
+          </div>
+        ) : qrCode ? (
+          <div className='inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold mb-4 bg-amber-500/10 text-amber-400 border border-amber-500/20'>
+            <Clock size={14} /> Aguardando pagamento
+          </div>
+        ) : null}
 
         <h1 className='text-2xl font-bold mb-1 text-white'>
           Pagar acesso — R$ {137}
@@ -115,10 +122,14 @@ export default function PaginaPagamento() {
 
         <button
           type='button'
-          onClick={() => router.push('/')}
+          onClick={() => {
+            setError('Verificando pagamento...');
+            setTimeout(() => window.location.reload(), 1500);
+          }}
           className='mt-6 w-full inline-flex items-center justify-center gap-2 text-[15px] font-bold px-6 py-4 rounded-xl bg-[#25D366] text-[#06311A] hover:opacity-90 transition-opacity'>
-          <Loader2 size={18} className='animate-spin' /> Verificar acesso
+          Verificar acesso
         </button>
+        <p className='text-xs text-white/40 mt-2'>Após pagar no banco, clique aqui para liberar o acesso.</p>
       </div>
     </div>
   );
