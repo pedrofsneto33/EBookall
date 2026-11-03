@@ -14,6 +14,28 @@ export default function PaginaPagamento() {
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [error, setError] = useState('');
 
+  // O servidor usa o e-mail da sessão: não precisa enviar nada no corpo. loadingPix já começa true.
+  async function fetchPix() {
+    try {
+      const res = await fetch('/api/pagamento/pix', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (res.ok && data.qr_code_base64) {
+        setQrCode(data.qr_code_base64);
+      } else {
+        const msgErro = data.detalhe ? `${data.error}: ${data.detalhe}` : (data.error || 'Falha ao gerar Pix.');
+        setError(msgErro);
+      }
+    } catch (err) {
+      setError('Erro ao conectar ao serviço de pagamento.');
+    } finally {
+      setLoadingPix(false);
+    }
+  }
+
   useEffect(() => {
     fetch('/api/auth/me', { credentials: 'include' })
       .then(async (r) => {
@@ -37,36 +59,6 @@ export default function PaginaPagamento() {
       })
       .catch(() => router.replace('/login?next=/pagamento'));
   }, [router]);
-
-  const fetchPix = async () => {
-    if (!email) return;
-    setLoadingPix(true);
-    try {
-      const res = await fetch('/api/pagamento/pix', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-        credentials: 'include',
-      });
-      const data = await res.json();
-      if (res.ok && data.qr_code_base64) {
-        setQrCode(data.qr_code_base64);
-      } else {
-        const msgErro = data.detalhe ? `${data.error}: ${data.detalhe}` : (data.error || 'Falha ao gerar Pix.');
-        setError(msgErro);
-      }
-    } catch (err) {
-      setError('Erro ao conectar ao serviço de pagamento.');
-    } finally {
-      setLoadingPix(false);
-    }
-  };
-
-  useEffect(() => {
-    if (email) {
-      fetchPix();
-    }
-  }, [email]);
 
   if (loading) {
     return (

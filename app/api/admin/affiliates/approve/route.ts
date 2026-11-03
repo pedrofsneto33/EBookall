@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ ok: true, code });
-  } catch (err: any) {
+  } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Erro";
     if (message.toLowerCase().includes("unique")) {
       if (message.toLowerCase().includes("email")) {

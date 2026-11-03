@@ -52,9 +52,11 @@ export default function CapturaLead({ pdfUrl }: { pdfUrl?: string }) {
       if (!res.ok) throw new Error();
 
       // Evento de conversão no Plausible
-      if (typeof window !== "undefined" && (window as any).plausible) {
-        (window as any).plausible("Lead Capturado - Guia");
-      }
+      const plausible =
+        typeof window !== "undefined"
+          ? (window as unknown as { plausible?: (evento: string) => void }).plausible
+          : undefined;
+      if (plausible) plausible("Lead Capturado - Guia");
 
       setStatus("done");
     } catch {

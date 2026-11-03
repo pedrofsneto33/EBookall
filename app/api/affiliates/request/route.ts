@@ -49,8 +49,8 @@ export async function POST(req: NextRequest) {
         sql: `INSERT INTO affiliate_requests (id, nome, email, whatsapp, status) VALUES (?, ?, ?, ?, 'pendente')`,
         args: [crypto.randomUUID(), nome, email, whatsapp || null],
       });
-    } catch (err: any) {
-      if (err?.message?.toLowerCase().includes("unique")) {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message.toLowerCase().includes("unique")) {
         return NextResponse.json(
           { error: "Este e-mail já possui uma solicitação pendente." },
           { status: 409 }
