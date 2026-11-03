@@ -60,8 +60,6 @@ export default function GuiaPage() {
           <div className="rounded-2xl border p-8 text-center mt-12 bg-white/5 border-emerald-500/30">
             <h2 className="text-2xl font-bold mb-4 text-white">Pronto para montar a petição?</h2>
             <div className="max-w-md mx-auto mb-6 p-4 rounded-xl text-left text-sm bg-white/5 border border-white/10 text-white/70">
-              <p className="mb-2"><strong className="text-white">Comparação:</strong></p>
-              <p className="mb-1">Advogado por êxito: 20–40% do recuperado.</p>
               <p>RecuperaJogo: <strong className="text-white">R$ {PRECO_INT}</strong> uma vez. Você fica com 100% do que recuperar.</p>
             </div>
             <a href="/login" className="inline-flex items-center gap-2 text-[15px] font-semibold px-8 py-3.5 rounded-xl text-white bg-emerald-500 hover:bg-emerald-600 transition-colors">

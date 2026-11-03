@@ -154,7 +154,7 @@ export async function incrementPeticoes(
 export async function grantAccessByEmail(
   email: string,
   reason = "manual",
-  opts: { cortesia?: boolean } = {}
+  opts: { cortesia?: boolean; novaCompra?: boolean } = {}
 ): Promise<void> {
   const target = normalizeEmail(email);
   if (!target) throw new Error("E-mail inválido");
@@ -175,9 +175,14 @@ export async function grantAccessByEmail(
                 THEN users.origem
               ELSE excluded.origem
             END,
+            -- nova compra de quem já gastou as petições: ganha mais um pacote (sem mexer em quem ainda tem saldo)
+            peticoes_usadas = CASE
+              WHEN ? = 1 AND users.peticoes_usadas >= ? THEN 0
+              ELSE users.peticoes_usadas
+            END,
             granted_at = excluded.granted_at,
             updated_at = datetime('now')`,
-    args: [target, reason, origem, new Date().toISOString()],
+    args: [target, reason, origem, new Date().toISOString(), opts.novaCompra ? 1 : 0, MAX_PETICOES],
   });
 
   // Cria a indicação de afiliado automaticamente após ativar o usuário

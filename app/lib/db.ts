@@ -42,6 +42,13 @@ const SCHEMA_STATEMENTS = [
      created_at TEXT NOT NULL DEFAULT (datetime('now'))
    )`,
   `CREATE INDEX IF NOT EXISTS idx_peticoes_email ON peticoes(email)`,
+  `CREATE TABLE IF NOT EXISTS pagamentos (
+     payment_id TEXT PRIMARY KEY,
+     email TEXT NOT NULL,
+     valor REAL,
+     origem TEXT,
+     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+   )`,
   `CREATE TABLE IF NOT EXISTS affiliates (
      id TEXT PRIMARY KEY,
      email TEXT UNIQUE NOT NULL,

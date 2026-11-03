@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === "grant") {
-      await grantAccessByEmail(email, "admin", { cortesia: body.cortesia === true });
+      await grantAccessByEmail(email, "admin", { cortesia: body.cortesia === true, novaCompra: body.novaCompra === true });
     } else if (action === "revoke") {
       const db = await import("../../../lib/db").then((m) => m.ensureDb());
       await db.execute({
