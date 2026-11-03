@@ -12,9 +12,6 @@ const SEAL = "#1B6B4A";
 const AMBER_BG = "#FBF1DD";
 const AMBER_BORDER = "#D8B368";
 
-// Definimos o e-mail do admin diretamente aqui para evitar imports que quebram o Client Component
-const ADMIN_EMAIL = "pedrofsneto33@gmail.com";
-
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -60,8 +57,8 @@ function LoginForm() {
       if (res.ok) {
         const d = await res.json();
         if (d?.status === "active" && d?.user?.email) {
-          // Verifica se é admin fazendo a comparação direta
-          if (d.user.email === ADMIN_EMAIL) {
+          // O servidor diz se é admin (ADMIN_EMAIL), sem e-mail fixo no navegador
+          if (d.isAdmin === true) {
             router.replace("/admin/dashboard");
           } else {
             router.replace("/gerador");
