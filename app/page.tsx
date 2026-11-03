@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Link from "next/link";
+import DemoGerador from "@/components/home/DemoGerador";
 import HeroSection from "@/components/home/HeroSection";
 import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
@@ -97,6 +98,7 @@ export default function LandingPage() {
 
       {/* HERO */}
       <HeroSection />
+      <DemoGerador />
 
       {/* CASOS QUE RESOLVEMOS */}
       <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: "easeOut" }} viewport={{ once: true, margin: "-100px" }}>
