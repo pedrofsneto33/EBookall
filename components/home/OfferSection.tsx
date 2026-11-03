@@ -31,7 +31,7 @@ export default function OfferSection() {
         <div className="mt-10 mx-auto max-w-lg">
           <div className="clip-custom bg-zinc-950 border border-emerald-500/50 p-8 shadow-[0_0_60px_rgba(16,185,129,0.15)]">
             <div className="inline-block bg-emerald-400 text-black font-bold text-xs px-4 py-1.5 mb-6">
-              ACESSO VITALÍCIO
+              3 PETIÇÕES INCLUSAS
             </div>
             <p className="text-6xl font-black text-white">
               R$ {PRECO_INT}
