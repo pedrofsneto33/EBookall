@@ -3,7 +3,8 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { trackEvent } from '../lib/analytics';
-import { Loader2, AlertCircle, Clock } from 'lucide-react';
+import { Loader2, AlertCircle, Clock, Copy, Check } from 'lucide-react';
+import { PRECO_TXT } from '../lib/config';
 
 export default function PaginaPagamento() {
   const router = useRouter();
@@ -13,6 +14,9 @@ export default function PaginaPagamento() {
   const [loadingPix, setLoadingPix] = useState(true);
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [copiaECola, setCopiaECola] = useState('');
+  const [copiado, setCopiado] = useState(false);
+  const [verificando, setVerificando] = useState(false);
 
   // O servidor usa o e-mail da sessão: não precisa enviar nada no corpo. loadingPix já começa true.
   async function fetchPix() {
@@ -25,6 +29,7 @@ export default function PaginaPagamento() {
       const data = await res.json();
       if (res.ok && data.qr_code_base64) {
         setQrCode(data.qr_code_base64);
+        setCopiaECola(data.qr_code ?? '');
       } else {
         const msgErro = data.detalhe ? `${data.error}: ${data.detalhe}` : (data.error || 'Falha ao gerar Pix.');
         setError(msgErro);
@@ -34,6 +39,48 @@ export default function PaginaPagamento() {
     } finally {
       setLoadingPix(false);
     }
+  }
+
+  // Confere se o pagamento já foi confirmado (o webhook libera o acesso).
+  async function conferirAcesso(): Promise<boolean> {
+    try {
+      const r = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!r.ok) return false;
+      const d = await r.json();
+      if (d?.status === 'active') {
+        router.replace('/gerador');
+        return true;
+      }
+    } catch {
+      /* sem rede: tenta de novo no próximo ciclo */
+    }
+    return false;
+  }
+
+  // Enquanto o Pix está na tela, confere a cada 5 segundos.
+  useEffect(() => {
+    if (!qrCode) return;
+    const id = setInterval(() => { void conferirAcesso(); }, 5000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qrCode]);
+
+  async function copiar() {
+    try {
+      await navigator.clipboard.writeText(copiaECola);
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 2000);
+    } catch {
+      setError('Não consegui copiar. Selecione o código e copie manualmente.');
+    }
+  }
+
+  async function verificar() {
+    setVerificando(true);
+    setError('');
+    const ok = await conferirAcesso();
+    if (!ok) setError('Pagamento ainda não confirmado. Pode levar até 1 minuto depois de pagar.');
+    setVerificando(false);
   }
 
   useEffect(() => {
@@ -82,7 +129,7 @@ export default function PaginaPagamento() {
         ) : null}
 
         <h1 className='text-2xl font-bold mb-1 text-white'>
-          Pagar acesso — R$ 1,00 (Teste)
+          Pagar acesso — R$ {PRECO_TXT}
         </h1>
 
         {loadingPix && !qrCode ? (
@@ -91,11 +138,30 @@ export default function PaginaPagamento() {
           qrCode ? (
             <div className='mb-6'>
               <img
-                src={'data:image/jpeg;base64,' + qrCode}
+                src={'data:image/png;base64,' + qrCode}
                 alt='QR Code Pix'
                 className='w-64 h-64 mx-auto rounded-xl'
               />
-              <p className='text-xs text-white/60 mt-2'>Aproxime o celular para ler o QR Code</p>
+              <p className='text-xs text-white/60 mt-2'>Leia o QR Code com o app do seu banco</p>
+              {copiaECola && (
+                <div className='mt-4 text-left'>
+                  <p className='text-xs text-white/60 mb-1'>Ou pague pelo celular com Pix copia e cola:</p>
+                  <textarea
+                    readOnly
+                    value={copiaECola}
+                    rows={3}
+                    onFocus={(e) => e.currentTarget.select()}
+                    className='w-full text-xs rounded-lg bg-black/30 border border-white/10 text-white/80 p-2 break-all'
+                  />
+                  <button
+                    type='button'
+                    onClick={copiar}
+                    className='mt-2 w-full inline-flex items-center justify-center gap-2 text-sm font-semibold px-4 py-3 rounded-xl border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10'
+                  >
+                    {copiado ? <><Check size={16} /> Copiado!</> : <><Copy size={16} /> Copiar código Pix</>}
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div>
@@ -114,14 +180,13 @@ export default function PaginaPagamento() {
 
         <button
           type='button'
-          onClick={() => {
-            setError('Verificando pagamento...');
-            setTimeout(() => window.location.reload(), 1500);
-          }}
+          onClick={verificar}
+          disabled={verificando}
           className='mt-6 w-full inline-flex items-center justify-center gap-2 text-[15px] font-bold px-6 py-4 rounded-xl bg-[#25D366] text-[#06311A] hover:opacity-90 transition-opacity'>
-          Verificar acesso
+          {verificando ? 'Verificando...' : 'Já paguei, verificar acesso'}
         </button>
-        <p className='text-xs text-white/40 mt-2'>Após pagar no banco, clique aqui para liberar o acesso.</p>
+        {qrCode && error && <p className='text-xs text-amber-400 mt-3'>{error}</p>}
+        <p className='text-xs text-white/40 mt-2'>Depois de pagar, o acesso é liberado sozinho em instantes. Esta tela confere a cada 5 segundos.</p>
       </div>
     </div>
   );
