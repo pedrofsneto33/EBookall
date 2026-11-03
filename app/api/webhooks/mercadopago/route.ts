@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PRECO_CENTAVOS } from "../../../lib/config";
 import { grantAccessByEmail } from "../../../lib/users";
+import { ensureDb } from "../../../lib/db";
 import { assinaturaValida } from "../../../lib/server/mp-assinatura";
 
 export const runtime = "nodejs";
@@ -48,7 +49,21 @@ export async function POST(request: NextRequest) {
       Number(payment.transaction_amount) >= valorEsperado &&
       email.includes("@")
     ) {
-      await grantAccessByEmail(email, "mercadopago_pix");
+      // Idempotência: o MP reenvia o mesmo webhook. Só o primeiro registro do payment_id libera/zera.
+      const db = await ensureDb();
+      const novo = await db.execute({
+        sql: "INSERT OR IGNORE INTO pagamentos (payment_id, email, valor, origem) VALUES (?, ?, ?, ?)",
+        args: [String(payment.id ?? dataId), email, Number(payment.transaction_amount), "mercadopago_pix"],
+      });
+      if (novo.rowsAffected === 1) {
+        try {
+          await grantAccessByEmail(email, "mercadopago_pix", { novaCompra: true });
+        } catch (err) {
+          // Falhou ao liberar: desfaz o registro para o reenvio do MP tentar de novo.
+          await db.execute({ sql: "DELETE FROM pagamentos WHERE payment_id = ?", args: [String(payment.id ?? dataId)] });
+          throw err;
+        }
+      }
     } else if (payment.status === "approved") {
       console.error("[webhook MP] pagamento aprovado recusado (valor/forma/email):", {
         id: dataId,
