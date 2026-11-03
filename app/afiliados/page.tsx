@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Copy, Check, Users, DollarSign, Link2 } from "lucide-react";
+import { COMISSAO_AFILIADO } from "../lib/config";
 
 type Referral = {
   id: string;
@@ -69,7 +70,7 @@ export default function AfiliadosPage() {
 
   const pendingTotal = referrals
     .filter((r) => r.status === "pendente")
-    .reduce((sum, r) => sum + (r.comissaoValor ?? 41.1), 0);
+    .reduce((sum, r) => sum + (r.comissaoValor ?? COMISSAO_AFILIADO), 0);
 
   if (loading) {
     return (

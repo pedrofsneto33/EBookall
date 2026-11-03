@@ -11,6 +11,9 @@ export const SITE_URL = (
 export const PRECO_CENTAVOS = 13700;
 export const PRECO_TXT = "137,00";
 export const PRECO_INT = "137";
+/** Comissão de afiliado por venda (30% de R$ 137). */
+export const COMISSAO_AFILIADO = 41.1;
+export const COMISSAO_AFILIADO_TXT = "41,10";
 
 /** Salário mínimo vigente. Atualize via env quando mudar (2026: R$ 1.621). */
 export const SALARIO_MINIMO =

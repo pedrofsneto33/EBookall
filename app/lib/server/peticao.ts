@@ -357,4 +357,6 @@ export function montarPeticao(i: PeticaoInput): PeticaoResultado {
   return { texto: blocos.join("\n\n"), valorCausa: causa.valorCausa, avisos };
 }
 
-export const chaveCaso = (i: PeticaoInput) => `${onlyDigits(i.autor.cpf)}|${onlyDigits(i.reu.cnpj)}`;
+// Chave do caso: CPF + CNPJ + perfil + data do fato. Mudar só o texto/tom não gera chave nova (regeração continua grátis);
+// mudar o tipo de caso ou a data do fato conta como caso novo.
+export const chaveCaso = (i: PeticaoInput) => `${onlyDigits(i.autor.cpf)}|${onlyDigits(i.reu.cnpj)}|${i.perfil}|${i.dataFato}`;

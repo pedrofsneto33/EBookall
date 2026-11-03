@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "../../../../lib/auth";
 import { ensureDb } from "../../../../lib/db";
 import { isAdmin } from "../../../../lib/admin";
+import { COMISSAO_AFILIADO } from "../../../../lib/config";
 
 export const runtime = "nodejs";
 
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
                 WHERE u.email = referrals.buyer_email 
                 AND u.status = 'active'
               )`,
-      args: [41.10, id],
+      args: [COMISSAO_AFILIADO, id],
     });
 
     // Se nenhuma linha foi alterada, a indicação não existe, já foi paga ou o comprador não está ativo
