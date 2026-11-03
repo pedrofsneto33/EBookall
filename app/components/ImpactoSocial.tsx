@@ -40,7 +40,7 @@ export default function ImpactoSocial() {
             O tamanho do problema
           </p>
           <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4 max-w-3xl leading-[1.1]">
-            As bets não são só "diversão".
+            As bets não são só &ldquo;diversão&rdquo;.
             <span className="text-gradient-warn"> São um sistema.</span>
           </h2>
           <p className="text-white/55 mb-12 max-w-2xl text-base md:text-lg leading-relaxed">

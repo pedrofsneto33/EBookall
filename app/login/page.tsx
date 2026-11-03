@@ -3,6 +3,7 @@
 import { useState, Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AlertCircle, CheckCircle2, ArrowRight, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 const INK = "#0F1C2E";
 const INK_SOFT = "#4A5B6E";
@@ -35,25 +36,20 @@ function LoginForm() {
     pageSubtitle = "Entre para gerar sua petição.";
   }
 
+  const errorMap: Record<string, string> = {
+    link_used: "Este link já foi utilizado. Solicite um novo.",
+    link_expirado: "Este link expirou. Solicite um novo.",
+    link_invalido: "Link inválido.",
+    rate_limited: "Muitas tentativas. Tente novamente em 10 minutos.",
+    erro_interno: "Erro interno. Tente novamente.",
+  };
+  const erroDaUrl = searchParams.get("error");
+  const mensagemInicial = erroDaUrl ? (errorMap[erroDaUrl] ?? "Sessão expirada. Entre novamente.") : "";
+
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState<"success" | "error">("success");
-
-  useEffect(() => {
-    const err = searchParams.get("error");
-    if (err) {
-      const errorMap: Record<string, string> = {
-        link_used: "Este link já foi utilizado. Solicite um novo.",
-        link_expirado: "Este link expirou. Solicite um novo.",
-        link_invalido: "Link inválido.",
-        rate_limited: "Muitas tentativas. Tente novamente em 10 minutos.",
-        erro_interno: "Erro interno. Tente novamente.",
-      };
-      setMessage(errorMap[err] ?? "Sessão expirada. Entre novamente.");
-      setMessageType("error");
-    }
-  }, [searchParams, router]);
+  const [message, setMessage] = useState(mensagemInicial);
+  const [messageType, setMessageType] = useState<"success" | "error">(mensagemInicial ? "error" : "success");
 
   useEffect(() => {
     const checkSession = async () => {
@@ -199,9 +195,9 @@ function LoginForm() {
       </p>
 
       <div className="text-center mt-4">
-        <a href="/" className="text-xs hover:underline text-white/60">
+        <Link href="/" className="text-xs hover:underline text-white/60">
           ← Voltar ao início
-        </a>
+        </Link>
       </div>
     </div>
   );
