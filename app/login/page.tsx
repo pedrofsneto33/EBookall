@@ -76,7 +76,9 @@ function LoginForm() {
             credentials: "include",
           });
           if (affRes.ok) {
-            } else {
+            // Já logado e é afiliado: vai direto pro painel (antes ficava preso na tela de login).
+            router.replace("/afiliados");
+          } else {
             router.replace("/pagamento");
           }
         }
