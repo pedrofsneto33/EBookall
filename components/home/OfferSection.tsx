@@ -7,16 +7,13 @@ import { PRECO_INT } from "../../app/lib/config";
 const BENEFITS = [
   "Até 3 petições geradas",
   "Checklist de Provas Automatizado",
-  "Acesso após confirmação do Pix",
+  "Acesso liberado assim que o Pix é confirmado",
   "Suporte via WhatsApp",
 ];
 
 export default function OfferSection() {
   return (
-    <section id="preco" className="relative bg-[#05080C] py-24 px-6 overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <div className="w-[700px] h-[700px] bg-emerald-500/15 blur-[160px] rounded-full" />
-      </div>
+    <section id="preco" className="relative bg-[var(--tinta)] py-24 px-6 overflow-hidden">
 
       <div className="relative mx-auto max-w-3xl text-center">
         <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-white">
@@ -30,7 +27,7 @@ export default function OfferSection() {
 
         <div className="mt-10 mx-auto max-w-lg">
           <div className="clip-custom bg-zinc-950 border border-emerald-500/50 p-8 shadow-[0_0_60px_rgba(16,185,129,0.15)]">
-            <div className="inline-block bg-emerald-400 text-black font-bold text-xs px-4 py-1.5 mb-6">
+            <div className="inline-block border border-[var(--papel)]/40 text-[var(--papel)] font-medium text-xs px-3 py-1 rounded mb-6">
               3 PETIÇÕES INCLUSAS
             </div>
             <p className="text-6xl font-black text-white">
@@ -56,7 +53,7 @@ export default function OfferSection() {
                   href="https://recuperajogo.vercel.app/login"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="clip-custom block text-center bg-emerald-400 hover:bg-emerald-300 text-black font-black text-lg px-6 py-4 transition-colors"
+                  className="clip-custom block text-center bg-[var(--papel)] hover:bg-white text-[var(--tinta)] font-semibold text-lg px-6 py-4 transition-colors"
                 >
                   Gerar Minha Petição Agora
                 </a>
@@ -68,7 +65,7 @@ export default function OfferSection() {
 
             <div className="mt-4 flex items-center justify-center gap-2 text-xs text-zinc-500">
               <ShieldCheck size={14} className="text-emerald-400" />
-              Pagamento via Pix (CNPJ). O acesso é liberado após o envio do comprovante.
+              Pagamento por Pix. O acesso é liberado quando o pagamento é confirmado.
             </div>
           </div>
         </div>

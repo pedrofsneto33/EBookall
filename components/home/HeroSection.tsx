@@ -1,138 +1,90 @@
-"use client";
-
-import { motion } from "motion/react";
 import Link from "next/link";
-import { ArrowRight, ShieldCheck } from "lucide-react";
-import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "@/app/lib/config";
+import { LIMITE_JUS_POSTULANDI, PRECO_INT, formatarMoeda } from "@/app/lib/config";
 
-const WORDS = ["CHEGA", "DE", "PERDER", "PARA", "O", "TIGRINHO."];
+/**
+ * Herói: a própria petição, impressa. O visitante vê o que vai receber antes de ler qualquer promessa.
+ * O texto do documento é um modelo (campos entre colchetes), não um caso real.
+ */
+function FolhaDaPeticao() {
+  return (
+    <figure className="relative mx-auto w-full max-w-[520px]" aria-label="Exemplo de petição inicial gerada pelo RecuperaJogo">
+      <div className="relative rounded-[3px] bg-[var(--papel)] text-[#1b1f27] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.65)] px-7 sm:px-10 py-8 sm:py-10 font-[family-name:var(--font-serif)] text-[13px] sm:text-[14px] leading-[1.75] lg:-rotate-[1.2deg]">
+        <p className="text-center text-[11px] sm:text-xs font-semibold tracking-wide leading-snug">
+          EXCELENTÍSSIMO(A) SENHOR(A) DOUTOR(A) JUIZ(A) DE DIREITO DO JUIZADO ESPECIAL CÍVEL DA COMARCA DE [CIDADE]
+        </p>
+
+        <p className="mt-5 text-left hyphens-auto">
+          <strong>[NOME DO AUTOR]</strong>, brasileiro(a), inscrito(a) no CPF nº [CPF], vem propor
+          <strong> AÇÃO DE REPARAÇÃO DE DANOS </strong>
+          em face de <strong>[NOME DA EMPRESA]</strong>, CNPJ nº [CNPJ], pelos fatos e fundamentos a seguir.
+        </p>
+
+        <p className="mt-4 font-semibold">I. Dos fatos</p>
+        <p className="text-left hyphens-auto">
+          O autor ativou a autoexclusão na plataforma da requerida em [data].{" "}
+          <span className="marca">Mesmo assim, a plataforma continuou aceitando depósitos</span> e apostas,
+          que somam R$ [valor].
+        </p>
+
+        <p className="mt-4 font-semibold">II. Do direito</p>
+        <p className="text-left hyphens-auto">
+          Aplica-se o Código de Defesa do Consumidor.{" "}
+          <span className="marca marca-2">A requerida descumpriu o dever de segurança e de jogo responsável</span>,
+          o que gera o dever de reparar.
+        </p>
+
+        <p className="mt-4 font-semibold">III. Dos pedidos</p>
+        <p className="text-left hyphens-auto">
+          a) a restituição dos valores depositados após a autoexclusão; b) a indenização por dano moral.
+        </p>
+
+        <div
+          className="absolute -bottom-3 -right-2 sm:-right-5 rotate-[-8deg] border-[3px] border-[var(--carimbo)] text-[var(--carimbo)] rounded-[4px] px-3 py-1 font-[family-name:var(--font-sans)] font-semibold text-xs sm:text-sm leading-tight text-center bg-[var(--papel)]/90"
+          aria-hidden="true"
+        >
+          Modelo
+          <br />
+          <span className="text-[10px] sm:text-[11px] font-medium">preenchido com os seus dados</span>
+        </div>
+      </div>
+    </figure>
+  );
+}
 
 export default function HeroSection() {
   return (
-    <section className="relative pt-28 pb-20 px-6 overflow-hidden bg-[#05080C]">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.08]"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-        }}
-      />
-      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] bg-emerald-500/15 blur-[180px] rounded-full" />
-      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 blur-[120px] rounded-full motion-safe:animate-pulse" />
-
-      {/* Tigre de fundo */}
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.12]"
-      >
-        <svg width="600" height="600" viewBox="0 0 200 200" fill="none" aria-hidden="true">
-          <circle cx="100" cy="100" r="90" stroke="#34D399" strokeWidth="2" />
-          <circle cx="100" cy="100" r="70" stroke="#34D399" strokeWidth="1" />
-          <path
-            d="M100 30 L120 60 L100 50 L80 60 Z"
-            fill="#34D399"
-          />
-          <path
-            d="M60 80 Q100 120 140 80"
-            stroke="#34D399"
-            strokeWidth="3"
-            fill="none"
-          />
-          <circle cx="85" cy="95" r="6" fill="#34D399" />
-          <circle cx="115" cy="95" r="6" fill="#34D399" />
-        </svg>
-      </motion.div>
-
-      <div className="relative mx-auto max-w-7xl grid lg:grid-cols-2 gap-12 items-center">
+    <section className="px-5 sm:px-6 pt-28 sm:pt-32 pb-20 sm:pb-28 bg-[var(--tinta)]">
+      <div className="mx-auto max-w-6xl grid lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-16 items-center">
         <div>
-          <motion.h1
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 200, damping: 10 }}
-            className="text-4xl md:text-6xl lg:text-8xl font-black tracking-tighter leading-[0.9]"
-          >
-            {WORDS.map((w, i) => (
-              <motion.span
-                key={w + i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08, type: "spring", stiffness: 200 }}
-                className={
-                  w === "PERDER"
-                    ? "text-emerald-400"
-                    : w === "TIGRINHO."
-                    ? "text-red-500"
-                    : "text-white"
-                }
-                style={{ display: "inline-block", marginRight: "0.25em" }}
-              >
-                {w}
-              </motion.span>
-            ))}
-          </motion.h1>
+          <h1 className="text-[2.1rem] sm:text-5xl lg:text-[3.4rem] leading-[1.08] text-[var(--papel)]">
+            Perdeu dinheiro para uma bet? Peça de volta no Juizado Especial, sem advogado.
+          </h1>
 
-          <p className="mt-6 text-xl text-zinc-400 max-w-xl leading-relaxed">
-            A gente coloca a Justiça no seu lado. Recupere seu dinheiro das bets
-            sem sair de casa.
+          <p className="mt-6 text-lg sm:text-xl leading-relaxed text-[var(--papel)]/75 max-w-xl">
+            Você responde às perguntas sobre o seu caso e o RecuperaJogo monta a petição inicial, pronta para
+            protocolar. Vale para causas de até {formatarMoeda(LIMITE_JUS_POSTULANDI)}.
           </p>
 
-          <div className="mt-10 flex flex-wrap gap-4">
-            <motion.div whileHover={{ scale: 1.05 }}>
-              <Link
-                href="/login"
-                className="clip-custom inline-flex items-center gap-2 bg-emerald-400 hover:bg-emerald-300 text-black font-black text-lg px-8 py-4 transition-colors shadow-[0_0_40px_rgba(16,185,129,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#05080C]"
-              >
-                Recuperar Meu Dinheiro
-                <ArrowRight size={20} />
-              </Link>
-            </motion.div>
-            <a
-              href="#como-funciona"
-              className="clip-custom inline-flex items-center gap-2 border border-white/20 text-white font-bold text-lg px-8 py-4 hover:bg-white/5 transition-colors"
+          <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
+            <Link
+              href="/login"
+              className="clip-custom inline-flex items-center bg-[var(--papel)] hover:bg-white text-[var(--tinta)] font-semibold text-base sm:text-lg px-7 py-3.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--papel)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--tinta)]"
             >
-              Como Funciona
+              Montar minha petição
+            </Link>
+            <a href="#como-funciona" className="text-[var(--papel)]/80 hover:text-[var(--papel)] underline underline-offset-4 decoration-[var(--linha)] text-base">
+              Ver como funciona
             </a>
           </div>
 
-          <div className="mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 text-emerald-400 font-semibold text-sm md:text-base">
-            <ShieldCheck size={20} />
-            <span>Você pode cobrar até {formatarMoeda(LIMITE_JUS_POSTULANDI)} sem precisar de advogado.</span>
-          </div>
+          <p className="mt-6 text-sm text-[var(--papel)]/60 max-w-md leading-relaxed">
+            R$ {PRECO_INT}, uma vez, com direito a 3 petições. Você assina e protocola em seu próprio nome: o
+            RecuperaJogo não é escritório de advocacia.
+          </p>
         </div>
 
-        <div className="hidden lg:flex flex-col items-center justify-center relative">
-          {/* Brilho verde atrás do celular */}
-          <div className="absolute inset-0 bg-emerald-500/20 blur-[100px] rounded-full" />
-
-          <div className="relative z-10 border-[8px] border-zinc-800 rounded-[2.5rem] w-[300px] h-[600px] bg-[#0B1018] shadow-2xl overflow-hidden">
-            {/* Barra de status fake */}
-            <div className="flex justify-between items-center px-6 py-4 text-zinc-400 text-xs font-mono">
-              <div className="flex gap-1">
-                <div className="w-1 h-4 rounded bg-zinc-500" />
-                <div className="w-1 h-3 rounded bg-zinc-500" />
-                <div className="w-1 h-2 rounded bg-zinc-500" />
-              </div>
-              <span className="text-center flex-1">9:41</span>
-              <div className="flex gap-1">
-                <div className="w-4 h-1 rounded-full bg-zinc-500" />
-                <div className="w-2 h-3 rounded bg-zinc-500" />
-                <div className="w-3 h-2 rounded bg-zinc-500" />
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-              <h3 className="text-2xl font-black text-white mb-2">RecuperaJogo</h3>
-              <p className="text-zinc-300 text-sm mb-8">Sua petição está pronta!</p>
-              <button className="bg-emerald-500 text-[#05080C] font-bold py-3 px-8 rounded-xl hover:bg-emerald-400 transition-colors shadow-[0_0_20px_rgba(16,185,129,0.5)]">
-                Baixar PDF
-              </button>
-            </div>
-          </div>
-        </div>
+        <FolhaDaPeticao />
       </div>
-
     </section>
   );
 }

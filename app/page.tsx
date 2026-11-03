@@ -8,7 +8,7 @@ import CourtWinSection from "@/components/home/CourtWinSection";
 import Navbar from "@/components/shared/Navbar";
 import OfferSection from "@/components/home/OfferSection";
 
-import { ArrowRight, X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, FileText, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, ExternalLink, MapPin, ShieldCheck, ClipboardList, Scale, ShieldAlert, RotateCw } from "lucide-react";
+import { ArrowRight, X, Upload, Cpu, FileCheck2, HelpCircle, MessageCircle, HeartPulse, Lock, Wallet, Trophy, UserX, Repeat, Megaphone, ExternalLink, MapPin, ShieldCheck, ClipboardList, Scale, ShieldAlert, RotateCw } from "lucide-react";
 import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "./lib/config";
 
 interface FaqItem {
@@ -23,7 +23,7 @@ const FAQS: FaqItem[] = [
   },
   {
     q: 'O pagamento libera na hora?',
-    a: 'O pagamento é via Pix no CNPJ. Você envia o comprovante no WhatsApp e nossa equipe libera seu acesso manualmente em até 10 minutos.',
+    a: 'O pagamento é por Pix e o acesso é liberado assim que ele é confirmado, em geral em instantes. Se passar de 10 minutos, chame a gente no WhatsApp.',
   },
   {
     q: 'Serve para qualquer casa de apostas?',
@@ -91,7 +91,7 @@ export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-[#05080C] text-white overflow-x-hidden">
+    <div className="landing min-h-screen bg-[var(--tinta)] text-white overflow-x-hidden">
       <Navbar />
 
 
@@ -403,45 +403,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="bg-[#030712] border-t border-white/10 py-10 sm:py-12 px-4 sm:px-6">
-        <div className="mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span className="font-black tracking-tight text-lg">Recupera<span className="text-emerald-400">Jogo</span></span>
-            </div>
-            <p className="text-sm text-white/60">Primex Sistemas LTDA - CNPJ: 55.536.885/0001-30</p>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm font-bold text-white mb-2">Links Úteis</p>
-            <Link href="/politica-privacidade" className="block text-sm text-white/60 hover:text-white">Política de Privacidade</Link>
-            <Link href="/termos" className="block text-sm text-white/60 hover:text-white">Termos de Uso</Link>
-            <Link href="/seja-afiliado" className="block text-sm text-white/60 hover:text-white">Seja um Afiliado</Link>
-            <Link href="/apoio" className="flex items-center gap-2 text-sm text-white/60 hover:text-emerald-400 transition-colors"><HeartPulse size={14} /> Apoio Emocional e Jogo Responsável</Link>
-            <Link href="/login" className="block text-sm text-white/60 hover:text-white">Área do Cliente</Link>
-          </div>
-          <div>
-            <p className="text-sm font-bold text-white mb-2">Suporte</p>
-            <p className="text-sm text-white/60 mb-2">Dúvidas? Fale conosco</p>
-            <a href="https://wa.me/5586988117925" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300">
-              <MessageCircle size={16} /> WhatsApp
-            </a>
-          </div>
-        </div>
-        <div className="mx-auto max-w-7xl mt-8 pt-6 border-t border-white/5 text-center text-zinc-600 text-xs sm:text-sm">
-          © 2026 RecuperaJogo. Todos os direitos reservados. Software de automação de documentos. Não somos um escritório de advocacia.
-        </div>
-      </footer>
-
-      <Link href="/login" className="md:hidden fixed bottom-4 right-4 z-50 bg-emerald-500 text-[#05080C] font-bold rounded-full p-4 shadow-[0_0_20px_rgba(16,185,129,0.5)]">
-        <FileText size={24} />
-      </Link>
-
       <a
         href="https://wa.me/5586988117925?text=Ol%C3%A1!%20Tenho%20uma%20d%C3%BAvida%20sobre%20o%20RecuperaJogo."
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50 bg-[#25D366] text-white rounded-full p-4 shadow-lg hover:scale-105 transition-transform"
+        className="fixed bottom-5 md:bottom-6 right-4 md:right-6 z-50 bg-[#25D366] text-white rounded-full p-4 shadow-lg hover:scale-105 transition-transform"
         aria-label="WhatsApp"
       >
         <MessageCircle size={24} />

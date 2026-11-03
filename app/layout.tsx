@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
+import "@fontsource-variable/literata/opsz.css";
+import "@fontsource/ibm-plex-sans/400.css";
+import "@fontsource/ibm-plex-sans/500.css";
+import "@fontsource/ibm-plex-sans/600.css";
 import "./globals.css";
 import { Footer } from "@/components/shared/Footer";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Toaster } from "sonner";
 import { SITE_URL, PRECO_TXT, PRECO_INT } from "./lib/config";
-
-const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", weight: ["300", "400", "500", "600", "700"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -67,7 +68,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={spaceGrotesk.variable}>
+    <html lang="pt-BR">
       <head>
         <script
           type="application/ld+json"

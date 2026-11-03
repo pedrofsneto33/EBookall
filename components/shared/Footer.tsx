@@ -1,73 +1,45 @@
+import Link from "next/link";
+import { EMPRESA, WHATSAPP, WHATSAPP_TXT } from "@/app/lib/config";
+
 export function Footer() {
   return (
-    <footer className="bg-[#020305] border-t border-zinc-800 py-12 px-6">
-      <div className="mx-auto max-w-6xl grid md:grid-cols-3 gap-10">
+    <footer className="bg-[#070E18] border-t border-white/10 py-12 px-6">
+      <div className="mx-auto max-w-6xl grid md:grid-cols-[1.2fr_1fr_1.4fr] gap-10">
         <div>
-          <p className="font-black text-xl tracking-tighter">RecuperaJogo</p>
-          <p className="mt-2 text-sm text-zinc-400">
-            Tecnologia jurídica para quem foi lesado.
+          <p className="font-[family-name:var(--font-serif)] font-semibold text-xl text-[var(--papel)]">RecuperaJogo</p>
+          <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
+            Software que monta petições para o Juizado Especial Cível.
           </p>
-          <div className="mt-4">
-<a
-              href="https://instagram.com"
-              aria-label="Instagram"
-              className="inline-flex text-zinc-400 hover:text-emerald-400 transition-colors"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-              </svg>
-            </a>
-          </div>
+          <p className="mt-4 text-sm text-zinc-500">
+            {EMPRESA.nome} · CNPJ {EMPRESA.cnpj}
+          </p>
         </div>
 
-        <div>
-          <h3 className="font-bold text-sm uppercase tracking-wider text-zinc-300">
-            Institucional
-          </h3>
-          <ul className="mt-3 space-y-2 text-sm text-zinc-400">
+        <nav aria-label="Rodapé" className="text-sm">
+          <ul className="space-y-2 text-zinc-400">
+            <li><Link href="/termos" className="hover:text-white transition-colors">Termos de uso</Link></li>
+            <li><Link href="/politica-privacidade" className="hover:text-white transition-colors">Política de privacidade</Link></li>
+            <li><Link href="/seja-afiliado" className="hover:text-white transition-colors">Seja afiliado</Link></li>
+            <li><Link href="/apoio" className="hover:text-white transition-colors">Apoio emocional e jogo responsável</Link></li>
+            <li><Link href="/login" className="hover:text-white transition-colors">Área do cliente</Link></li>
             <li>
-              <a href="/termos" className="hover:text-white transition-colors">
-                Termos de Uso
-              </a>
-            </li>
-            <li>
-              <a href="/politica-privacidade" className="hover:text-white transition-colors">
-                Política de Privacidade
-              </a>
-            </li>
-            <li>
-              <a href="https://wa.me/5586988117925" className="hover:text-white transition-colors">
-                Contato
+              <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                WhatsApp {WHATSAPP_TXT}
               </a>
             </li>
           </ul>
-        </div>
+        </nav>
 
-        <div>
-          <p className="text-xs text-zinc-500 leading-relaxed">
-            O RecuperaJogo é uma plataforma de tecnologia que fornece
-            ferramentas de automação documental. Não somos um escritório de
-            advocacia e não prestamos consultoria jurídica. O uso do sistema não
-            dispensa a análise de um profissional habilitado pela OAB.
-          </p>
-        </div>
+        <p className="text-xs text-zinc-500 leading-relaxed">
+          O RecuperaJogo é uma plataforma de tecnologia que fornece ferramentas de automação documental. Não somos
+          um escritório de advocacia e não prestamos consultoria jurídica. O uso do sistema não dispensa a análise
+          de um profissional habilitado pela OAB.
+        </p>
       </div>
 
-      <div className="mt-10 text-center text-xs text-zinc-600">
-        © 2026 RecuperaJogo. Todos os direitos reservados. CNPJ: 55.536.885/0001-30
-      </div>
+      <p className="mt-10 text-center text-xs text-zinc-600">
+        © 2026 RecuperaJogo. Todos os direitos reservados.
+      </p>
     </footer>
   );
 }

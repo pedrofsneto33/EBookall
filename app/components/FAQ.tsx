@@ -17,7 +17,7 @@ const ITEMS = [
   },
   {
     q: "Como pago?",
-    a: `R$ ${PRECO_INT} no PIX direto da Primex (CNPJ ${CNPJ}). Você copia a chave, paga e manda o comprovante no WhatsApp — liberamos o gerador em seguida. Pagamento exclusivamente via Pix.`,
+    a: `R$ ${PRECO_INT}, por Pix. Depois que o pagamento é confirmado, o gerador é liberado na sua conta, em geral em instantes. Se passar de 10 minutos, chame no WhatsApp. Pagamento exclusivamente via Pix.`,
   },
   {
     q: "Tem reembolso?",
