@@ -1,47 +1,47 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { MercadoPagoConfig, Payment } from "mercadopago";
+import { getSession } from "../../../lib/auth";
+import { dbRateLimit } from "../../../lib/rate-limit-db";
+import { PRECO_CENTAVOS, SITE_URL } from "../../../lib/config";
 
-export async function POST(request: NextRequest) {
+export const runtime = "nodejs";
+
+export async function POST() {
   try {
-    const { email } = await request.json();
+    // O e-mail vem SEMPRE da sessão (nunca do corpo): o acesso é liberado para quem pagou logado.
+    const session = await getSession();
+    if (!session) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
 
-    if (!email || typeof email !== "string" || !email.includes("@")) {
-      return NextResponse.json({ error: "E-mail inválido" }, { status: 400 });
-    }
+    const email = session.email.toLowerCase().trim();
+
+    if (!(await dbRateLimit(`pix:${email}`, 5, 10 * 60 * 1000)))
+      return NextResponse.json({ error: "Muitas tentativas. Aguarde alguns minutos." }, { status: 429 });
 
     const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
     if (!accessToken) {
       console.error("[PIX] MERCADOPAGO_ACCESS_TOKEN não configurado");
-      return NextResponse.json({ error: "Configuração de pagamento ausente" }, { status: 500 });
+      return NextResponse.json({ error: "Pagamento indisponível no momento." }, { status: 500 });
     }
 
-    const client = new MercadoPagoConfig({ accessToken });
-    const payment = new Payment(client);
-
+    const payment = new Payment(new MercadoPagoConfig({ accessToken }));
     const result = await payment.create({
       body: {
-        transaction_amount: 1.00,
-        description: "Acesso ao gerador de petições",
+        transaction_amount: PRECO_CENTAVOS / 100,
+        description: "Acesso ao gerador de petições RecuperaJogo",
         payment_method_id: "pix",
         payer: { email },
-        notification_url: "https://recuperajogo.vercel.app/api/webhooks/mercadopago",
+        external_reference: email,
+        notification_url: `${SITE_URL}/api/webhooks/mercadopago`,
       },
     });
 
     const qrCode = result.point_of_interaction?.transaction_data?.qr_code_base64;
-    if (!qrCode) {
-      throw new Error("QR Code não retornado pelo Mercado Pago");
-    }
+    const copiaECola = result.point_of_interaction?.transaction_data?.qr_code;
+    if (!qrCode) throw new Error("QR Code não retornado pelo Mercado Pago");
 
-    return NextResponse.json({ qr_code_base64: qrCode, id: result.id });
-  } catch (error: any) {
-    // Pega a mensagem de erro detalhada do Mercado Pago
-    const detalhe = error?.cause || error?.message || JSON.stringify(error);
-    console.error("[PIX] Erro detalhado:", detalhe);
-    
-    return NextResponse.json(
-      { error: "Falha ao gerar cobrança", detalhe: String(detalhe) }, 
-      { status: 500 }
-    );
+    return NextResponse.json({ qr_code_base64: qrCode, qr_code: copiaECola, id: result.id });
+  } catch (error) {
+    console.error("[PIX] erro:", error);
+    return NextResponse.json({ error: "Falha ao gerar cobrança. Tente novamente." }, { status: 500 });
   }
 }
