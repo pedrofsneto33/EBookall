@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     const result = await payment.create({
       body: {
-        transaction_amount: 137.00,
+        transaction_amount: 1.00,
         description: "Acesso ao gerador de petições",
         payment_method_id: "pix",
         payer: { email },

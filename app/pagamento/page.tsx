@@ -90,7 +90,7 @@ export default function PaginaPagamento() {
         ) : null}
 
         <h1 className='text-2xl font-bold mb-1 text-white'>
-          Pagar acesso — R$ {137}
+          Pagar acesso — R$ 1,00 (Teste)
         </h1>
 
         {loadingPix && !qrCode ? (
