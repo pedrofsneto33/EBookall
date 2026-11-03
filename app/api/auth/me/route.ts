@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "../../../lib/auth";
+import { isAdmin } from "../../../lib/admin";
 import { getPeticoesUsadas, hasPaidAccess, MAX_PETICOES } from "../../../lib/users";
 
 export const runtime = "nodejs";
@@ -23,6 +24,7 @@ export async function GET() {
     return NextResponse.json({
       user: { id: session.id, email: session.email },
       email: session.email,
+      isAdmin: isAdmin(session.email),
       status,
       peticoes_usadas,
       peticoes_max: MAX_PETICOES,
