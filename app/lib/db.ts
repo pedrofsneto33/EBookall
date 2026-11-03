@@ -104,6 +104,16 @@ async function createClientAndInit(): Promise<Client> {
   for (const stmt of SCHEMA_STATEMENTS) {
     await client.execute(stmt);
   }
+
+  // Migração: adicionar coluna origem na tabela users (se ainda não existir)
+  try {
+    await client.execute(
+      `ALTER TABLE users ADD COLUMN origem TEXT DEFAULT 'pix'`
+    );
+  } catch {
+    // Coluna já existe — ignorar (SQLite não suporta IF NOT EXISTS em ALTER TABLE)
+  }
+
   return client;
 }
 

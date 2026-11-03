@@ -65,11 +65,13 @@ export default async function AdminDashboardPage() {
   const db = await ensureDb();
 
   const totalUsersRes = await db.execute("SELECT COUNT(*) AS total FROM users");
-  const activeUsersRes = await db.execute("SELECT COUNT(*) AS total FROM users WHERE status = 'active'");
+  const activeUsersRes = await db.execute("SELECT COUNT(*) AS total FROM users WHERE status = 'active' AND origem != 'cortesia'");
+  const cortesiaUsersRes = await db.execute("SELECT COUNT(*) AS total FROM users WHERE status = 'active' AND origem = 'cortesia'");
   const totalPeticoesRes = await db.execute("SELECT COUNT(*) AS total FROM peticoes");
 
   const totalUsers = toInt(totalUsersRes.rows[0]?.total);
   const activeUsers = toInt(activeUsersRes.rows[0]?.total);
+  const cortesiaUsers = toInt(cortesiaUsersRes.rows[0]?.total);
   const totalPeticoes = toInt(totalPeticoesRes.rows[0]?.total);
   const receita = activeUsers * (PRECO_CENTAVOS / 100);
 
@@ -142,6 +144,7 @@ export default async function AdminDashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <KpiCard label="Clientes Totais" value={String(totalUsers)} />
           <KpiCard label="Ativos" value={String(activeUsers)} />
+          <KpiCard label="Cortesias" value={String(cortesiaUsers)} />
           <KpiCard label="Petições Geradas" value={String(totalPeticoes)} />
           <KpiCard label="Receita Estimada" value={`R$ ${receita.toLocaleString("pt-BR")}`} />
         </div>

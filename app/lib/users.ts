@@ -157,14 +157,15 @@ export async function grantAccessByEmail(email: string, reason = "manual"): Prom
 
   const db = await ensureDb();
   await db.execute({
-    sql: `INSERT INTO users (email, status, peticoes_usadas, grant_reason, granted_at, updated_at)
-          VALUES (?, 'active', 0, ?, ?, datetime('now'))
+    sql: `INSERT INTO users (email, status, peticoes_usadas, grant_reason, origem, granted_at, updated_at)
+          VALUES (?, 'active', 0, ?, ?, ?, datetime('now'))
           ON CONFLICT(email) DO UPDATE SET
             status = 'active',
             grant_reason = excluded.grant_reason,
+            origem = excluded.origem,
             granted_at = excluded.granted_at,
             updated_at = datetime('now')`,
-    args: [target, reason, new Date().toISOString()],
+    args: [target, reason, reason, new Date().toISOString()],
   });
 
   // Cria a indicação de afiliado automaticamente após ativar o usuário
