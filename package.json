@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "node --import tsx --test"
+    "test": "node --import tsx --test app/__tests__/*.test.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.18.0",

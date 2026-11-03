@@ -1,44 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHmac, timingSafeEqual } from "node:crypto";
 import { PRECO_CENTAVOS } from "../../../lib/config";
 import { grantAccessByEmail } from "../../../lib/users";
+import { assinaturaValida } from "../../../lib/server/mp-assinatura";
 
 export const runtime = "nodejs";
-
-/**
- * Valida o x-signature do Mercado Pago.
- * Formato do header: "ts=<timestamp>,v1=<hmac>".
- * Manifest assinado: "id:<data.id>;request-id:<x-request-id>;ts:<ts>;"
- */
-function assinaturaValida(req: NextRequest, dataId: string): boolean {
-  const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
-  if (!secret) return false;
-
-  const header = req.headers.get("x-signature") || "";
-  const requestId = req.headers.get("x-request-id") || "";
-  let ts = "";
-  let v1 = "";
-  for (const parte of header.split(",")) {
-    const [k, v] = parte.split("=").map((s) => s.trim());
-    if (k === "ts") ts = v;
-    if (k === "v1") v1 = v;
-  }
-  if (!ts || !v1 || !dataId) return false;
-
-  const manifest = `id:${dataId.toLowerCase()};request-id:${requestId};ts:${ts};`;
-  const esperado = createHmac("sha256", secret).update(manifest).digest("hex");
-
-  const a = Buffer.from(esperado, "utf8");
-  const b = Buffer.from(v1, "utf8");
-  return a.length === b.length && timingSafeEqual(a, b);
-}
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => ({}));
     const dataId = String(request.nextUrl.searchParams.get("data.id") || body?.data?.id || "");
 
-    if (!assinaturaValida(request, dataId)) {
+    if (!assinaturaValida(
+      process.env.MERCADOPAGO_WEBHOOK_SECRET || "",
+      request.headers.get("x-signature") || "",
+      request.headers.get("x-request-id") || "",
+      dataId
+    )) {
       return NextResponse.json({ error: "assinatura invalida" }, { status: 401 });
     }
 

@@ -151,9 +151,16 @@ export async function incrementPeticoes(
 }
 
 /** Libera acesso (PIX manual, admin ou webhook). Idempotente por e-mail. */
-export async function grantAccessByEmail(email: string, reason = "manual"): Promise<void> {
+export async function grantAccessByEmail(
+  email: string,
+  reason = "manual",
+  opts: { cortesia?: boolean } = {}
+): Promise<void> {
   const target = normalizeEmail(email);
   if (!target) throw new Error("E-mail inválido");
+
+  // origem: 'cortesia' só quando pedido explicitamente; liberação manual do admin = Pix confirmado na mão.
+  const origem = opts.cortesia ? "cortesia" : reason === "mercadopago_pix" ? "mercadopago_pix" : "pix";
 
   const db = await ensureDb();
   await db.execute({
@@ -162,10 +169,15 @@ export async function grantAccessByEmail(email: string, reason = "manual"): Prom
           ON CONFLICT(email) DO UPDATE SET
             status = 'active',
             grant_reason = excluded.grant_reason,
-            origem = excluded.origem,
+            -- reliberar como cortesia nunca rebaixa quem já é cliente pagante ativo
+            origem = CASE
+              WHEN excluded.origem = 'cortesia' AND users.status = 'active' AND users.origem != 'cortesia'
+                THEN users.origem
+              ELSE excluded.origem
+            END,
             granted_at = excluded.granted_at,
             updated_at = datetime('now')`,
-    args: [target, reason, reason, new Date().toISOString()],
+    args: [target, reason, origem, new Date().toISOString()],
   });
 
   // Cria a indicação de afiliado automaticamente após ativar o usuário

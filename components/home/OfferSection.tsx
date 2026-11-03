@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { CheckCircle2, ShieldCheck } from "lucide-react";
+import { PRECO_INT } from "../../app/lib/config";
 
 const BENEFITS = [
   "Até 3 petições geradas",
@@ -33,7 +34,7 @@ export default function OfferSection() {
               ACESSO VITALÍCIO
             </div>
             <p className="text-6xl font-black text-white">
-              R$ 137
+              R$ {PRECO_INT}
             </p>
             <p className="text-zinc-400 mt-1">à vista</p>
 
