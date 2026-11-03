@@ -1,6 +1,13 @@
 @import "tailwindcss";
 
 :root {
+  --tinta: #0B1624;
+  --papel: #F4F5F1;
+  --carimbo: #B42318;
+  --verde-fechado: #1B8A5F;
+  --linha: rgba(244, 245, 241, 0.14);
+  --font-serif: "Literata Variable", Georgia, "Times New Roman", serif;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --background: #05080C;
   --foreground: #f8fafc;
   --emerald: #10b981;
@@ -10,7 +17,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -177,8 +184,38 @@ html {
   }
 }
 
+/* Botões da landing: cantos simples (antes eram recortados). */
 .clip-custom {
-  clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+  border-radius: 6px;
+}
+
+/* Landing: títulos em serifa de leitura, em caixa normal. */
+.landing h1,
+.landing h2 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  text-transform: none;
+}
+
+/* Grifo do marca-texto no documento do herói: entra uma vez, só com movimento permitido. */
+.marca {
+  background: linear-gradient(#F6E27A, #F6E27A) no-repeat left center / 100% 88%;
+  color: #1a1a1a;
+  padding: 0 0.12em;
+  margin: 0 -0.12em;
+  border-radius: 2px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .marca {
+    background-size: 0% 88%;
+    animation: grifar 900ms 900ms ease-out forwards;
+  }
+  .marca + .marca,
+  .marca-2 { animation-delay: 1500ms; }
+}
+@keyframes grifar {
+  to { background-size: 100% 88%; }
 }
 
 @layer base {
