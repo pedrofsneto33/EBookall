@@ -72,7 +72,7 @@ export default function HeroSection() {
             >
               Montar minha petição
             </Link>
-            <a href="#como-funciona" className="text-[var(--papel)]/80 hover:text-[var(--papel)] underline underline-offset-4 decoration-[var(--linha)] text-base">
+            <a href="#demo" className="text-[var(--papel)]/80 hover:text-[var(--papel)] underline underline-offset-4 decoration-[var(--linha)] text-base">
               Ver como funciona
             </a>
           </div>

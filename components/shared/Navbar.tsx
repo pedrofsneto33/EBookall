@@ -13,7 +13,7 @@ export default function Navbar() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-6 text-sm text-zinc-300">
-          <a href="#como-funciona" className="hover:text-white transition-colors">
+          <a href="#demo" className="hover:text-white transition-colors">
             Como funciona
           </a>
           <a href="#prova" className="hover:text-white transition-colors">
