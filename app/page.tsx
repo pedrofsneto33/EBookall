@@ -37,15 +37,6 @@ const FAQS: FaqItem[] = [
 ];
 
 const DECISOES = [
-  {
-    uf: "TJPI · Teresina",
-    proc: "Caso do Criador (Gerado pelo RecuperaJogo)",
-    t: "A Justiça já reconheceu.",
-    v: "R$ 3.000,00 (Dano moral) + R$ 760,00 (Restituição em dobro)",
-    d: "O usuário tinha autoexclusão ativa. A bet ignorou o sistema e permitiu novos depósitos. A petição gerada pelo RecuperaJogo foi protocolada no Juizado Especial de Teresina/PI, que deu ganho de causa ao apostador, condenando a casa a devolver o valor em dobro e pagar danos morais.",
-    aviso: "Resultado de um caso específico em Teresina/PI. Cada juiz decide com base nas provas. O RecuperaJogo não garante resultados.",
-    badge: "Caso do Criador"
-  },
   { 
     uf: "TJSC · Tubarão", 
     proc: "5005803-28.2025.8.24.0075", 
@@ -74,7 +65,7 @@ const DECISOES = [
     d: "Casa continuou aceitando depósitos e apostas depois da autoexclusão. Fundamento: dever de segurança e de jogo responsável.", 
     href: "https://bnldata.com.br/justica-condena-plataforma-de-apostas-por-falha-em-autoexclusao-de-apostador/", 
     fonte: "BNL Data", 
-    aviso: "Acima de R$ 32.420: precisa de advogado ou Defensoria." 
+    aviso: "Sentença de 1º grau, sujeita a recurso. Acima de R$ 32.420: precisa de advogado ou Defensoria." 
   },
   { 
     uf: "TJDFT · Turma Recursal", 
