@@ -5,7 +5,7 @@ import { LIMITE_JUS_POSTULANDI, formatarMoeda } from "@/app/lib/config";
 const OUTRAS = [
   { orgao: "TJSC · Tubarão", tema: "Falha no dever de jogo responsável", valor: "R$ 217 mil + R$ 10 mil de dano moral", proc: "5005803-28.2025.8.24.0075", fonte: "Migalhas", href: "https://www.migalhas.com.br/quentes/448239/casa-de-aposta-devolve-r-217-mil-por-violar-dever-de-jogo-responsavel", acima: true },
   { orgao: "TJDFT · 3ª Turma Cível", tema: "Ludopatia: apostas anuladas", valor: "R$ 180.963,12 + R$ 4 mil de dano moral", proc: "0707743-74.2025.8.07.0001", fonte: "TJDFT", href: "https://www.tjdft.jus.br/institucional/imprensa/noticias/2026/junho/tjdft-anula-apostas-e-condena-plataforma-a-devolver-r-180-mil-a-consumidor-com-ludopatia", acima: true },
-  { orgao: "TJSP", tema: "Autoexclusão não bloqueada no prazo", valor: "R$ 81 mil", proc: "4000778-26.2026.8.26.0248", fonte: "BNL Data", href: "https://bnldata.com.br/justica-condena-plataforma-de-apostas-por-falha-em-autoexclusao-de-apostador/", acima: true },
+  { orgao: "TJSP", tema: "Autoexclusão não bloqueada no prazo", valor: "R$ 81 mil", proc: "4000778-26.2026.8.26.0248", fonte: "BNL Data", href: "https://bnldata.com.br/justica-condena-plataforma-de-apostas-por-falha-em-autoexclusao-de-apostador/", acima: true, primeiroGrau: true },
   { orgao: "TJDFT · Turma Recursal", tema: "Conta suspensa sem provar irregularidade", valor: "R$ 7 mil", proc: "0759332-60.2025.8.07.0016", fonte: "TJDFT", href: "https://www.tjdft.jus.br/institucional/imprensa/noticias/2026/abril/tjdft-mantem-condenacao-de-plataforma-de-apostas-que-suspendeu-conta-sem-comprovar-irregularidade", acima: false },
 ];
 
@@ -47,7 +47,7 @@ export default function Provas() {
                   <p className="text-sm text-[var(--papel)]/55">{d.orgao} · proc. {d.proc}</p>
                   <p className="mt-1 font-semibold text-[var(--papel)] leading-snug">{d.tema}: {d.valor}</p>
                   <p className="mt-1 text-sm text-[var(--papel)]/60">
-                    {d.acima ? `Acima de ${formatarMoeda(LIMITE_JUS_POSTULANDI)}, exige advogado ou Defensoria.` : `Cabe sem advogado (até ${formatarMoeda(LIMITE_JUS_POSTULANDI)}).`}{" "}
+                    {d.primeiroGrau ? "Sentença de 1º grau, sujeita a recurso. " : ""}{d.acima ? `Acima de ${formatarMoeda(LIMITE_JUS_POSTULANDI)}, exige advogado ou Defensoria.` : `Cabe sem advogado (até ${formatarMoeda(LIMITE_JUS_POSTULANDI)}).`}{" "}
                     <a href={d.href} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-[var(--papel)]">
                       Fonte: {d.fonte}
                     </a>
